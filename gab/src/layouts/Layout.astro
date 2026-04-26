@@ -1,0 +1,368 @@
+---
+import { ClientRouter } from 'astro:transitions';
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+		<title>Gabriel John Solomon</title>
+
+		<ClientRouter/>
+
+		<style>
+		:root {
+			--bg-color: #050505;
+			--bg-gradient: radial-gradient(circle at 50% 0%, #171717 0%, #050505 70%);
+			--dock-bg: rgba(10, 10, 10, 0.89);
+			--dock-border: rgba(255, 255, 255, 0.08);
+			--text-color: #ffffff;
+			--icon-hover-bg: rgba(255, 255, 255, 0.08);
+			--divider-bg: rgba(255, 255, 255, 0.15);
+			--dock-icon-hover:#4c00ff;
+		}
+		body.light-mode {
+			--bg-color: #f4f4f5;
+			--bg-gradient: radial-gradient(circle at 50% 0%, #ffffff 0%, #e4e4e7 70%);
+			--dock-bg: rgba(255, 255, 255, 0.89);
+			--dock-border: rgba(0, 0, 0, 0.1);
+			--text-color: #09090b;
+			--icon-hover-bg: rgba(0, 0, 0, 0.05);
+			--divider-bg: rgba(0, 0, 0, 0.15);
+			--dock-icon-hover:#ff7400;
+		}
+		body {
+			background-color: var(--bg-color);
+			background-image: var(--bg-gradient);
+			color: var(--text-color);
+			transition: background-color 0.3s ease, color 0.3s ease, background-image 0.3s ease;
+			height: 100vh;
+			margin: 0;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: flex-start;
+			padding-top: 15px;
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+		}
+		#star-canvas {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		z-index: -1;
+		pointer-events: none; 
+		}
+		body.light-mode #star-canvas {
+			filter: invert(1);
+			opacity: 0.6;
+		}
+
+		@pixel{
+			font-family:'poke';
+			src: url('../src/assets/font/Orange Kid.otf') format('opentype');
+			font-weight: normal;
+  			font-style: normal;
+		}
+		.glass-dock {
+            display: flex;
+			align-items: center;
+			background: var(--dock-bg);
+			backdrop-filter: blur(2px);
+			border: 1px solid var(--dock-border);
+			border-radius: 9999px;
+			padding: 8px 16px; 
+			gap: 10px;
+			transition: all 0.3s ease;
+        }
+		.glass-dock:hover{
+			box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+			transform: scale(1.02);
+		}
+		body.light-mode .glass-dock:hover {
+			box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+		}
+		.dock-brand {
+            display: flex;
+			align-items: center;
+			gap: 12px;
+			color: var(--text-color);
+			text-decoration: none;
+			font-weight: 600;
+			font-size: 15px;
+			padding-right: 8px;
+			padding-left: 4px;
+        }
+		.dock-brand svg {
+            width: 24px;
+            height: 24px;
+        }
+		.divider {
+            width: 1px;
+			height: 20px;
+			background-color: var(--divider-bg);
+			margin: 0 8px;
+        }
+		.dock-icon {
+            display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 40px;
+			height: 40px;
+			color: var(--text-color);
+			text-decoration: none;
+			border-radius: 14px;
+			transition: all 0.2s ease;
+			background: transparent;
+			border: none;
+			cursor: pointer;
+			position: relative;
+        }
+
+        .dock-icon:hover {
+            background-color: var(--icon-hover-bg);
+            color: var(--dock-icon-hover);
+        }
+		.dock-icon.active {
+            background-color: var(--icon-hover-bg);
+			color: var(--dock-icon-hover);
+        }
+
+        .dock-icon svg {
+            width: 20px;
+            height: 20px;
+            stroke-width: 2;
+			position: absolute;
+			transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease, color 0.3s ease;
+        }
+		.moon-icon {
+			opacity: 1;
+			transform: rotate(0deg) scale(1);
+		}
+		.moon-icon:hover{
+			color: #ff7400;
+		}
+		#theme-toggle:hover .moon-icon {
+    		color: #ff7400;
+		}
+		.sun-icon {
+			opacity: 0;
+    		transform: rotate(-90deg) scale(0);
+		}
+
+		#theme-toggle:hover .sun-icon {
+    		color: #4c00ff;
+		}
+
+		body.light-mode .moon-icon {
+			opacity: 0;
+    		transform: rotate(90deg) scale(0);
+		}
+		body.light-mode .sun-icon {
+			opacity: 1;
+    		transform: rotate(0deg) scale(1);
+		}
+		@keyframes slideDownFader {
+			0% {
+				opacity: 0;
+				transform: translateY(-30px);
+			}
+			100% {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		@keyframes slideUpFader {
+			0% {
+				opacity: 0;
+				transform: translateY(30px);
+			}
+			100% {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+		.dock-container {
+			animation: slideDownFader 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+		}
+		.content-container {
+			animation: slideUpFader 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+			opacity: 0; /* Keeps content hidden until the animation starts */
+			animation-delay: 0.15s; /* Slight delay so it follows the dock */
+			width: 100%;
+		}
+		.alien-light {
+			display: none;
+		}
+		.alien-dark {
+			display: block;
+		}
+
+		body.light-mode .alien-light {
+			display: block;
+		}
+		body.light-mode .alien-dark {
+			display: none;
+		}
+		
+		</style>
+	</head>
+	<body>
+	<canvas id="star-canvas" transition:persist></canvas>
+		<div class='dock-container'>
+		<nav class="glass-dock" transition:persist>
+			<a href="/" class="dock-brand">
+				<img src='../src/assets/alien.gif' width="50" class="alien-dark" alt="Alien Logo">
+    
+    			<img src='../src/assets/alien-black.gif' width="50" class="alien-light" alt="Alien Logo">
+				<span>Gabriel John Solomon</span>
+				
+			</a>
+			<div class="divider"></div>
+			<a href="/" aria-label="Home" class="dock-icon">
+            	<svg xmlns="http://www.w3.org/2000/svg" 
+				viewBox="0 0 24 24" 
+				fill="none" 
+				stroke="currentColor" 
+				stroke-linecap="round" 
+				stroke-linejoin="round">
+				<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8">
+				</path>
+				<path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z">
+				</path>
+				</svg>
+        	</a>
+			<a href="/projects" aria-label="Projects" class="dock-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg>
+        	</a>
+			<a href="/exp" aria-label="Experience" class="dock-icon">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+					<path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+				</svg>
+			</a>
+			<a href="/resume" aria-label="Resume" class="dock-icon">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+					<rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect>
+					<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+					<path d="M12 11h4"></path>
+					<path d="M12 16h4"></path>
+					<path d="M8 11h.01"></path>
+					<path d="M8 16h.01"></path>
+				</svg>
+			</a>
+			<div class='divider'> </div>
+			<button id="theme-toggle" aria-label="Toggle theme" class="dock-icon">
+				<svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path>
+				</svg>
+				
+				<svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+					<circle cx="12" cy="12" r="5"></circle>
+					<line x1="12" y1="1" x2="12" y2="3"></line>
+					<line x1="12" y1="21" x2="12" y2="23"></line>
+					<line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+					<line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+					<line x1="1" y1="12" x2="3" y2="12"></line>
+					<line x1="21" y1="12" x2="23" y2="12"></line>
+					<line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+					<line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+				</svg>
+            </button>
+		
+		</div>
+		<main class='content-container'>
+		<slot />
+		</main>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+		<script>
+		document.addEventListener('astro:page-load', () => {
+			const currentPath = window.location.pathname;
+			// Star canvas
+			const canvas = document.getElementById('star-canvas');
+			const ctx = canvas.getContext('2d');
+			if (canvas && !window.starCanvasInitialized) {
+            	window.starCanvasInitialized = true;
+				canvas.width = window.innerWidth;
+				canvas.height = window.innerHeight;
+
+				const stars = [];
+				const numStars = 1000;
+				for (let i = 0; i < numStars; i++) {
+				stars.push({
+					x: Math.random() * canvas.width,
+					y: Math.random() * canvas.height,
+					radius: Math.random() * 1.5,
+					speed: Math.random() * 0.5 + 0.1 
+					});
+				}
+				function animate() {
+					requestAnimationFrame(animate);
+
+					ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+					ctx.fillStyle = "rgb(255, 255, 255)";
+
+				stars.forEach(star => {
+					ctx.beginPath();
+					ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+					ctx.fill();
+					star.y -= star.speed;
+					if (star.y < 0) {
+					star.y = canvas.height;
+					star.x = Math.random() * canvas.width;
+					}
+				});
+			}
+			animate();
+			window.addEventListener('resize', () => {
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+			});
+		}
+
+		//theme toggling
+		if (localStorage.getItem('theme') === 'light') {
+        document.body.classList.add('light-mode');
+    	}
+
+		const themeButton = document.getElementById('theme-toggle');
+		if (themeButton && !window.themeToggleInitialized) {
+            window.themeToggleInitialized = true;
+            
+            themeButton.addEventListener('click', () => {
+                document.body.classList.toggle('light-mode');
+
+                if (document.body.classList.contains('light-mode')) {
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    localStorage.setItem('theme', 'dark');
+                }
+            });
+        }
+    });
+
+		document.addEventListener('astro:after-swap', () => {
+			if (localStorage.getItem('theme') === 'light') {
+				document.body.classList.add('light-mode');
+			}
+		});
+		
+	</script>
+	</body>
+</html>
+
+<style>
+	html,
+	body {
+		margin: 0;
+		width: 100%;
+		height: 100%;
+	}
+</style>
