@@ -1,31 +1,165 @@
 ---
 import Layout from '../layouts/Layout.astro';
 ---
-
-<Layout>
-<div class="home-content">
-        <h1>Hello, I'm Gabriel! </h1>
-        <p>Welcome to my portfolio.</p>
-    </div>
-</Layout>
 <style>
-    /* These styles will only apply to this specific index page */
-    .home-content {
+	.home-content {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        margin-top: 15vh; 
+        margin-top: 20px; 
         text-align: center;
     }
-
     h1 {
         font-size: 3rem;
         margin-bottom: 10px;
     }
-
     p {
         font-size: 1.2rem;
         opacity: 0.8;
     }
+.glass-div {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+	  filter:blur(9px)
+      backdrop-filter: blur(12px);
+  	  -webkit-backdrop-filter: blur(12px);
+      padding: 20px;
+      text-align: center;
+	  justify-content: flex-start;
+      border: 1px solid var(--dock-border);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+	  max-width: 600px;
+      width: 90%;
+	  color: var(--text-color)
+	  transition: all 0.3s ease;
+    }
+	.buu{
+		background:var(--name-bg);
+		font-size: 1rem;
+      	margin: 0;
+		padding:10px;
+		color:var(--opp);
+		font-weight: bold;
+		font-family:pop-thin;
+		border-radius: 16px;
+		transition: all 0.3s ease;
+	}
+	.buu:hover{
+		color:var(--pp);
+		transform: scale(1.02);
+
+	}
+	.greeting {
+      font-size: 1.2rem;
+      margin-bottom: 5px;
+      opacity: 0.9;
+    }
+
+    .name {
+		font-size: 2.5rem;
+		font-family:ret;
+		margin: 0;
+		margin-bottom: 10px;
+		letter-spacing: 2px;
+		background: var(--gre);
+		background-size: 400% 400%;
+		-webkit-background-clip: text;
+		background-clip: text;
+		-webkit-text-fill-color: transparent;
+		color: transparent;
+		animation: gradient 15s ease infinite;
+	}
+	  
+	@keyframes gradient {
+		0% {
+			background-position: 0% 50%;
+		}
+		50% {
+			background-position: 100% 50%;
+		}
+		100% {
+			background-position: 0% 50%;
+		}
+	}	
+
+    .subtitle {
+      font-size: 1rem;
+      opacity: 0.7;
+      margin: 0;
+    }
+	.flex-container {
+	display: flex;
+	gap: 20px;
+	align-items:center;
+	}
+	.dino-light-img {
+		display: none;
+	}
+	.dino-dark-img {
+		display: inline-block;
+		margin-right: 8px;
+	}
+	body.light-mode .dino-light-img {
+		display: inline-block;
+		margin-right: 10px;
+		
+	}
+	body.light-mode .dino-dark-img {
+		display: none;
+	}
+	.dino-light-img, .dino-dark-img {
+    transform: scale(1.5); 
+    transform-origin: center; 
+    margin-right: 5px; 
+	}
 </style>
+	
+<Layout>
+<br>
+<div class="home-content">
+		<div class="glass-div">
+        <h2 class="greeting"> Hello!! I'm</h1>
+		<div class="name"><h1 class="name">Gabriel John Solomon</h1>
+		</div>
+		<div class="home-content">
+			<div class="flex-container">
+			<div class="buu" style="font-size:10px">
+			
+			<a href="assets/RESUME.pdf" download="RESUME.pdf" style="text-decoration: none;font-size:15px;margin:0" class="buu" >
+			<img src="../src/assets/dino-white.gif" width="24" class="dino-light-img">
+			<img src="../src/assets/dino-black.gif" width="24" class="dino-dark-img">
+			Check out my resume 
+			</a>
+			
+			</div>
+			<div class="buu"style='padding-left:20px'>
+			<a href="/projects" style="text-decoration: none; font-size:15px" class="buu">
+			Look at my projects 
+			<svg 
+			xmlns="http://www.w3.org/2000/svg" 
+			width="24" 
+			height="24" 
+			viewBox="0 0 24 24" 
+			fill="none" 
+			stroke="currentColor" 
+			stroke-width="2" 
+			stroke-linecap="round" 
+			stroke-linejoin="round"
+			>
+			<path d="m9 18 6-6-6-6"/>
+			</svg>
+			</p>
+			</div>
+		</div>
+		</div>
+</div>
+<div class="flex-container">
+<div style="margin-top: 400px; ">
+<img src='../src/assets/me.jpg' width="250">
+</div>
+<div>
+hi
+</div>
+</div>
+</Layout>

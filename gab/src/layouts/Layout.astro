@@ -24,6 +24,10 @@ import { ClientRouter } from 'astro:transitions';
 			--icon-hover-bg: rgba(255, 255, 255, 0.08);
 			--divider-bg: rgba(255, 255, 255, 0.15);
 			--dock-icon-hover:#4c00ff;
+			--name-bg:rgb(255, 255, 255);
+			--opp:rgb(0, 0, 0);
+			--pp:#4c00ff;
+			--gre:linear-gradient(-45deg, #3100e3, #ffffff, #0565e3);
 		}
 		body.light-mode {
 			--bg-color: #f4f4f5;
@@ -34,13 +38,18 @@ import { ClientRouter } from 'astro:transitions';
 			--icon-hover-bg: rgba(0, 0, 0, 0.05);
 			--divider-bg: rgba(0, 0, 0, 0.15);
 			--dock-icon-hover:#ff7400;
+			--name-bg:rgb(0, 0, 0);
+			--opp:rgb(255, 255, 255);
+			--pp:#0565e3;
+			--gre:linear-gradient(-45deg, #3100e3, #000000, #0565e3);
 		}
 		body {
 			background-color: var(--bg-color);
 			background-image: var(--bg-gradient);
 			color: var(--text-color);
 			transition: background-color 0.3s ease, color 0.3s ease, background-image 0.3s ease;
-			height: 100vh;
+			min-height: 100vh;
+			background-attachment: fixed;
 			margin: 0;
 			display: flex;
 			flex-direction: column;
@@ -63,11 +72,37 @@ import { ClientRouter } from 'astro:transitions';
 			opacity: 0.6;
 		}
 
-		@pixel{
-			font-family:'poke';
-			src: url('../src/assets/font/Orange Kid.otf') format('opentype');
+		@font-face {
+			font-family: 'poke';
+			src: url('../src/assets/font/Orange-Kid.otf') format('opentype');
 			font-weight: normal;
-  			font-style: normal;
+			font-style: normal;
+		}
+
+		@font-face {
+			font-family: 'pop-bold';
+			src: url('../src/assets/font/Poppins-Bold.ttf') format('truetype');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'pop-thin';
+			src: url('../src/assets/font/Poppins-Light.ttf') format('truetype');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'ret';
+			src: url('../src/assets/font/Retro.ttf') format('truetype');
+			font-weight: normal;
+			font-style: normal;
+		}
+
+		@font-face {
+			font-family: 'pixxy';
+			src: url('../src/assets/font/px.ttf') format('truetype');
+			font-weight: normal;
+			font-style: normal;
 		}
 		.glass-dock {
             display: flex;
@@ -76,8 +111,8 @@ import { ClientRouter } from 'astro:transitions';
 			backdrop-filter: blur(2px);
 			border: 1px solid var(--dock-border);
 			border-radius: 9999px;
-			padding: 8px 16px; 
-			gap: 10px;
+			padding: 2px 16px; 
+			gap: 2px;
 			transition: all 0.3s ease;
         }
 		.glass-dock:hover{
@@ -193,8 +228,8 @@ import { ClientRouter } from 'astro:transitions';
 		}
 		.content-container {
 			animation: slideUpFader 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-			opacity: 0; /* Keeps content hidden until the animation starts */
-			animation-delay: 0.15s; /* Slight delay so it follows the dock */
+			opacity: 0; 
+			animation-delay: 0.15s;
 			width: 100%;
 		}
 		.alien-light {
@@ -210,6 +245,7 @@ import { ClientRouter } from 'astro:transitions';
 		body.light-mode .alien-dark {
 			display: none;
 		}
+		
 		
 		</style>
 	</head>
@@ -302,25 +338,79 @@ import { ClientRouter } from 'astro:transitions';
 					speed: Math.random() * 0.5 + 0.1 
 					});
 				}
+				const shapes = [];
+				const numShapes = 25; // Change this to add more/fewer shapes
+				const shapeTypes = ['circle', 'square', 'triangle'];
+
+				for (let i = 0; i < numShapes; i++) {
+					shapes.push({
+						x: Math.random() * canvas.width,
+						y: Math.random() * canvas.height,
+						size: Math.random() * 20 + 10, // Size between 10px and 30px
+						speedY: Math.random() * 0.4 + 0.1, // Float upwards
+						speedX: (Math.random() - 0.5) * 0.3, // Drift slightly left or right
+						rotation: Math.random() * Math.PI * 2, // Random starting angle
+						rotationSpeed: (Math.random() - 0.5) * 0.02, // Spin slowly
+						type: shapeTypes[Math.floor(Math.random() * shapeTypes.length)]
+					});
+				}
 				function animate() {
 					requestAnimationFrame(animate);
-
 					ctx.clearRect(0, 0, canvas.width, canvas.height);
-
 					ctx.fillStyle = "rgb(255, 255, 255)";
+					stars.forEach(star => {
+						ctx.beginPath();
+						ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+						ctx.fill();
+						star.y -= star.speed;
+						
+						// Wrap stars
+						if (star.y < 0) {
+							star.y = canvas.height;
+							star.x = Math.random() * canvas.width;
+						}
+					});
+					ctx.strokeStyle = "rgba(255, 255, 255, 0.15)"; // Subtle white outline
+            		ctx.lineWidth = 1.5;
+					shapes.forEach(shape => {
+                ctx.save();
+                
+                // Move origin to shape's center so it rotates correctly
+                ctx.translate(shape.x, shape.y);
+                ctx.rotate(shape.rotation);
+                ctx.beginPath();
 
-				stars.forEach(star => {
-					ctx.beginPath();
-					ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-					ctx.fill();
-					star.y -= star.speed;
-					if (star.y < 0) {
-					star.y = canvas.height;
-					star.x = Math.random() * canvas.width;
-					}
-				});
-			}
-			animate();
+                // Draw the specific shape
+                if (shape.type === 'circle') {
+                    ctx.arc(0, 0, shape.size / 2, 0, Math.PI * 2);
+                } else if (shape.type === 'square') {
+                    ctx.rect(-shape.size / 2, -shape.size / 2, shape.size, shape.size);
+                } else if (shape.type === 'triangle') {
+                    ctx.moveTo(0, -shape.size / 2);
+                    ctx.lineTo(shape.size / 2, shape.size / 2);
+                    ctx.lineTo(-shape.size / 2, shape.size / 2);
+                    ctx.closePath();
+                }
+                
+                ctx.stroke();
+                ctx.restore();
+
+                // Update shape position and rotation
+                shape.y -= shape.speedY;
+                shape.x += shape.speedX;
+                shape.rotation += shape.rotationSpeed;
+
+                // Wrap shapes around the screen
+                if (shape.y < -shape.size) {
+                    shape.y = canvas.height + shape.size;
+                    shape.x = Math.random() * canvas.width;
+                }
+                if (shape.x < -shape.size) shape.x = canvas.width + shape.size;
+                if (shape.x > canvas.width + shape.size) shape.x = -shape.size;
+            });
+        }
+
+		animate();
 			window.addEventListener('resize', () => {
 			canvas.width = window.innerWidth;
 			canvas.height = window.innerHeight;
