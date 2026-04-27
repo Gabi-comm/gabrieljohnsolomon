@@ -225,6 +225,9 @@ import { ClientRouter } from 'astro:transitions';
 		}
 		.dock-container {
 			animation: slideDownFader 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+			position: sticky;
+			top: 25px;
+			z-index: 9999;
 		}
 		.content-container {
 			animation: slideUpFader 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;

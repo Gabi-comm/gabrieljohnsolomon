@@ -19,7 +19,7 @@ import Layout from '../layouts/Layout.astro';
         opacity: 0.8;
     }
 .glass-div {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(35, 35, 35, 0.27);
       border-radius: 16px;
 	  filter:blur(9px)
       backdrop-filter: blur(12px);
@@ -85,7 +85,7 @@ import Layout from '../layouts/Layout.astro';
 
     .subtitle {
       font-size: 1rem;
-      opacity: 0.7;
+      opacity: 1;
       margin: 0;
     }
 	.flex-container {
@@ -116,9 +116,8 @@ import Layout from '../layouts/Layout.astro';
 </style>
 	
 <Layout>
-<br>
 <div class="home-content">
-		<div class="glass-div">
+		<div style="margin-top:150px">
         <h2 class="greeting"> Hello!! I'm</h1>
 		<div class="name"><h1 class="name">Gabriel John Solomon</h1>
 		</div>
@@ -155,11 +154,31 @@ import Layout from '../layouts/Layout.astro';
 		</div>
 </div>
 <div class="flex-container">
-<div style="margin-top: 400px; ">
-<img src='../src/assets/me.jpg' width="250">
+<div style="margin-top: 129px; ">
+<img src='../src/assets/me.jpg' width="250" style='border-radius:27px'>
 </div>
-<div>
-hi
+<div style="margin-top: 250px; ">
+<img src='../src/assets/me2.jpg' width="220" style='border-radius:27px'>
+</div>
+<div class="glass-div"  style="margin-top: 500px;margin-left: 20px;margin-bottom:300px; font-size:15px">
+    <h5 style='font-family:ret;letter-spacing:3px'>Aspiring Machine Learning Engineer | Student Leader</h5>
+    <br>
+    
+    <p style="text-align: justify;" class='subtitle'>
+        A data-driven student at the <b>University of the East – Caloocan</b> 
+        taking a Bachelor of Science in Computer Science that expertise lies in building intelligent systems using Python, 
+        with a proven track record in high-stakes environments from being a 
+        <b>Top 10 Finalist in the Philippine Junior Data Science Challenge</b> to serving as a <b>Judge 
+        and Mentor for the Caffeine AI Manila Hackathon</b>. I am dedicated to leveraging data-science 
+        tools like <b>Power BI, Kaggle, and Google Colab</b> to transform complex datasets into actionable, user-centric solutions.
+    </p>
+	<br>
+	<p style="text-align: justify;"class='subtitle'>
+	Currently leading technical initiatives as the <b>Association of Computer Studies Students 
+	(ACSS) President</b> and as a <b>Vice President of the AWS Learning Club at the University of the East - Caloocan</b>. 
+	Additionally, has a position at the <b>AWS Cloud Club Philippines as a Data Analyst</b>. Focused on transforming complex data into intelligent, automated solutions.
+	</p>
+</div>
 </div>
 </div>
 </Layout>
