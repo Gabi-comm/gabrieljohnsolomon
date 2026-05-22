@@ -28,6 +28,7 @@ import { ClientRouter } from 'astro:transitions';
 			--opp:rgb(0, 0, 0);
 			--pp:#4c00ff;
 			--gre:linear-gradient(-45deg, #3100e3, #ffffff, #0565e3);
+			--shad:0 10px 40px rgba(81, 81, 81, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 		}
 		body.light-mode {
 			--bg-color: #f4f4f5;
@@ -42,6 +43,7 @@ import { ClientRouter } from 'astro:transitions';
 			--opp:rgb(255, 255, 255);
 			--pp:#0565e3;
 			--gre:linear-gradient(-45deg, #3100e3, #000000, #0565e3);
+			--shad:0 10px 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 		}
 		body {
 			background-color: var(--bg-color);
@@ -58,6 +60,7 @@ import { ClientRouter } from 'astro:transitions';
 			padding-top: 15px;
 			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 		}
+		
 		#star-canvas {
 		position: fixed;
 		top: 0;
@@ -224,13 +227,13 @@ import { ClientRouter } from 'astro:transitions';
 			}
 		}
 		.dock-container {
-			animation: slideDownFader 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-			position: sticky;
+			animation: slideDownFader 3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+			position: fixed;
 			top: 25px;
 			z-index: 9999;
 		}
 		.content-container {
-			animation: slideUpFader 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+			animation: slideUpFader 3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 			opacity: 0; 
 			animation-delay: 0.15s;
 			width: 100%;
@@ -247,6 +250,13 @@ import { ClientRouter } from 'astro:transitions';
 		}
 		body.light-mode .alien-dark {
 			display: none;
+		}
+
+		@keyframes roll{
+			100%{
+				background-position: -8px 0%,
+				-8px 50%, -8% 100%;
+			}
 		}
 		
 		
