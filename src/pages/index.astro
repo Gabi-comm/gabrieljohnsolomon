@@ -159,6 +159,11 @@ const row2 = [
 		color: transparent;
 		animation: gradient 15s ease infinite;
 	}
+
+    .name-bold {
+      font-family: 'pop-bold', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-weight: 700;
+    }
 	  
 	@keyframes gradient {
 		0% {
@@ -175,6 +180,12 @@ const row2 = [
     .subtitle {
       font-size: 1rem;
       opacity: 1;
+      margin: 0;
+    }
+
+    .subtitle-head {
+      font-family: 'pop-bold', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      letter-spacing: 3px;
       margin: 0;
     }
 	.flex-container {
@@ -310,15 +321,15 @@ const row2 = [
 <div class="home-content">
 		<div style="margin-top:220px">
         <h2 class="greeting"> Hello!! I'm</h1>
-		<div class="name"><h1 class="name">Gabriel John Solomon</h1>
+    <div class="name"><h1 class="name name-bold">Gabriel John Solomon</h1>
 		</div>
 		<div class="home-content">
 			<div class="flex-container">
 			<div class="buu" style="font-size:10px">
 			
-			<a href="assets/RESUME.pdf" download="RESUME.pdf" style="text-decoration: none;font-size:15px;margin:0" class="buu" >
-			<img src="/src/assets/dino-white.gif" width="24" class="dino-light-img">
-			<img src="/src/assets/dino-black.gif" width="24" class="dino-dark-img">
+      <a href="/SOLOMON.pdf"  download="SOLOMON.pdf" style="text-decoration: none;font-size:15px;margin:0" class="buu" >
+      <img src="/dino-white.gif" width="24" class="dino-light-img">
+      <img src="/dino-black.gif" width="24" class="dino-dark-img">
 			Check out my resume 
 			</a>
 			
@@ -346,13 +357,13 @@ const row2 = [
 </div>
 <div class="flex-container" >
 	<div style="margin-top: 5px; ">
-		<img src='/src/assets/me.jpg' width="250" style='border-radius:27px;box-shadow:var(--shad)' >
+    <img src='/me.jpg' width="250" style='border-radius:27px;box-shadow:var(--shad)' >
 	</div>
 	<div style="margin-top: 140px; ">
-		<img src='/src/assets/me2.jpg' width="220" style='border-radius:27px;box-shadow:var(--shad)''>
+    <img src='/me2.jpg' width="220" style='border-radius:27px;box-shadow:var(--shad)'>
 	</div>
 	<div class="glass-div"  style="margin-top: 400px;margin-left: 20px;margin-bottom:100px; font-size:15px">
-    	<h5 style='font-family:ret;letter-spacing:3px'>Aspiring Machine Learning Engineer | Student Leader</h5>
+      <h5 class="subtitle-head">Aspiring Machine Learning Engineer | Student Leader</h5>
     
 		<p style="text-align: justify;margin:20px" class='subtitle'>
 			A data-driven student at the <b>University of the East – Caloocan</b> 
