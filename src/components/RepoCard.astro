@@ -1,0 +1,263 @@
+---
+/**
+ * One repository card. Must render correctly when `meta` is null (GitHub
+ * unreachable or rate-limiting at build time) — in that case the live chips are
+ * simply omitted and the locally authored copy carries the card.
+ */
+import type { FeaturedRepo } from '../data/featured';
+import { GITHUB_USER } from '../data/featured';
+import { relativeDate, type RepoMeta } from '../lib/github';
+
+interface Props {
+	repo: FeaturedRepo;
+	meta: RepoMeta | null;
+}
+
+const { repo, meta } = Astro.props;
+
+const url = meta?.url ?? `https://github.com/${GITHUB_USER}/${repo.slug}`;
+const updated = relativeDate(meta?.pushedAt ?? null);
+// Two languages is enough to signal the stack without wrapping the footer.
+const languages = meta?.languages.slice(0, 2) ?? [];
+---
+
+<article class="card">
+	<div class="card-top">
+		<span class="repo-mark" aria-hidden="true"></span>
+		{
+			meta && meta.stars > 0 && (
+				<span class="stat" title={`${meta.stars} stars`}>
+					<svg viewBox="0 0 24 24" aria-hidden="true"
+						><path
+							d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.6 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"
+						></path></svg
+					>
+					{meta.stars}
+				</span>
+			)
+		}
+	</div>
+
+	<h3 class="card-title">
+		<a href={url} target="_blank" rel="noopener noreferrer">{repo.title}</a>
+	</h3>
+
+	<p class="card-blurb">{repo.blurb}</p>
+
+	<ul class="tags" aria-label="Topics">
+		{repo.tags.map((tag) => <li>{tag}</li>)}
+	</ul>
+
+	<footer class="card-foot">
+		<div class="langs">
+			{languages.map((lang) => <span class="lang">{lang}</span>)}
+			{meta?.isFork && <span class="lang fork">Fork</span>}
+		</div>
+		{updated && <span class="updated">Updated {updated}</span>}
+	</footer>
+
+	<div class="card-links">
+		<a class="link" href={url} target="_blank" rel="noopener noreferrer">
+			View on GitHub
+			<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor"
+				><path d="M7 17 17 7M9 7h8v8" stroke-width="2" stroke-linecap="round"></path></svg
+			>
+		</a>
+		{
+			repo.demoUrl && (
+				<a class="link" href={repo.demoUrl} target="_blank" rel="noopener noreferrer">
+					Live demo
+				</a>
+			)
+		}
+	</div>
+</article>
+
+<style>
+	.card {
+		display: flex;
+		flex-direction: column;
+		gap: 0.7rem;
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		padding: 1.25rem;
+		height: 100%;
+		box-sizing: border-box;
+		position: relative;
+		transition:
+			transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+			border-color 0.3s ease,
+			box-shadow 0.3s ease,
+			background 0.3s ease;
+	}
+
+	.card:hover {
+		transform: translateY(-4px);
+		border-color: var(--pp);
+		background: var(--surface-hover);
+		box-shadow: 0 14px 34px rgb(0 0 0 / 0.3);
+	}
+
+	.card-top {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+	}
+
+	/* Small repo glyph, drawn with a mask so it follows the text color. */
+	.repo-mark {
+		width: 22px;
+		height: 22px;
+		background-color: var(--muted);
+		mask: url('/icons/github.svg') center / contain no-repeat;
+		-webkit-mask: url('/icons/github.svg') center / contain no-repeat;
+		transition: background-color 0.3s ease;
+		flex-shrink: 0;
+	}
+
+	.card:hover .repo-mark {
+		background-color: var(--pp);
+	}
+
+	.stat {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3rem;
+		font-size: 0.8rem;
+		color: var(--muted);
+	}
+
+	.stat svg {
+		width: 14px;
+		height: 14px;
+		fill: currentColor;
+	}
+
+	.card-title {
+		font-family: 'pop-bold', system-ui, sans-serif;
+		font-size: 1.05rem;
+		line-height: 1.3;
+		margin: 0;
+	}
+
+	.card-title a {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	/* Whole card is clickable via the title's stretched hit area. */
+	.card-title a::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		border-radius: var(--radius);
+	}
+
+	.card:hover .card-title a {
+		color: var(--pp);
+	}
+
+	.card-blurb {
+		font-family: 'pop-thin', system-ui, sans-serif;
+		font-size: 0.875rem;
+		line-height: 1.6;
+		color: var(--muted);
+		margin: 0;
+		/* Keeps every card the same height regardless of blurb length. */
+		flex-grow: 1;
+	}
+
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.tags li {
+		font-size: 0.7rem;
+		letter-spacing: 0.02em;
+		padding: 0.22rem 0.55rem;
+		border-radius: 999px;
+		background: var(--chip-bg);
+		border: 1px solid var(--border);
+		color: var(--text-color);
+		white-space: nowrap;
+	}
+
+	.card-foot {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+		font-size: 0.72rem;
+		color: var(--muted);
+		padding-top: 0.2rem;
+	}
+
+	.langs {
+		display: flex;
+		gap: 0.5rem;
+		flex-wrap: wrap;
+	}
+
+	.lang {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3rem;
+	}
+
+	.lang::before {
+		content: '';
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+		background: var(--pp);
+	}
+
+	.lang.fork::before {
+		background: var(--muted);
+	}
+
+	.card-links {
+		display: flex;
+		gap: 1rem;
+		/* Sits above the stretched title link so the demo link stays clickable. */
+		position: relative;
+		z-index: 1;
+	}
+
+	.link {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3rem;
+		font-size: 0.8rem;
+		font-weight: 600;
+		color: var(--pp);
+		text-decoration: none;
+	}
+
+	.link svg {
+		width: 13px;
+		height: 13px;
+	}
+
+	.link:hover {
+		text-decoration: underline;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.card,
+		.repo-mark {
+			transition: none;
+		}
+		.card:hover {
+			transform: none;
+		}
+	}
+</style>

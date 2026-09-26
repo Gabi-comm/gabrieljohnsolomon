@@ -1,0 +1,157 @@
+---
+/**
+ * Tech stack, grouped by category.
+ *
+ * Replaces the previous auto-scrolling marquee: a static grid is readable, works at
+ * every width, and doesn't animate indefinitely.
+ *
+ * Icons are real brand SVGs from `public/icons/`, drawn with a CSS mask so a single
+ * monochrome file can take the text color by default and the brand color on hover.
+ * `--brand` / `--brand-light` are set per pill (see `src/data/tech.ts` for why both).
+ */
+import Section from './Section.astro';
+import { techCategories } from '../data/tech';
+---
+
+<Section
+	id="stack"
+	eyebrow="Tech stack"
+	title="Tools I build with"
+	subtitle="The languages, frameworks and platforms I reach for across machine learning, data and automation work."
+>
+	<div class="categories">
+		{
+			techCategories.map((category) => (
+				<div class="category">
+					<h3 class="cat-label">{category.label}</h3>
+					<ul class="pills">
+						{category.items.map((tech) => (
+							<li
+								class="pill"
+								style={`--brand:${tech.brand};--brand-light:${tech.brandLight ?? tech.brand}`}
+							>
+								<span
+									class="pill-icon"
+									style={`--icon:url('/icons/${tech.icon}.svg')`}
+									aria-hidden="true"
+								/>
+								<span>{tech.name}</span>
+							</li>
+						))}
+					</ul>
+				</div>
+			))
+		}
+	</div>
+</Section>
+
+<style>
+	.categories {
+		display: grid;
+		gap: clamp(1.25rem, 3vw, 1.85rem);
+	}
+
+	.category {
+		display: grid;
+		/* Label in a fixed column on wide screens, stacked on narrow. */
+		grid-template-columns: 11.5rem minmax(0, 1fr);
+		gap: 1rem;
+		align-items: start;
+		padding-bottom: clamp(1.25rem, 3vw, 1.85rem);
+		border-bottom: 1px solid var(--border);
+	}
+
+	.category:last-child {
+		padding-bottom: 0;
+		border-bottom: none;
+	}
+
+	.cat-label {
+		font-family: 'pop-bold', system-ui, sans-serif;
+		font-size: 0.7rem;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: var(--muted);
+		margin: 0;
+		padding-top: 0.55rem;
+		line-height: 1.5;
+	}
+
+	.pills {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem 0.9rem;
+		border-radius: 999px;
+		background: var(--chip-bg);
+		border: 1px solid var(--border);
+		font-family: 'pop-thin', system-ui, sans-serif;
+		font-size: 0.85rem;
+		font-weight: 500;
+		color: var(--text-color);
+		white-space: nowrap;
+		cursor: default;
+		transition:
+			transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+			border-color 0.25s ease,
+			color 0.25s ease,
+			background 0.25s ease;
+	}
+
+	.pill:hover {
+		transform: translateY(-2px);
+		border-color: currentColor;
+		background: var(--surface-hover);
+		color: var(--brand);
+	}
+
+	:global(body.light-mode) .pill:hover {
+		color: var(--brand-light);
+	}
+
+	.pill-icon {
+		width: 17px;
+		height: 17px;
+		flex-shrink: 0;
+		/* The mask takes its color from the pill, so hover recolors the glyph too. */
+		background-color: currentColor;
+		mask: var(--icon) center / contain no-repeat;
+		-webkit-mask: var(--icon) center / contain no-repeat;
+	}
+
+	@media (max-width: 720px) {
+		.category {
+			grid-template-columns: minmax(0, 1fr);
+			gap: 0.7rem;
+		}
+
+		.cat-label {
+			padding-top: 0;
+		}
+	}
+
+	@media (max-width: 480px) {
+		.pill {
+			font-size: 0.8rem;
+			padding: 0.42rem 0.75rem;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.pill {
+			transition: none;
+		}
+		.pill:hover {
+			transform: none;
+		}
+	}
+</style>

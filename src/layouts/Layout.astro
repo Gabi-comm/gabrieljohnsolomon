@@ -1,463 +1,686 @@
 ---
 import { ClientRouter } from 'astro:transitions';
+
+interface Props {
+	title?: string;
+	description?: string;
+}
+
+const {
+	title = 'Gabriel John Solomon',
+	description = 'Aspiring Machine Learning Engineer and student leader at the University of the East – Caloocan, building intelligent systems with Python, computer vision and data science tooling.',
+} = Astro.props;
+
+const pageTitle = title === 'Gabriel John Solomon' ? title : `${title} · Gabriel John Solomon`;
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-		<title>Gabriel John Solomon</title>
 
-		<ClientRouter/>
+		<title>{pageTitle}</title>
+		<meta name="description" content={description} />
+
+		<meta property="og:type" content="website" />
+		<meta property="og:title" content={pageTitle} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content="/me.jpg" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={pageTitle} />
+		<meta name="twitter:description" content={description} />
+
+		<ClientRouter />
 
 		<style>
-		:root {
-			--bg-color: #050505;
-			--bg-gradient: radial-gradient(circle at 50% 0%, #171717 0%, #050505 70%);
-			--dock-bg: rgba(10, 10, 10, 0.89);
-			--dock-border: rgba(255, 255, 255, 0.08);
-			--text-color: #ffffff;
-			--icon-hover-bg: rgba(255, 255, 255, 0.08);
-			--divider-bg: rgba(255, 255, 255, 0.15);
-			--dock-icon-hover:#4c00ff;
-			--name-bg:rgb(255, 255, 255);
-			--opp:rgb(0, 0, 0);
-			--pp:#4c00ff;
-			--gre:linear-gradient(-45deg, #3100e3, #ffffff, #0565e3);
-			--shad:0 10px 40px rgba(81, 81, 81, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-		}
-		body.light-mode {
-			--bg-color: #f4f4f5;
-			--bg-gradient: radial-gradient(circle at 50% 0%, #ffffff 0%, #e4e4e7 70%);
-			--dock-bg: rgba(255, 255, 255, 0.89);
-			--dock-border: rgba(0, 0, 0, 0.1);
-			--text-color: #09090b;
-			--icon-hover-bg: rgba(0, 0, 0, 0.05);
-			--divider-bg: rgba(0, 0, 0, 0.15);
-			--dock-icon-hover:#ff7400;
-			--name-bg:rgb(0, 0, 0);
-			--opp:rgb(255, 255, 255);
-			--pp:#0565e3;
-			--gre:linear-gradient(-45deg, #3100e3, #000000, #0565e3);
-			--shad:0 10px 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-		}
-		body {
-			background-color: var(--bg-color);
-			background-image: var(--bg-gradient);
-			color: var(--text-color);
-			transition: background-color 0.3s ease, color 0.3s ease, background-image 0.3s ease;
-			min-height: 100vh;
-			background-attachment: fixed;
-			margin: 0;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: flex-start;
-			padding-top: 15px;
-			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-		}
-		
-		#star-canvas {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100vw;
-		height: 100vh;
-		z-index: -1;
-		pointer-events: none; 
-		}
-		body.light-mode #star-canvas {
-			filter: invert(1);
-			opacity: 0.6;
-		}
+			:root {
+				--bg-color: #050505;
+				--bg-gradient: radial-gradient(circle at 50% 0%, #171717 0%, #050505 70%);
+				--dock-bg: rgba(10, 10, 10, 0.89);
+				--dock-border: rgba(255, 255, 255, 0.08);
+				--text-color: #ffffff;
+				--icon-hover-bg: rgba(255, 255, 255, 0.08);
+				--divider-bg: rgba(255, 255, 255, 0.15);
+				/* Accent. The original #4c00ff only reached 2.7:1 against this
+				   background; --pp is now used for real text (section eyebrows, card
+				   links), so it is lightened to #8a5cff for 4.9:1 — WCAG AA. The dock
+				   hover uses the same value so there is one purple, not two. */
+				--dock-icon-hover: #8a5cff;
+				--name-bg: rgb(255, 255, 255);
+				--opp: rgb(0, 0, 0);
+				--pp: #8a5cff;
+				--shad:
+					0 10px 40px rgba(81, 81, 81, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 
-		@font-face {
-			font-family: 'poke';
-			src: url('/Orange-Kid.otf') format('opentype');
-			font-weight: normal;
-			font-style: normal;
-		}
+				/* Surfaces and text used by the card sections. */
+				--surface: rgba(255, 255, 255, 0.035);
+				--surface-hover: rgba(255, 255, 255, 0.07);
+				--border: rgba(255, 255, 255, 0.1);
+				--chip-bg: rgba(255, 255, 255, 0.05);
+				--slot-border: rgba(255, 255, 255, 0.16);
+				--muted: rgba(255, 255, 255, 0.62);
 
-		@font-face {
-			font-family: 'pop-bold';
-			src: url('/Poppins-Bold.ttf') format('truetype');
-			font-weight: normal;
-			font-style: normal;
-		}
-		@font-face {
-			font-family: 'pop-thin';
-			src: url('/Poppins-Light.ttf') format('truetype');
-			font-weight: normal;
-			font-style: normal;
-		}
-		@font-face {
-			font-family: 'ret';
-			src: url('/Retro.ttf') format('truetype');
-			font-weight: normal;
-			font-style: normal;
-		}
-
-		@font-face {
-			font-family: 'pixxy';
-			src: url('/px.ttf') format('truetype');
-			font-weight: normal;
-			font-style: normal;
-		}
-		.glass-dock {
-            display: flex;
-			align-items: center;
-			background: var(--dock-bg);
-			backdrop-filter: blur(2px);
-			border: 1px solid var(--dock-border);
-			border-radius: 9999px;
-			padding: 2px 16px; 
-			gap: 2px;
-			transition: all 0.3s ease;
-        }
-		.glass-dock:hover{
-			box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-			transform: scale(1.02);
-		}
-		body.light-mode .glass-dock:hover {
-			box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.5);
-		}
-		.dock-brand {
-            display: flex;
-			align-items: center;
-			gap: 12px;
-			color: var(--text-color);
-			text-decoration: none;
-			font-weight: 600;
-			font-size: 15px;
-			padding-right: 8px;
-			padding-left: 4px;
-        }
-		.dock-brand svg {
-            width: 24px;
-            height: 24px;
-        }
-		.divider {
-            width: 1px;
-			height: 20px;
-			background-color: var(--divider-bg);
-			margin: 0 8px;
-        }
-		.dock-icon {
-            display: flex;
-			align-items: center;
-			justify-content: center;
-			width: 40px;
-			height: 40px;
-			color: var(--text-color);
-			text-decoration: none;
-			border-radius: 14px;
-			transition: all 0.2s ease;
-			background: transparent;
-			border: none;
-			cursor: pointer;
-			position: relative;
-        }
-
-        .dock-icon:hover {
-            background-color: var(--icon-hover-bg);
-            color: var(--dock-icon-hover);
-        }
-		.dock-icon.active {
-            background-color: var(--icon-hover-bg);
-			color: var(--dock-icon-hover);
-        }
-
-        .dock-icon svg {
-            width: 20px;
-            height: 20px;
-            stroke-width: 2;
-			position: absolute;
-			transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease, color 0.3s ease;
-        }
-		.moon-icon {
-			opacity: 1;
-			transform: rotate(0deg) scale(1);
-		}
-		.moon-icon:hover{
-			color: #ff7400;
-		}
-		#theme-toggle:hover .moon-icon {
-    		color: #ff7400;
-		}
-		.sun-icon {
-			opacity: 0;
-    		transform: rotate(-90deg) scale(0);
-		}
-
-		#theme-toggle:hover .sun-icon {
-    		color: #4c00ff;
-		}
-
-		body.light-mode .moon-icon {
-			opacity: 0;
-    		transform: rotate(90deg) scale(0);
-		}
-		body.light-mode .sun-icon {
-			opacity: 1;
-    		transform: rotate(0deg) scale(1);
-		}
-		@keyframes slideDownFader {
-			0% {
-				opacity: 0;
-				transform: translateY(-30px);
+				/* Shared geometry. */
+				--radius: 14px;
+				--radius-lg: 20px;
+				--content-width: 1180px;
+				--gutter: clamp(16px, 4vw, 32px);
 			}
-			100% {
+
+			body.light-mode {
+				--bg-color: #f4f4f5;
+				--bg-gradient: radial-gradient(circle at 50% 0%, #ffffff 0%, #e4e4e7 70%);
+				--dock-bg: rgba(255, 255, 255, 0.89);
+				--dock-border: rgba(0, 0, 0, 0.1);
+				--text-color: #09090b;
+				--icon-hover-bg: rgba(0, 0, 0, 0.05);
+				--divider-bg: rgba(0, 0, 0, 0.15);
+				--dock-icon-hover: #ff7400;
+				--name-bg: rgb(0, 0, 0);
+				--opp: rgb(255, 255, 255);
+				--pp: #0565e3;
+				--shad: 0 10px 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+				--surface: rgba(255, 255, 255, 0.6);
+				--surface-hover: rgba(255, 255, 255, 0.92);
+				--border: rgba(0, 0, 0, 0.1);
+				--chip-bg: rgba(255, 255, 255, 0.55);
+				--slot-border: rgba(0, 0, 0, 0.18);
+				--muted: rgba(9, 9, 11, 0.62);
+			}
+
+			html {
+				box-sizing: border-box;
+				/* Anchor links land below the fixed dock. */
+				scroll-padding-top: 120px;
+			}
+
+			body {
+				background-color: var(--bg-color);
+				background-image: var(--bg-gradient);
+				color: var(--text-color);
+				transition:
+					background-color 0.3s ease,
+					color 0.3s ease,
+					background-image 0.3s ease;
+				min-height: 100vh;
+				background-attachment: fixed;
+				margin: 0;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: flex-start;
+				padding-top: 15px;
+				/* Sections manage their own gutters; never allow sideways scroll. */
+				overflow-x: hidden;
+				font-family:
+					-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+			}
+
+			#star-canvas {
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100vw;
+				height: 100vh;
+				z-index: -1;
+				pointer-events: none;
+			}
+
+			body.light-mode #star-canvas {
+				filter: invert(1);
+				opacity: 0.6;
+			}
+
+			@font-face {
+				font-family: 'pop-bold';
+				src: url('/Poppins-Bold.ttf') format('truetype');
+				font-weight: normal;
+				font-style: normal;
+				font-display: swap;
+			}
+
+			@font-face {
+				font-family: 'pop-thin';
+				src: url('/Poppins-Light.ttf') format('truetype');
+				font-weight: normal;
+				font-style: normal;
+				font-display: swap;
+			}
+
+			@font-face {
+				font-family: 'ret';
+				src: url('/Retro.ttf') format('truetype');
+				font-weight: normal;
+				font-style: normal;
+				font-display: swap;
+			}
+
+			.glass-dock {
+				display: flex;
+				align-items: center;
+				background: var(--dock-bg);
+				backdrop-filter: blur(12px);
+				-webkit-backdrop-filter: blur(12px);
+				border: 1px solid var(--dock-border);
+				border-radius: 9999px;
+				padding: 2px 16px;
+				gap: 2px;
+				transition: all 0.3s ease;
+			}
+
+			.glass-dock:hover {
+				box-shadow:
+					0 10px 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+				transform: scale(1.02);
+			}
+
+			body.light-mode .glass-dock:hover {
+				box-shadow:
+					0 10px 40px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+			}
+
+			.dock-brand {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				color: var(--text-color);
+				text-decoration: none;
+				font-weight: 600;
+				font-size: 15px;
+				padding-right: 8px;
+				padding-left: 4px;
+			}
+
+			.dock-brand img {
+				width: 50px;
+				height: auto;
+			}
+
+			.divider {
+				width: 1px;
+				height: 20px;
+				background-color: var(--divider-bg);
+				margin: 0 8px;
+				flex-shrink: 0;
+			}
+
+			.dock-icon {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 40px;
+				height: 40px;
+				color: var(--text-color);
+				text-decoration: none;
+				border-radius: 14px;
+				transition: all 0.2s ease;
+				background: transparent;
+				border: none;
+				cursor: pointer;
+				position: relative;
+				flex-shrink: 0;
+			}
+
+			.dock-icon:hover {
+				background-color: var(--icon-hover-bg);
+				color: var(--dock-icon-hover);
+			}
+
+			.dock-icon.active {
+				background-color: var(--icon-hover-bg);
+				color: var(--dock-icon-hover);
+			}
+
+			.dock-icon svg {
+				width: 20px;
+				height: 20px;
+				stroke-width: 2;
+				position: absolute;
+				transition:
+					transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+					opacity 0.5s ease,
+					color 0.3s ease;
+			}
+
+			/* Dark theme is the default, so the sun (the theme you'd switch TO) shows first. */
+			.sun-icon {
 				opacity: 1;
-				transform: translateY(0);
+				transform: rotate(0deg) scale(1);
 			}
-		}
 
-		@keyframes slideUpFader {
-			0% {
+			.moon-icon {
 				opacity: 0;
-				transform: translateY(30px);
+				transform: rotate(-90deg) scale(0);
 			}
-			100% {
+
+			/* Each glyph previews the accent of the theme it would switch you to:
+			   the sun (shown on dark) warms to the light theme's orange, the moon
+			   (shown on light) cools to the dark theme's purple. */
+			#theme-toggle:hover .sun-icon {
+				color: #ff7400;
+			}
+
+			#theme-toggle:hover .moon-icon {
+				color: #8a5cff;
+			}
+
+			body.light-mode .sun-icon {
+				opacity: 0;
+				transform: rotate(90deg) scale(0);
+			}
+
+			body.light-mode .moon-icon {
 				opacity: 1;
-				transform: translateY(0);
+				transform: rotate(0deg) scale(1);
 			}
-		}
-		.dock-container {
-			animation: slideDownFader 3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-			position: fixed;
-			top: 25px;
-			z-index: 9999;
-		}
-		.content-container {
-			animation: slideUpFader 3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-			opacity: 0; 
-			animation-delay: 0.15s;
-			width: 100%;
-		}
-		.alien-light {
-			display: none;
-		}
-		.alien-dark {
-			display: block;
-		}
 
-		body.light-mode .alien-light {
-			display: block;
-		}
-		body.light-mode .alien-dark {
-			display: none;
-		}
-
-		@keyframes roll{
-			100%{
-				background-position: -8px 0%,
-				-8px 50%, -8% 100%;
+			@keyframes slideDownFader {
+				0% {
+					opacity: 0;
+					transform: translateY(-30px);
+				}
+				100% {
+					opacity: 1;
+					transform: translateY(0);
+				}
 			}
-		}
-		
-		
+
+			@keyframes slideUpFader {
+				0% {
+					opacity: 0;
+					transform: translateY(30px);
+				}
+				100% {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			.dock-container {
+				animation: slideDownFader 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+				position: fixed;
+				top: 25px;
+				z-index: 9999;
+				max-width: calc(100vw - 24px);
+			}
+
+			.content-container {
+				animation: slideUpFader 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+				opacity: 0;
+				animation-delay: 0.15s;
+				width: 100%;
+			}
+
+			.alien-light {
+				display: none;
+			}
+
+			.alien-dark {
+				display: block;
+			}
+
+			body.light-mode .alien-light {
+				display: block;
+			}
+
+			body.light-mode .alien-dark {
+				display: none;
+			}
+
+			/* The dock carries the full name on wide screens only; below that the
+			   wordmark is dropped so the icons still fit on a phone. */
+			@media (max-width: 720px) {
+				.dock-brand span {
+					display: none;
+				}
+
+				.dock-brand {
+					padding-right: 0;
+				}
+
+				.glass-dock {
+					padding: 2px 8px;
+				}
+
+				.divider {
+					margin: 0 4px;
+				}
+			}
+
+			@media (max-width: 420px) {
+				.dock-brand img {
+					width: 36px;
+				}
+
+				.dock-icon {
+					width: 34px;
+					height: 34px;
+				}
+
+				.dock-container {
+					top: 14px;
+				}
+			}
+
+			@media (prefers-reduced-motion: reduce) {
+				*,
+				*::before,
+				*::after {
+					animation-duration: 0.001ms !important;
+					animation-iteration-count: 1 !important;
+					transition-duration: 0.001ms !important;
+				}
+
+				.content-container {
+					opacity: 1;
+				}
+
+				#star-canvas {
+					display: none;
+				}
+			}
 		</style>
 	</head>
 	<body>
-	<canvas id="star-canvas" transition:persist></canvas>
-		<div class='dock-container'>
-		<nav class="glass-dock" transition:persist>
-			<a href="/" class="dock-brand">
-				<img src='/alien.gif' width="50" class="alien-dark" alt="Alien Logo">
-    
-				<img src='/alien-black.gif' width="50" class="alien-light" alt="Alien Logo">
-				<span>Gabriel John Solomon</span>
-				
-			</a>
-			<div class="divider"></div>
-			<a href="/" aria-label="Home" class="dock-icon">
-            	<svg xmlns="http://www.w3.org/2000/svg" 
-				viewBox="0 0 24 24" 
-				fill="none" 
-				stroke="currentColor" 
-				stroke-linecap="round" 
-				stroke-linejoin="round">
-				<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8">
-				</path>
-				<path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z">
-				</path>
-				</svg>
-        	</a>
-			<a href="/projects" aria-label="Projects" class="dock-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg>
-        	</a>
-			<a href="/exp" aria-label="Experience" class="dock-icon">
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-					<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-					<path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-				</svg>
-			</a>
-			<a href="/resume" aria-label="Resume" class="dock-icon">
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-					<rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect>
-					<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-					<path d="M12 11h4"></path>
-					<path d="M12 16h4"></path>
-					<path d="M8 11h.01"></path>
-					<path d="M8 16h.01"></path>
-				</svg>
-			</a>
-			<div class='divider'> </div>
-			<button id="theme-toggle" aria-label="Toggle theme" class="dock-icon">
-				<svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-				<path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path>
-				</svg>
-				
-				<svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-					<circle cx="12" cy="12" r="5"></circle>
-					<line x1="12" y1="1" x2="12" y2="3"></line>
-					<line x1="12" y1="21" x2="12" y2="23"></line>
-					<line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-					<line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-					<line x1="1" y1="12" x2="3" y2="12"></line>
-					<line x1="21" y1="12" x2="23" y2="12"></line>
-					<line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-					<line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-				</svg>
-            </button>
-		
+		<!-- Runs before the body paints, so a light-mode visitor never sees a dark flash. -->
+		<script is:inline>
+			if (localStorage.getItem('theme') === 'light') {
+				document.body.classList.add('light-mode');
+			}
+		</script>
+
+		<canvas id="star-canvas" transition:persist></canvas>
+
+		<div class="dock-container">
+			<nav class="glass-dock" transition:persist>
+				<!-- aria-label because the wordmark span is display:none below 720px,
+				     which would otherwise leave this link with no accessible name. -->
+				<a href="/" class="dock-brand" aria-label="Gabriel John Solomon — home">
+					<img src="/alien.gif" width="50" height="50" class="alien-dark" alt="" />
+					<img src="/alien-black.gif" width="50" height="50" class="alien-light" alt="" />
+					<span>Gabriel John Solomon</span>
+				</a>
+
+				<div class="divider"></div>
+
+				<a href="/" aria-label="Home" class="dock-icon">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path>
+						<path
+							d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
+						></path>
+					</svg>
+				</a>
+
+				<a href="/projects" aria-label="Projects" class="dock-icon">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<path
+							d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"
+						></path>
+					</svg>
+				</a>
+
+				<a href="/exp" aria-label="Experience" class="dock-icon">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+						<path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+					</svg>
+				</a>
+
+				<a href="/resume" aria-label="Resume" class="dock-icon">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect>
+						<path
+							d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"
+						></path>
+						<path d="M12 11h4"></path>
+						<path d="M12 16h4"></path>
+						<path d="M8 11h.01"></path>
+						<path d="M8 16h.01"></path>
+					</svg>
+				</a>
+
+				<div class="divider"></div>
+
+				<button id="theme-toggle" aria-label="Toggle theme" class="dock-icon">
+					<!-- Sun glyph: shown on the dark theme, i.e. the theme you'd switch to. -->
+					<svg
+						class="sun-icon"
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<circle cx="12" cy="12" r="5"></circle>
+						<line x1="12" y1="1" x2="12" y2="3"></line>
+						<line x1="12" y1="21" x2="12" y2="23"></line>
+						<line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+						<line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+						<line x1="1" y1="12" x2="3" y2="12"></line>
+						<line x1="21" y1="12" x2="23" y2="12"></line>
+						<line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+						<line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+					</svg>
+
+					<!-- Moon glyph: shown on the light theme. -->
+					<svg
+						class="moon-icon"
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<path
+							d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"
+						></path>
+					</svg>
+				</button>
+			</nav>
 		</div>
-		<main class='content-container'>
-		<slot />
+
+		<main class="content-container">
+			<slot />
 		</main>
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
 		<script>
-		document.addEventListener('astro:page-load', () => {
-			const currentPath = window.location.pathname;
-			// Star canvas
-			const canvas = document.getElementById('star-canvas');
-			const ctx = canvas.getContext('2d');
-			if (canvas && !window.starCanvasInitialized) {
-            	window.starCanvasInitialized = true;
-				canvas.width = window.innerWidth;
-				canvas.height = window.innerHeight;
+			/**
+			 * Drifting stars and outlined shapes behind the page.
+			 *
+			 * Takes the canvas and its context as non-null arguments so the animation
+			 * loop never has to re-check them, and so narrowing survives into the inner
+			 * resize/frame functions.
+			 */
+			function initStarCanvas(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
+				// Star count scales with the viewport; the previous fixed 1000 was
+				// needless work on a phone.
+				const area = window.innerWidth * window.innerHeight;
+				const numStars = Math.min(700, Math.max(180, Math.round(area / 2200)));
+				const numShapes = window.innerWidth < 768 ? 10 : 25;
+				const shapeTypes = ['circle', 'square', 'triangle'] as const;
 
-				const stars = [];
-				const numStars = 1000;
-				for (let i = 0; i < numStars; i++) {
-				stars.push({
-					x: Math.random() * canvas.width,
-					y: Math.random() * canvas.height,
+				let width = window.innerWidth;
+				let height = window.innerHeight;
+
+				/** Size the backing store to the device pixel ratio so stars stay sharp. */
+				function resize() {
+					// Cap at 2x: beyond that the extra pixels cost more than they show.
+					const dpr = Math.min(window.devicePixelRatio || 1, 2);
+					width = window.innerWidth;
+					height = window.innerHeight;
+					canvas.width = Math.round(width * dpr);
+					canvas.height = Math.round(height * dpr);
+					canvas.style.width = width + 'px';
+					canvas.style.height = height + 'px';
+					ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+				}
+
+				resize();
+
+				const stars = Array.from({ length: numStars }, () => ({
+					x: Math.random() * width,
+					y: Math.random() * height,
 					radius: Math.random() * 1.5,
-					speed: Math.random() * 0.5 + 0.1 
-					});
-				}
-				const shapes = [];
-				const numShapes = 25; 
-				const shapeTypes = ['circle', 'square', 'triangle'];
+					speed: Math.random() * 0.5 + 0.1,
+				}));
 
-				for (let i = 0; i < numShapes; i++) {
-					shapes.push({
-						x: Math.random() * canvas.width,
-						y: Math.random() * canvas.height,
-						size: Math.random() * 20 + 10,
-						speedY: Math.random() * 0.4 + 0.1, 
-						speedX: (Math.random() - 0.5) * 0.3,
-						rotation: Math.random() * Math.PI * 2,
-						rotationSpeed: (Math.random() - 0.5) * 0.02,
-						type: shapeTypes[Math.floor(Math.random() * shapeTypes.length)]
-					});
-				}
-				function animate() {
-					requestAnimationFrame(animate);
-					ctx.clearRect(0, 0, canvas.width, canvas.height);
-					ctx.fillStyle = "rgb(255, 255, 255)";
-					stars.forEach(star => {
+				const shapes = Array.from({ length: numShapes }, () => ({
+					x: Math.random() * width,
+					y: Math.random() * height,
+					size: Math.random() * 20 + 10,
+					speedY: Math.random() * 0.4 + 0.1,
+					speedX: (Math.random() - 0.5) * 0.3,
+					rotation: Math.random() * Math.PI * 2,
+					rotationSpeed: (Math.random() - 0.5) * 0.02,
+					type: shapeTypes[Math.floor(Math.random() * shapeTypes.length)],
+				}));
+
+				function frame() {
+					requestAnimationFrame(frame);
+					ctx.clearRect(0, 0, width, height);
+
+					ctx.fillStyle = 'rgb(255, 255, 255)';
+					for (const star of stars) {
 						ctx.beginPath();
 						ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
 						ctx.fill();
 						star.y -= star.speed;
 						if (star.y < 0) {
-							star.y = canvas.height;
-							star.x = Math.random() * canvas.width;
+							star.y = height;
+							star.x = Math.random() * width;
 						}
-					});
-					ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
-            		ctx.lineWidth = 1.5;
-					shapes.forEach(shape => {
-                ctx.save();
-                ctx.translate(shape.x, shape.y);
-                ctx.rotate(shape.rotation);
-                ctx.beginPath();
-                if (shape.type === 'circle') {
-                    ctx.arc(0, 0, shape.size / 2, 0, Math.PI * 2);
-                } else if (shape.type === 'square') {
-                    ctx.rect(-shape.size / 2, -shape.size / 2, shape.size, shape.size);
-                } else if (shape.type === 'triangle') {
-                    ctx.moveTo(0, -shape.size / 2);
-                    ctx.lineTo(shape.size / 2, shape.size / 2);
-                    ctx.lineTo(-shape.size / 2, shape.size / 2);
-                    ctx.closePath();
-                }
-                
-                ctx.stroke();
-                ctx.restore();
+					}
 
-                shape.y -= shape.speedY;
-                shape.x += shape.speedX;
-                shape.rotation += shape.rotationSpeed;
+					ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+					ctx.lineWidth = 1.5;
+					for (const shape of shapes) {
+						ctx.save();
+						ctx.translate(shape.x, shape.y);
+						ctx.rotate(shape.rotation);
+						ctx.beginPath();
+						if (shape.type === 'circle') {
+							ctx.arc(0, 0, shape.size / 2, 0, Math.PI * 2);
+						} else if (shape.type === 'square') {
+							ctx.rect(-shape.size / 2, -shape.size / 2, shape.size, shape.size);
+						} else {
+							ctx.moveTo(0, -shape.size / 2);
+							ctx.lineTo(shape.size / 2, shape.size / 2);
+							ctx.lineTo(-shape.size / 2, shape.size / 2);
+							ctx.closePath();
+						}
+						ctx.stroke();
+						ctx.restore();
 
-                if (shape.y < -shape.size) {
-                    shape.y = canvas.height + shape.size;
-                    shape.x = Math.random() * canvas.width;
-                }
-                if (shape.x < -shape.size) shape.x = canvas.width + shape.size;
-                if (shape.x > canvas.width + shape.size) shape.x = -shape.size;
-            });
-        }
+						shape.y -= shape.speedY;
+						shape.x += shape.speedX;
+						shape.rotation += shape.rotationSpeed;
 
-		animate();
-			window.addEventListener('resize', () => {
-			canvas.width = window.innerWidth;
-			canvas.height = window.innerHeight;
-			});
-		}
+						if (shape.y < -shape.size) {
+							shape.y = height + shape.size;
+							shape.x = Math.random() * width;
+						}
+						if (shape.x < -shape.size) shape.x = width + shape.size;
+						if (shape.x > width + shape.size) shape.x = -shape.size;
+					}
+				}
 
-		//theme toggling
-		if (localStorage.getItem('theme') === 'light') {
-        document.body.classList.add('light-mode');
-    	}
-
-		const themeButton = document.getElementById('theme-toggle');
-		if (themeButton && !window.themeToggleInitialized) {
-            window.themeToggleInitialized = true;
-            
-            themeButton.addEventListener('click', () => {
-                document.body.classList.toggle('light-mode');
-
-                if (document.body.classList.contains('light-mode')) {
-                    localStorage.setItem('theme', 'light');
-                } else {
-                    localStorage.setItem('theme', 'dark');
-                }
-            });
-        }
-    });
-
-		document.addEventListener('astro:after-swap', () => {
-			if (localStorage.getItem('theme') === 'light') {
-				document.body.classList.add('light-mode');
+				frame();
+				window.addEventListener('resize', resize);
 			}
-		});
-		
-	</script>
+
+			function initChrome() {
+				// --- Active nav link ---------------------------------------------------
+				// The dock is transition:persist, so stale state has to be cleared first.
+				const path = window.location.pathname.replace(/\/$/, '') || '/';
+				document.querySelectorAll('.dock-icon[href]').forEach((link) => {
+					const href = link.getAttribute('href')?.replace(/\/$/, '') || '/';
+					link.classList.toggle('active', href === path);
+				});
+
+				// --- Star canvas -------------------------------------------------------
+				// The canvas is transition:persist, so the loop must start only once.
+				const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+				const canvas = document.getElementById('star-canvas') as HTMLCanvasElement | null;
+				const ctx = canvas?.getContext('2d') ?? null;
+
+				if (canvas && ctx && !reduceMotion && !window.starCanvasInitialized) {
+					window.starCanvasInitialized = true;
+					initStarCanvas(canvas, ctx);
+				}
+
+				// --- Theme toggle ------------------------------------------------------
+				const themeButton = document.getElementById('theme-toggle');
+				if (themeButton && !window.themeToggleInitialized) {
+					window.themeToggleInitialized = true;
+					themeButton.addEventListener('click', () => {
+						document.body.classList.toggle('light-mode');
+						localStorage.setItem(
+							'theme',
+							document.body.classList.contains('light-mode') ? 'light' : 'dark'
+						);
+					});
+				}
+			}
+
+			/**
+			 * Two entry points on purpose.
+			 *
+			 * `astro:page-load` is what fires on client-side navigation, but it only
+			 * ever fires if the view-transition router script itself loads. Hanging the
+			 * theme toggle solely off that event means a single failed request leaves
+			 * the button inert with no error anywhere — the toggle simply stops working.
+			 * The readyState branch covers the very first paint, and the
+			 * `window.*Initialized` flags already make a second call a no-op.
+			 */
+			document.addEventListener('astro:page-load', initChrome);
+
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', initChrome);
+			} else {
+				initChrome();
+			}
+
+			// Body is replaced on client-side navigation, so reapply the stored theme.
+			document.addEventListener('astro:after-swap', () => {
+				if (localStorage.getItem('theme') === 'light') {
+					document.body.classList.add('light-mode');
+				}
+			});
+		</script>
 	</body>
 </html>
-
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>

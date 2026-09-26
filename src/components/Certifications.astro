@@ -1,0 +1,298 @@
+---
+/**
+ * Certifications.
+ *
+ * The credentials themselves live on LinkedIn, so this leads with a link there.
+ * Any entries added to `certifications` render as cards above that link, so the
+ * section works whether the array is empty or not.
+ */
+import Section from './Section.astro';
+import { certifications, LINKEDIN_URL } from '../data/certifications';
+
+const hasCards = certifications.length > 0;
+---
+
+<Section
+	id="certifications"
+	eyebrow="Certifications"
+	title="Credentials & training"
+	subtitle={
+		hasCards
+			? 'A few highlights below — the full, up-to-date list lives on LinkedIn.'
+			: 'Every certification and credential I hold is kept up to date on my LinkedIn profile.'
+	}
+	bare
+>
+	{
+		hasCards && (
+			<div class="grid">
+				{certifications.map((cert) => (
+					<article class="cert">
+						<div class="badge">
+							{cert.image ? (
+								<img
+									src={cert.image}
+									alt={`${cert.name} badge`}
+									width="56"
+									height="56"
+									loading="lazy"
+								/>
+							) : (
+								<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor">
+									<circle cx="12" cy="9" r="6" stroke-width="1.8" />
+									<path
+										d="M9 14.5 8 22l4-2.2 4 2.2-1-7.5"
+										stroke-width="1.8"
+										stroke-linecap="round"
+									/>
+								</svg>
+							)}
+						</div>
+
+						<h3 class="cert-name">{cert.name}</h3>
+						<p class="cert-meta">
+							{cert.issuer} · {cert.date}
+						</p>
+
+						{cert.credentialUrl && (
+							<a class="verify" href={cert.credentialUrl} target="_blank" rel="noopener noreferrer">
+								Verify credential
+								<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor">
+									<path d="M7 17 17 7M9 7h8v8" stroke-width="2" stroke-linecap="round" />
+								</svg>
+							</a>
+						)}
+					</article>
+				))}
+			</div>
+		)
+	}
+
+	<a
+		class:list={['linkedin-panel', { compact: hasCards }]}
+		href={LINKEDIN_URL}
+		target="_blank"
+		rel="noopener noreferrer"
+	>
+		<span class="li-mark" aria-hidden="true"></span>
+
+		<span class="li-copy">
+			<strong class="li-title">
+				{hasCards ? 'See every credential on LinkedIn' : 'View my certifications on LinkedIn'}
+			</strong>
+			<span class="li-sub">linkedin.com/in/gabrieljohnsolomon</span>
+		</span>
+
+		<svg class="li-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+			<path d="M7 17 17 7M9 7h8v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+			></path>
+		</svg>
+	</a>
+</Section>
+
+<style>
+	.grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: clamp(0.85rem, 2vw, 1.25rem);
+		margin-bottom: clamp(1.25rem, 3vw, 1.75rem);
+	}
+
+	@media (max-width: 900px) {
+		.grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 600px) {
+		.grid {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+
+	.cert {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+		gap: 0.55rem;
+		min-height: 13rem;
+		justify-content: center;
+		padding: 1.5rem 1.25rem;
+		border-radius: var(--radius);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		box-sizing: border-box;
+		transition:
+			transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+			border-color 0.3s ease,
+			background 0.3s ease;
+	}
+
+	.cert:hover {
+		transform: translateY(-4px);
+		border-color: var(--pp);
+		background: var(--surface-hover);
+	}
+
+	.badge {
+		width: 56px;
+		height: 56px;
+		display: grid;
+		place-items: center;
+		border-radius: 50%;
+		background: var(--chip-bg);
+		border: 1px solid var(--border);
+		color: var(--pp);
+		margin-bottom: 0.25rem;
+	}
+
+	.badge svg {
+		width: 26px;
+		height: 26px;
+	}
+
+	.badge img {
+		width: 56px;
+		height: 56px;
+		border-radius: 50%;
+		object-fit: contain;
+	}
+
+	.cert-name {
+		font-family: 'pop-bold', system-ui, sans-serif;
+		font-size: 0.95rem;
+		line-height: 1.35;
+		margin: 0;
+	}
+
+	.cert-meta {
+		font-family: 'pop-thin', system-ui, sans-serif;
+		font-size: 0.8rem;
+		color: var(--muted);
+		margin: 0;
+		line-height: 1.5;
+	}
+
+	.verify {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3rem;
+		margin-top: 0.3rem;
+		font-size: 0.78rem;
+		font-weight: 600;
+		color: var(--pp);
+		text-decoration: none;
+	}
+
+	.verify:hover {
+		text-decoration: underline;
+	}
+
+	.verify svg {
+		width: 13px;
+		height: 13px;
+	}
+
+	/* ---------- LinkedIn panel ---------- */
+	.linkedin-panel {
+		display: flex;
+		align-items: center;
+		gap: clamp(0.9rem, 2.5vw, 1.25rem);
+		max-width: 34rem;
+		margin-inline: auto;
+		padding: clamp(1.1rem, 3vw, 1.5rem) clamp(1.1rem, 3vw, 1.6rem);
+		border-radius: var(--radius-lg);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		text-decoration: none;
+		color: var(--text-color);
+		transition:
+			transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+			border-color 0.3s ease,
+			background 0.3s ease,
+			box-shadow 0.3s ease;
+	}
+
+	/* When real certificate cards are present the panel is a footnote, not the
+	   headline, so it sits lower-key. */
+	.linkedin-panel.compact {
+		padding: 0.9rem 1.2rem;
+	}
+
+	.linkedin-panel:hover {
+		transform: translateY(-3px);
+		border-color: #0a66c2;
+		background: var(--surface-hover);
+		box-shadow: 0 12px 28px rgb(0 0 0 / 0.25);
+	}
+
+	.li-mark {
+		width: 34px;
+		height: 34px;
+		flex-shrink: 0;
+		background-color: #0a66c2;
+		mask: url('/icons/linkedin.svg') center / contain no-repeat;
+		-webkit-mask: url('/icons/linkedin.svg') center / contain no-repeat;
+	}
+
+	.linkedin-panel.compact .li-mark {
+		width: 26px;
+		height: 26px;
+	}
+
+	.li-copy {
+		display: flex;
+		flex-direction: column;
+		gap: 0.15rem;
+		min-width: 0;
+	}
+
+	.li-title {
+		font-family: 'pop-bold', system-ui, sans-serif;
+		font-size: clamp(0.9rem, 2.4vw, 1rem);
+		line-height: 1.35;
+		font-weight: 700;
+	}
+
+	.li-sub {
+		font-family: 'pop-thin', system-ui, sans-serif;
+		font-size: 0.78rem;
+		color: var(--muted);
+		/* The handle is long; never let it push the panel wider than the viewport. */
+		overflow-wrap: anywhere;
+	}
+
+	.li-arrow {
+		width: 18px;
+		height: 18px;
+		flex-shrink: 0;
+		margin-left: auto;
+		color: var(--muted);
+		transition:
+			transform 0.3s ease,
+			color 0.3s ease;
+	}
+
+	.linkedin-panel:hover .li-arrow {
+		color: #0a66c2;
+		transform: translate(2px, -2px);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.cert,
+		.linkedin-panel,
+		.li-arrow {
+			transition: none;
+		}
+
+		.cert:hover,
+		.linkedin-panel:hover {
+			transform: none;
+		}
+
+		.linkedin-panel:hover .li-arrow {
+			transform: none;
+		}
+	}
+</style>
