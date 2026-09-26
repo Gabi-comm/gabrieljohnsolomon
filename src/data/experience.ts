@@ -114,9 +114,7 @@ export const awards: string[] = [
 export const organizations: Organization[] = [
 	{ name: 'ACSS UE–Caloocan', role: 'President', logo: '/logos/acss.png' },
 	{ name: 'AWS Learning Club UE–C', role: 'Vice President', logo: '/logos/aws-learning-club.png' },
-	// No club logo supplied for this one yet, so it falls back to the AWS brand mark.
-	// Drop a file into public/logos/ and swap `icon` for `logo` to replace it.
-	{ name: 'AWS Cloud Club Philippines', role: 'Data Analyst', icon: 'amazonwebservices' },
+	{ name: 'AWS Cloud Club Philippines', role: 'Data Analyst', logo: '/logos/aws-cloud-club.png' },
 	{ name: 'GDSC UE–Caloocan', role: 'Data Science Lead', logo: '/logos/gdsc.png' },
 	{ name: 'AWS UG e:Novators PH', role: 'Ambassador', logo: '/logos/awsug-enovators.png' },
 	{
