@@ -52,6 +52,8 @@ const pageTitle = title === 'Gabriel John Solomon' ? title : `${title} · Gabrie
 				--name-bg: rgb(255, 255, 255);
 				--opp: rgb(0, 0, 0);
 				--pp: #8a5cff;
+				/* Second aurora blob in the hero; the light theme swaps it for gold. */
+				--blob-2: #0565e3;
 				--shad:
 					0 10px 40px rgba(81, 81, 81, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 
@@ -70,26 +72,38 @@ const pageTitle = title === 'Gabriel John Solomon' ? title : `${title} · Gabrie
 				--gutter: clamp(16px, 4vw, 32px);
 			}
 
+			/* Cream light theme — warm paper rather than cool grey. Every neutral is
+			   tinted toward brown so nothing reads as a blue-grey next to it, and the
+			   accent is terracotta instead of blue. */
 			body.light-mode {
-				--bg-color: #f4f4f5;
-				--bg-gradient: radial-gradient(circle at 50% 0%, #ffffff 0%, #e4e4e7 70%);
-				--dock-bg: rgba(255, 255, 255, 0.89);
-				--dock-border: rgba(0, 0, 0, 0.1);
-				--text-color: #09090b;
-				--icon-hover-bg: rgba(0, 0, 0, 0.05);
-				--divider-bg: rgba(0, 0, 0, 0.15);
-				--dock-icon-hover: #ff7400;
-				--name-bg: rgb(0, 0, 0);
-				--opp: rgb(255, 255, 255);
-				--pp: #0565e3;
-				--shad: 0 10px 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+				--bg-color: #f7f1e6;
+				--bg-gradient: radial-gradient(circle at 50% 0%, #fffaf2 0%, #f0e6d5 70%);
+				--dock-bg: rgba(253, 249, 241, 0.9);
+				--dock-border: rgba(120, 95, 60, 0.16);
+				/* Warm near-black, 13.9:1 on the cream ground. */
+				--text-color: #2b2218;
+				--icon-hover-bg: rgba(120, 95, 60, 0.09);
+				--divider-bg: rgba(120, 95, 60, 0.25);
+				/* Terracotta at 5.3:1 — carries real text (eyebrows, links), so it has
+				   to clear AA. Shared with --pp so there is one warm accent, not two. */
+				--dock-icon-hover: #a8451f;
+				--name-bg: #2b2218;
+				--opp: #fffaf2;
+				--pp: #a8451f;
+				/* Second aurora blob: warm gold, so the wash stays in the cream family. */
+				--blob-2: #e0a458;
+				/* Soft and warm; the old light shadow was near-black at 0.8 alpha and
+				   looked like soot on a pale background. */
+				--shad:
+					0 12px 34px rgba(120, 85, 50, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.7);
 
-				--surface: rgba(255, 255, 255, 0.6);
-				--surface-hover: rgba(255, 255, 255, 0.92);
-				--border: rgba(0, 0, 0, 0.1);
-				--chip-bg: rgba(255, 255, 255, 0.55);
-				--slot-border: rgba(0, 0, 0, 0.18);
-				--muted: rgba(9, 9, 11, 0.62);
+				--surface: rgba(255, 252, 245, 0.72);
+				--surface-hover: rgba(255, 253, 249, 0.95);
+				--border: rgba(120, 95, 60, 0.18);
+				--chip-bg: rgba(255, 252, 245, 0.66);
+				--slot-border: rgba(120, 95, 60, 0.3);
+				/* 4.9:1 composited over the cream background. */
+				--muted: rgba(43, 34, 24, 0.66);
 			}
 
 			html {
@@ -130,9 +144,12 @@ const pageTitle = title === 'Gabriel John Solomon' ? title : `${title} · Gabrie
 				pointer-events: none;
 			}
 
+			/* Inverting turns the white stars dark; the sepia warms them from a flat
+			   grey to a soft brown, and the lower opacity keeps them from speckling
+			   the cream background. */
 			body.light-mode #star-canvas {
-				filter: invert(1);
-				opacity: 0.6;
+				filter: invert(1) sepia(0.45);
+				opacity: 0.32;
 			}
 
 			@font-face {
@@ -180,7 +197,7 @@ const pageTitle = title === 'Gabriel John Solomon' ? title : `${title} · Gabrie
 
 			body.light-mode .glass-dock:hover {
 				box-shadow:
-					0 10px 40px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+					0 12px 34px rgba(120, 85, 50, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.8);
 			}
 
 			.dock-brand {
@@ -261,7 +278,7 @@ const pageTitle = title === 'Gabriel John Solomon' ? title : `${title} · Gabrie
 			   the sun (shown on dark) warms to the light theme's orange, the moon
 			   (shown on light) cools to the dark theme's purple. */
 			#theme-toggle:hover .sun-icon {
-				color: #ff7400;
+				color: #a8451f;
 			}
 
 			#theme-toggle:hover .moon-icon {
