@@ -82,7 +82,7 @@ import { experiences, organizations, highlights, awards } from '../data/experien
 				organizations.map((org) => (
 					<li class="aff">
 						{org.logo ? (
-							<img class="aff-mark" src={org.logo} alt="" width="22" height="22" loading="lazy" />
+							<img class="aff-mark" src={org.logo} alt="" width="26" height="26" loading="lazy" />
 						) : org.icon ? (
 							<span
 								class="aff-mark aff-icon"
@@ -327,11 +327,13 @@ import { experiences, organizations, highlights, awards } from '../data/experien
 	/* One geometry for all three mark types — real logo, brand mark, or monogram —
 	   so the row stays even regardless of what could be sourced for each org. */
 	.aff-mark {
-		width: 22px;
-		height: 22px;
+		width: 26px;
+		height: 26px;
 		flex-shrink: 0;
 		border-radius: 50%;
-		object-fit: contain;
+		/* The logos are pre-cropped square with their own background, so cover fills
+		   the circle cleanly rather than letterboxing inside it. */
+		object-fit: cover;
 	}
 
 	.aff-icon {

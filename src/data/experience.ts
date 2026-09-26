@@ -112,17 +112,19 @@ export const awards: string[] = [
 
 /** Standing affiliations, shown as a compact row beneath the timeline. */
 export const organizations: Organization[] = [
-	{ name: 'ACSS UE–Caloocan', role: 'President', initials: 'AC' },
-	{ name: 'AWS Learning Club UE–C', role: 'Vice President', icon: 'amazonwebservices' },
+	{ name: 'ACSS UE–Caloocan', role: 'President', logo: '/logos/acss.png' },
+	{ name: 'AWS Learning Club UE–C', role: 'Vice President', logo: '/logos/aws-learning-club.png' },
+	// No club logo supplied for this one yet, so it falls back to the AWS brand mark.
+	// Drop a file into public/logos/ and swap `icon` for `logo` to replace it.
 	{ name: 'AWS Cloud Club Philippines', role: 'Data Analyst', icon: 'amazonwebservices' },
-	{ name: 'GDSC UE–Caloocan', role: 'Data Science Lead', icon: 'google' },
-	{ name: 'AWS UG e:Novators PH', role: 'Ambassador', icon: 'amazonwebservices' },
+	{ name: 'GDSC UE–Caloocan', role: 'Data Science Lead', logo: '/logos/gdsc.png' },
+	{ name: 'AWS UG e:Novators PH', role: 'Ambassador', logo: '/logos/awsug-enovators.png' },
 	{
 		name: 'Quantum Computing Society of the Philippines',
 		role: 'Member',
 		logo: '/logos/qcsp.png',
 	},
-	{ name: 'Jesus Is Lord — Caloocan', role: 'Technical Support', initials: 'JIL' },
+	{ name: 'Jesus Is Lord — Caloocan', role: 'Technical Support', logo: '/logos/jil.png' },
 ];
 
 /** Stand-out facts, shown as large-type stat cards. */
