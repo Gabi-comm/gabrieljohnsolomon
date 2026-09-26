@@ -307,6 +307,26 @@ import { experiences, organizations, highlights, awards } from '../data/experien
 		}
 	}
 
+	@media (max-width: 520px) {
+		/* Chips go full width and stack name over role, so the longest org names
+		   read cleanly instead of wrapping into a ragged pill. */
+		.aff-list {
+			gap: 0.45rem;
+		}
+
+		.aff {
+			width: 100%;
+			align-items: flex-start;
+			border-radius: var(--radius);
+			padding: 0.6rem 0.75rem;
+		}
+
+		.aff-text {
+			flex-direction: column;
+			gap: 0.1rem;
+		}
+	}
+
 	.aff {
 		display: inline-flex;
 		align-items: center;
@@ -315,6 +335,10 @@ import { experiences, organizations, highlights, awards } from '../data/experien
 		border-radius: 999px;
 		background: var(--chip-bg);
 		border: 1px solid var(--border);
+		/* Without this a long org name ("Quantum Computing Society of the
+		   Philippines") sizes the chip to its one-line width and pushes past the
+		   viewport on a phone. */
+		max-width: 100%;
 	}
 
 	.aff-text {
@@ -322,6 +346,14 @@ import { experiences, organizations, highlights, awards } from '../data/experien
 		align-items: baseline;
 		gap: 0.45rem;
 		flex-wrap: wrap;
+		/* Flex items default to min-width:auto, which refuses to shrink below the
+		   content width — this is what actually lets the name wrap. */
+		min-width: 0;
+	}
+
+	.aff-name,
+	.aff-role {
+		overflow-wrap: anywhere;
 	}
 
 	/* One geometry for all three mark types — real logo, brand mark, or monogram —

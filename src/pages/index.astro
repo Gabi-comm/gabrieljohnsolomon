@@ -8,9 +8,10 @@ import TechStack from '../components/TechStack.astro';
 const FULL_NAME = 'Gabriel John Solomon';
 
 // Each letter gets its own span so the name can fade in one character at a time.
-// Spaces become non-breaking so they don't collapse.
-const NBSP = String.fromCharCode(160); // non-breaking space
-const NAME_CHARS = [...FULL_NAME].map((ch) => (ch === ' ' ? NBSP : ch));
+// Plain spaces, not non-breaking ones: the heading has to be able to wrap between
+// words on a narrow screen. A letter span holding a space collapses with the
+// surrounding markup whitespace into a single word gap.
+const NAME_CHARS = [...FULL_NAME];
 ---
 
 <Layout>
@@ -595,6 +596,35 @@ const NAME_CHARS = [...FULL_NAME].map((ch) => (ch === ' ' ? NBSP : ch));
 
 		.photo-back {
 			margin-top: 2.5rem;
+		}
+	}
+
+	@media (max-width: 480px) {
+		/* The status line can't fit one row on a phone. Let it wrap to two and soften
+		   the radius so it reads as a deliberate label, not a stretched pill. */
+		.status {
+			border-radius: var(--radius);
+			padding: 0.45rem 0.7rem;
+			text-align: left;
+			align-items: flex-start;
+		}
+
+		.status-dot {
+			/* Keeps the dot on the first line once the text wraps. */
+			margin-top: 0.34rem;
+		}
+
+		.hero {
+			/* 92vh pushes the buttons below the fold on a short screen; let the hero
+			   size to its content instead. */
+			min-height: auto;
+			padding-top: 5.5rem;
+			padding-bottom: 4rem;
+		}
+
+		/* Without a full-height hero the cue would sit on top of the buttons. */
+		.scroll-cue {
+			display: none;
 		}
 	}
 
