@@ -88,6 +88,7 @@ export const experiences: Experience[] = [
 
 /** Competition results and recognition, from the résumé's awards line. */
 export const awards: string[] = [
+	'Technify: Technology Innovation Festival 2026 — Best Research Paper, Computer Science Category',
 	'Philippine Junior Data Science Challenge 2024 — Top 10 Finalist',
 	'CodeChum National Programming Challenge 2025 — Semifinalist',
 	'Caffeine AI Manila Hackathon — Judge & Mentor',
