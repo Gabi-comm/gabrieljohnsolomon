@@ -81,8 +81,23 @@ import { experiences, organizations, highlights, awards } from '../data/experien
 			{
 				organizations.map((org) => (
 					<li class="aff">
-						<span class="aff-name">{org.name}</span>
-						<span class="aff-role">{org.role}</span>
+						{org.logo ? (
+							<img class="aff-mark" src={org.logo} alt="" width="22" height="22" loading="lazy" />
+						) : org.icon ? (
+							<span
+								class="aff-mark aff-icon"
+								style={`--icon:url('/icons/${org.icon}.svg')`}
+								aria-hidden="true"
+							/>
+						) : (
+							<span class="aff-mark aff-initials" aria-hidden="true">
+								{org.initials}
+							</span>
+						)}
+						<span class="aff-text">
+							<span class="aff-name">{org.name}</span>
+							<span class="aff-role">{org.role}</span>
+						</span>
 					</li>
 				))
 			}
@@ -294,12 +309,48 @@ import { experiences, organizations, highlights, awards } from '../data/experien
 
 	.aff {
 		display: inline-flex;
-		align-items: baseline;
-		gap: 0.45rem;
-		padding: 0.5rem 0.9rem;
+		align-items: center;
+		gap: 0.55rem;
+		padding: 0.45rem 0.9rem 0.45rem 0.5rem;
 		border-radius: 999px;
 		background: var(--chip-bg);
 		border: 1px solid var(--border);
+	}
+
+	.aff-text {
+		display: inline-flex;
+		align-items: baseline;
+		gap: 0.45rem;
+		flex-wrap: wrap;
+	}
+
+	/* One geometry for all three mark types — real logo, brand mark, or monogram —
+	   so the row stays even regardless of what could be sourced for each org. */
+	.aff-mark {
+		width: 22px;
+		height: 22px;
+		flex-shrink: 0;
+		border-radius: 50%;
+		object-fit: contain;
+	}
+
+	.aff-icon {
+		/* Masked so the brand mark follows the text colour in both themes. */
+		background-color: var(--text-color);
+		mask: var(--icon) center / 88% no-repeat;
+		-webkit-mask: var(--icon) center / 88% no-repeat;
+		border-radius: 0;
+	}
+
+	.aff-initials {
+		display: grid;
+		place-items: center;
+		background: var(--surface-hover);
+		border: 1px solid var(--border);
+		color: var(--muted);
+		font-family: 'pop-bold', system-ui, sans-serif;
+		font-size: 0.55rem;
+		letter-spacing: 0.02em;
 	}
 
 	.aff-name {

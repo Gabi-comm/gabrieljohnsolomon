@@ -23,6 +23,20 @@ export interface Experience {
 export interface Organization {
 	name: string;
 	role: string;
+	/**
+	 * Monochrome SVG basename in `public/icons/`, drawn as a CSS mask so it takes the
+	 * surrounding text colour and works in both themes. Used for the parent-brand
+	 * marks (AWS, Google) of officially affiliated programmes.
+	 */
+	icon?: string;
+	/** Full-colour logo in `public/logos/`, rendered as an <img>. */
+	logo?: string;
+	/**
+	 * Fallback monogram when no logo could be sourced. These orgs publish their
+	 * branding only on Facebook, which blocks automated fetching — drop a file into
+	 * `public/logos/` and set `logo` to replace the monogram.
+	 */
+	initials?: string;
 }
 
 export interface Highlight {
@@ -98,13 +112,17 @@ export const awards: string[] = [
 
 /** Standing affiliations, shown as a compact row beneath the timeline. */
 export const organizations: Organization[] = [
-	{ name: 'ACSS UE–Caloocan', role: 'President' },
-	{ name: 'AWS Learning Club UE–C', role: 'Vice President' },
-	{ name: 'AWS Cloud Club Philippines', role: 'Data Analyst' },
-	{ name: 'GDSC UE–Caloocan', role: 'Data Science Lead' },
-	{ name: 'AWS UG e:Novators PH', role: 'Ambassador' },
-	{ name: 'Quantum Computing Society of the Philippines', role: 'Member' },
-	{ name: 'Jesus Is Lord — Caloocan', role: 'Technical Support' },
+	{ name: 'ACSS UE–Caloocan', role: 'President', initials: 'AC' },
+	{ name: 'AWS Learning Club UE–C', role: 'Vice President', icon: 'amazonwebservices' },
+	{ name: 'AWS Cloud Club Philippines', role: 'Data Analyst', icon: 'amazonwebservices' },
+	{ name: 'GDSC UE–Caloocan', role: 'Data Science Lead', icon: 'google' },
+	{ name: 'AWS UG e:Novators PH', role: 'Ambassador', icon: 'amazonwebservices' },
+	{
+		name: 'Quantum Computing Society of the Philippines',
+		role: 'Member',
+		logo: '/logos/qcsp.png',
+	},
+	{ name: 'Jesus Is Lord — Caloocan', role: 'Technical Support', initials: 'JIL' },
 ];
 
 /** Stand-out facts, shown as large-type stat cards. */
