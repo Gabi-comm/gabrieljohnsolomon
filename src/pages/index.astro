@@ -8,10 +8,12 @@ import TechStack from '../components/TechStack.astro';
 const FULL_NAME = 'Gabriel John Solomon';
 
 // Each letter gets its own span so the name can fade in one character at a time.
-// Plain spaces, not non-breaking ones: the heading has to be able to wrap between
-// words on a narrow screen. A letter span holding a space collapses with the
-// surrounding markup whitespace into a single word gap.
-const NAME_CHARS = [...FULL_NAME];
+// Letters are grouped per word, and each word is kept whole, so on a narrow
+// screen the heading wraps only between words, never mid-word. Letter spans
+// carry no whitespace: the spacing comes from CSS letter-spacing, and the gap
+// between words from the flex gap on the heading.
+let charIndex = 0;
+const NAME_WORDS = FULL_NAME.split(' ').map((word) => [...word].map((ch) => ({ ch, i: charIndex++ })));
 ---
 
 <Layout>
@@ -37,9 +39,9 @@ const NAME_CHARS = [...FULL_NAME];
 
 			<h1 class="name" aria-label={FULL_NAME}>
 				{
-					NAME_CHARS.map((ch, i) => (
-						<span class="ch" aria-hidden="true" style={`--i:${i}`}>
-							{ch}
+					NAME_WORDS.map((letters) => (
+						<span class="word" aria-hidden="true">
+							{letters.map(({ ch, i }) => <span class="ch" style={`--i:${i}`}>{ch}</span>)}
 						</span>
 					))
 				}
@@ -335,14 +337,31 @@ const NAME_CHARS = [...FULL_NAME];
 		font-family: 'ret', system-ui, sans-serif;
 		font-size: clamp(2rem, 8.5vw, 3.6rem);
 		line-height: 1.1;
-		letter-spacing: 2px;
+		/* The spaced-out look between letters, done properly with CSS. */
+		letter-spacing: 0.3em;
 		margin: 0;
+		/* Words sit on one line when they fit and wrap between each other (only)
+		   when they don't, each line centred. The gap is the space between words. */
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		column-gap: 0.45em;
+		row-gap: 0.15em;
+		/* .hero-inner centres its children, which would otherwise let the heading
+		   grow to its one-line width and run off a phone screen instead of wrapping. */
+		max-width: 100%;
 		/* Plain solid colour: white on the dark theme, near-black on the light one. */
 		color: var(--text-color);
 	}
 
+	.word {
+		white-space: nowrap;
+		/* letter-spacing also adds space after a word's last letter; take it back
+		   so every line stays visually centred. */
+		margin-right: -0.3em;
+	}
+
 	.ch {
-		/* Stays inline on purpose - see the note in the frontmatter. */
 		opacity: 0;
 		animation: letter-in 0.5s ease forwards;
 		animation-delay: calc(0.3s + var(--i) * 0.035s);
