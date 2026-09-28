@@ -151,9 +151,9 @@ const NAME_CHARS = [...FULL_NAME];
 		min-height: min(92vh, 820px);
 		padding: clamp(6rem, 15vh, 9rem) var(--gutter) clamp(3.5rem, 8vh, 5rem);
 		box-sizing: border-box;
+		/* Full-bleed: the aurora and the pointer glow span the whole viewport, so
+		   there is no clipped edge at the sides; only the copy is width-capped. */
 		width: 100%;
-		max-width: var(--content-width);
-		margin-inline: auto;
 	}
 
 	.hero-inner {
@@ -162,15 +162,22 @@ const NAME_CHARS = [...FULL_NAME];
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		width: 100%;
+		max-width: var(--content-width);
 	}
 
 	/* ---------- Aurora backdrop ---------- */
 	.aurora {
 		position: absolute;
-		inset: -10% -5%;
+		/* Exactly the hero's box, so the pointer glow's --px/--py (measured
+		   against the hero) land right under the cursor. */
+		inset: 0;
 		z-index: 0;
 		pointer-events: none;
 		overflow: hidden;
+		/* Fade out at the top and bottom instead of stopping at a hard line. */
+		-webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 78%, transparent 100%);
+		mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 78%, transparent 100%);
 	}
 
 	.blob {
