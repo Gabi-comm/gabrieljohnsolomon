@@ -117,9 +117,9 @@ const pageTitle = title === 'Gabriel John Solomon' ? title : `${title} · Gabrie
 				background-image: var(--bg-gradient);
 				color: var(--text-color);
 				transition:
-					background-color 0.3s ease,
-					color 0.3s ease,
-					background-image 0.3s ease;
+					background-color 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+					color 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+					background-image 0.45s cubic-bezier(0.4, 0, 0.2, 1);
 				min-height: 100vh;
 				background-attachment: fixed;
 				margin: 0;
@@ -132,6 +132,18 @@ const pageTitle = title === 'Gabriel John Solomon' ? title : `${title} · Gabrie
 				overflow-x: hidden;
 				font-family:
 					-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+			}
+
+			/* While toggling themes, every element briefly eases its themed properties
+			   together, so surfaces, borders, chips and text cross-fade as one instead
+			   of some snapping and others lagging. The class is added on click and
+			   removed ~500ms later (see the theme-toggle handler). */
+			body.theme-anim,
+			body.theme-anim *:not(#star-canvas) {
+				transition-property: background-color, background-image, border-color, color, fill,
+					stroke, box-shadow, opacity;
+				transition-duration: 0.45s;
+				transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 			}
 
 			#star-canvas {
@@ -659,6 +671,18 @@ const pageTitle = title === 'Gabriel John Solomon' ? title : `${title} · Gabrie
 				if (themeButton && !window.themeToggleInitialized) {
 					window.themeToggleInitialized = true;
 					themeButton.addEventListener('click', () => {
+						// Briefly let every element ease its themed colours together for a
+						// smooth cross-fade, unless the visitor prefers reduced motion.
+						const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+						if (smooth) {
+							document.body.classList.add('theme-anim');
+							window.clearTimeout(window.themeAnimTimer);
+							window.themeAnimTimer = window.setTimeout(
+								() => document.body.classList.remove('theme-anim'),
+								520
+							);
+						}
+
 						document.body.classList.toggle('light-mode');
 						localStorage.setItem(
 							'theme',

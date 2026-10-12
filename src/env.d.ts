@@ -10,6 +10,8 @@ declare global {
 		starCanvasInitialized?: boolean;
 		/** Same idea for the theme button's click listener. */
 		themeToggleInitialized?: boolean;
+		/** Pending timeout that removes the theme cross-fade class after a toggle. */
+		themeAnimTimer?: number;
 	}
 }
 

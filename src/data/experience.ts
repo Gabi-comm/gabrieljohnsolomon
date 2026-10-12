@@ -1,7 +1,7 @@
 /**
  * Experience, awards and affiliations shown on the home page.
  *
- * Sourced from Gabriel's own résumé (`public/SOLOMON.pdf`). Contact details and the
+ * Sourced from Gabriel's own résumé (`public/Resume-SOLOMON.pdf`). Contact details and the
  * character references in that document are deliberately NOT reproduced here — the
  * site is public.
  *
@@ -50,11 +50,10 @@ export const experiences: Experience[] = [
 	{
 		role: 'AI Security Intern',
 		org: 'RivanAI Cybersecurity Inc.',
-		// Résumé gives the start year; the internship is ongoing.
-		period: '2026 – Present',
+		period: '2026',
 		current: true,
 		description:
-			'Ran adversarial simulations against large language models — direct and indirect prompt injection, data poisoning — and built the safeguards to mitigate them across data pipelines, training and inference. Also developed ransomware executables for realistic threat modelling of the organisation’s incident response.',
+			'Engineered and ran advanced adversarial simulations — direct and indirect prompt injection and data-poisoning vectors — to proactively surface vulnerabilities in LLM applications. Supported secure LLM development and deployment with technical safeguards across data pipelines, training and inference, and built controlled ransomware-behaviour simulations for SOC training to strengthen defensive posture and incident-response readiness.',
 	},
 	{
 		role: 'President',
@@ -64,19 +63,18 @@ export const experiences: Experience[] = [
 			'Leads technical initiatives and programmes for the computer studies student body.',
 	},
 	{
-		// Current role at the club. Listed above the completed VCOO term below, so the
-		// two read as a progression.
-		role: 'Vice President',
+		role: 'Data Science Lead',
+		org: 'Google Developer Student Club — UE Caloocan',
+		current: true,
+		description:
+			'Leads the data science track for the campus GDSC chapter, running sessions on practical analysis and modelling.',
+	},
+	{
+		role: 'Vice-Chief Operations Officer',
 		org: 'AWS Learning Club — UE Caloocan',
 		current: true,
 		description:
-			'Helps lead the campus cloud community, organising sessions that get students hands-on with AWS services and cloud fundamentals.',
-	},
-	{
-		role: 'Vice-Chief Operation Officer',
-		org: 'AWS Learning Club — UE Caloocan',
-		description:
-			'Completed a term running day-to-day operations for the club, coordinating its events and programme delivery.',
+			'Runs day-to-day operations for the campus cloud community, coordinating sessions that get students hands-on with AWS services and cloud fundamentals.',
 	},
 	{
 		role: 'Data Analyst',
@@ -86,17 +84,18 @@ export const experiences: Experience[] = [
 			'Turns community and programme data into reporting that informs how the national cloud club plans and measures its events.',
 	},
 	{
-		role: 'Data Science Lead',
-		org: 'Google Developer Student Club — UE Caloocan',
-		description:
-			'Led the data science track for the campus GDSC chapter, running sessions on practical analysis and modelling.',
-	},
-	{
 		role: 'Ambassador',
 		org: 'AWS User Group e:Novators Philippines',
 		current: true,
 		description:
 			'Represents the user group in the wider Philippine AWS community, supporting its events and outreach.',
+	},
+	{
+		role: 'Technical Support',
+		org: 'Jesus Is Lord Church — Caloocan',
+		current: true,
+		description:
+			'Provides technical and audiovisual support for services and events.',
 	},
 ];
 
@@ -113,7 +112,7 @@ export const awards: string[] = [
 /** Standing affiliations, shown as a compact row beneath the timeline. */
 export const organizations: Organization[] = [
 	{ name: 'ACSS UE–Caloocan', role: 'President', logo: '/logos/acss.png' },
-	{ name: 'AWS Learning Club UE–C', role: 'Vice President', logo: '/logos/aws-learning-club.png' },
+	{ name: 'AWS Learning Club UE–C', role: 'Vice-Chief Ops Officer', logo: '/logos/aws-learning-club.png' },
 	{ name: 'AWS Cloud Club Philippines', role: 'Data Analyst', logo: '/logos/aws-cloud-club.png' },
 	{ name: 'GDSC UE–Caloocan', role: 'Data Science Lead', logo: '/logos/gdsc.png' },
 	{ name: 'AWS UG e:Novators PH', role: 'Ambassador', logo: '/logos/awsug-enovators.png' },
