@@ -1,0 +1,454 @@
+---
+/**
+ * The inner content of the experience section: highlight stats, the role timeline,
+ * awards and standing affiliations. Shared between the home-page teaser (which caps
+ * the timeline with `limit` and shows a "View all" link) and the full /exp page
+ * (which passes no limit and renders every role).
+ */
+import { experiences, organizations, highlights, awards } from '../data/experience';
+
+interface Props {
+	/** Cap the timeline to the first N roles and show a link to the full page. */
+	limit?: number;
+}
+
+const { limit } = Astro.props;
+const shown = limit ? experiences.slice(0, limit) : experiences;
+const hasMore = limit !== undefined && experiences.length > limit;
+---
+
+<div class="highlights">
+	{
+		highlights.map((h) => (
+			<div class="highlight">
+				<span class="highlight-label">{h.label}</span>
+				<span class="highlight-detail">{h.detail}</span>
+			</div>
+		))
+	}
+</div>
+
+<ol class="timeline">
+	{
+		shown.map((item) => (
+			<li class:list={['entry', { current: item.current }]}>
+				<span class="marker" aria-hidden="true" />
+
+				<div class="entry-body">
+					<div class="entry-head">
+						<h3 class="entry-role">{item.role}</h3>
+						{item.current && <span class="badge">Current</span>}
+						{item.period && <span class="period">{item.period}</span>}
+					</div>
+
+					<p class="entry-org">
+						{item.url ? (
+							<a href={item.url} target="_blank" rel="noopener noreferrer">
+								{item.org}
+							</a>
+						) : (
+							item.org
+						)}
+					</p>
+
+					<p class="entry-desc">{item.description}</p>
+				</div>
+			</li>
+		))
+	}
+</ol>
+
+{
+	hasMore && (
+		<div class="more">
+			<a class="ghost-btn" href="/exp">
+				View all {experiences.length} roles
+				<svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor">
+					<path d="M5 12h14M13 6l6 6-6 6" stroke-width="2" stroke-linecap="round" />
+				</svg>
+			</a>
+		</div>
+	)
+}
+
+<div class="affiliations">
+	<h3 class="aff-label">Awards &amp; recognition</h3>
+	<ul class="award-list">
+		{
+			awards.map((award) => (
+				<li class="award">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+						<circle cx="12" cy="9" r="6" stroke-width="1.8" />
+						<path d="M9 14.5 8 22l4-2.2 4 2.2-1-7.5" stroke-width="1.8" stroke-linecap="round" />
+					</svg>
+					{award}
+				</li>
+			))
+		}
+	</ul>
+</div>
+
+<div class="affiliations">
+	<h3 class="aff-label">Affiliated with</h3>
+	<ul class="aff-list">
+		{
+			organizations.map((org) => (
+				<li class="aff">
+					{org.logo ? (
+						<img class="aff-mark" src={org.logo} alt="" width="26" height="26" loading="lazy" />
+					) : org.icon ? (
+						<span
+							class="aff-mark aff-icon"
+							style={`--icon:url('/icons/${org.icon}.svg')`}
+							aria-hidden="true"
+						/>
+					) : (
+						<span class="aff-mark aff-initials" aria-hidden="true">
+							{org.initials}
+						</span>
+					)}
+					<span class="aff-text">
+						<span class="aff-name">{org.name}</span>
+						<span class="aff-role">{org.role}</span>
+					</span>
+				</li>
+			))
+		}
+	</ul>
+</div>
+
+<style>
+	/* ---------- Highlights ---------- */
+	.highlights {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: clamp(0.7rem, 2vw, 1.1rem);
+		margin-bottom: clamp(1.75rem, 4vw, 2.5rem);
+	}
+
+	.highlight {
+		display: flex;
+		flex-direction: column;
+		gap: 0.3rem;
+		padding: 1.1rem 1.25rem;
+		border-radius: var(--radius);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		text-align: center;
+		align-items: center;
+	}
+
+	.highlight-label {
+		font-family: 'pop-bold', system-ui, sans-serif;
+		font-size: clamp(1.25rem, 3.5vw, 1.7rem);
+		line-height: 1;
+		color: var(--pp);
+	}
+
+	.highlight-detail {
+		font-family: 'pop-thin', system-ui, sans-serif;
+		font-size: 0.78rem;
+		line-height: 1.5;
+		color: var(--muted);
+	}
+
+	/* ---------- Timeline ---------- */
+	.timeline {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		position: relative;
+	}
+
+	.entry {
+		position: relative;
+		padding: 0 0 clamp(1.4rem, 3.5vw, 2rem) 2rem;
+	}
+
+	.entry::before {
+		content: '';
+		position: absolute;
+		left: 5px;
+		top: 0.55rem;
+		bottom: 0;
+		width: 1px;
+		background: var(--border);
+	}
+
+	.entry:last-child {
+		padding-bottom: 0;
+	}
+
+	.entry:last-child::before {
+		display: none;
+	}
+
+	.marker {
+		position: absolute;
+		left: 0;
+		top: 0.4rem;
+		width: 11px;
+		height: 11px;
+		border-radius: 50%;
+		border: 2px solid var(--border);
+		background: var(--bg-color);
+	}
+
+	.entry.current .marker {
+		border-color: var(--pp);
+		background: var(--pp);
+	}
+
+	.entry-head {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin-bottom: 0.2rem;
+	}
+
+	.entry-role {
+		font-family: 'pop-bold', system-ui, sans-serif;
+		font-size: 1rem;
+		line-height: 1.3;
+		margin: 0;
+	}
+
+	.badge {
+		font-size: 0.62rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		padding: 0.18rem 0.5rem;
+		border-radius: 999px;
+		border: 1px solid var(--pp);
+		color: var(--pp);
+		white-space: nowrap;
+	}
+
+	.period {
+		font-size: 0.75rem;
+		color: var(--muted);
+		margin-left: auto;
+		white-space: nowrap;
+	}
+
+	.entry-org {
+		font-family: 'pop-thin', system-ui, sans-serif;
+		font-size: 0.85rem;
+		color: var(--pp);
+		margin: 0 0 0.35rem;
+	}
+
+	.entry-org a {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.entry-org a:hover {
+		text-decoration: underline;
+	}
+
+	.entry-desc {
+		font-family: 'pop-thin', system-ui, sans-serif;
+		font-size: 0.875rem;
+		line-height: 1.65;
+		color: var(--muted);
+		margin: 0;
+		max-width: 62ch;
+	}
+
+	/* ---------- "View all" button ---------- */
+	.more {
+		display: flex;
+		justify-content: center;
+		margin-top: clamp(1.75rem, 4vw, 2.5rem);
+	}
+
+	.ghost-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.6rem;
+		padding: 0.7rem 1.35rem;
+		border-radius: 999px;
+		border: 1px solid var(--border);
+		background: var(--surface);
+		color: var(--text-color);
+		font-size: 0.875rem;
+		font-weight: 600;
+		text-decoration: none;
+		transition:
+			border-color 0.3s ease,
+			color 0.3s ease,
+			transform 0.3s ease,
+			background 0.3s ease;
+	}
+
+	.ghost-btn:hover {
+		border-color: var(--pp);
+		color: var(--pp);
+		background: var(--surface-hover);
+		transform: translateY(-2px);
+	}
+
+	.ghost-btn svg {
+		width: 15px;
+		height: 15px;
+	}
+
+	/* ---------- Affiliations ---------- */
+	.affiliations {
+		margin-top: clamp(1.75rem, 4vw, 2.5rem);
+		padding-top: clamp(1.25rem, 3vw, 1.75rem);
+		border-top: 1px solid var(--border);
+	}
+
+	.aff-label {
+		font-family: 'pop-bold', system-ui, sans-serif;
+		font-size: 0.7rem;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: var(--muted);
+		margin: 0 0 0.9rem;
+	}
+
+	.aff-list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	/* ---------- Awards ---------- */
+	.award-list {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0.55rem 1.5rem;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.award {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.55rem;
+		font-family: 'pop-thin', system-ui, sans-serif;
+		font-size: 0.85rem;
+		line-height: 1.55;
+		color: var(--muted);
+	}
+
+	.award svg {
+		width: 15px;
+		height: 15px;
+		flex-shrink: 0;
+		margin-top: 0.18rem;
+		color: var(--pp);
+	}
+
+	@media (max-width: 720px) {
+		.award-list {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+
+	@media (max-width: 520px) {
+		.aff-list {
+			gap: 0.45rem;
+		}
+
+		.aff {
+			width: 100%;
+			align-items: flex-start;
+			border-radius: var(--radius);
+			padding: 0.6rem 0.75rem;
+		}
+
+		.aff-text {
+			flex-direction: column;
+			gap: 0.1rem;
+		}
+	}
+
+	.aff {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.55rem;
+		padding: 0.45rem 0.9rem 0.45rem 0.5rem;
+		border-radius: 999px;
+		background: var(--chip-bg);
+		border: 1px solid var(--border);
+		max-width: 100%;
+	}
+
+	.aff-text {
+		display: inline-flex;
+		align-items: baseline;
+		gap: 0.45rem;
+		flex-wrap: wrap;
+		min-width: 0;
+	}
+
+	.aff-name,
+	.aff-role {
+		overflow-wrap: anywhere;
+	}
+
+	.aff-mark {
+		width: 26px;
+		height: 26px;
+		flex-shrink: 0;
+		border-radius: 50%;
+		object-fit: cover;
+	}
+
+	.aff-icon {
+		background-color: var(--text-color);
+		mask: var(--icon) center / 88% no-repeat;
+		-webkit-mask: var(--icon) center / 88% no-repeat;
+		border-radius: 0;
+	}
+
+	.aff-initials {
+		display: grid;
+		place-items: center;
+		background: var(--surface-hover);
+		border: 1px solid var(--border);
+		color: var(--muted);
+		font-family: 'pop-bold', system-ui, sans-serif;
+		font-size: 0.55rem;
+		letter-spacing: 0.02em;
+	}
+
+	.aff-name {
+		font-family: 'pop-bold', system-ui, sans-serif;
+		font-size: 0.82rem;
+	}
+
+	.aff-role {
+		font-family: 'pop-thin', system-ui, sans-serif;
+		font-size: 0.72rem;
+		color: var(--muted);
+	}
+
+	@media (max-width: 720px) {
+		.highlights {
+			grid-template-columns: minmax(0, 1fr);
+		}
+
+		.period {
+			margin-left: 0;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.ghost-btn {
+			transition: none;
+		}
+		.ghost-btn:hover {
+			transform: none;
+		}
+	}
+</style>
