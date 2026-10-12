@@ -1,0 +1,132 @@
+---
+/**
+ * One certificate card: a landscape frame holding the full credential image
+ * (contained, never cropped) and a title row. The whole card links to the
+ * full-resolution image (or a verifiable-credential URL when present).
+ *
+ * Shared by the home highlight row and the full /certificates gallery so the two
+ * stay visually identical.
+ */
+import type { Certification } from '../data/certifications';
+
+interface Props {
+	cert: Certification;
+}
+
+const { cert } = Astro.props;
+---
+
+<a
+	class="cert"
+	href={cert.credentialUrl ?? cert.image}
+	target="_blank"
+	rel="noopener noreferrer"
+	aria-label={`${cert.name} — view certificate`}
+>
+	<div class="shot">
+		<img src={cert.image} alt={`${cert.name} certificate`} loading="lazy" decoding="async" />
+	</div>
+	<div class="cap">
+		<span class="cert-name">{cert.name}</span>
+		<svg class="view" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor">
+			<path d="M7 17 17 7M9 7h8v8" stroke-width="2" stroke-linecap="round"></path>
+		</svg>
+	</div>
+</a>
+
+<style>
+	.cert {
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+		border-radius: var(--radius);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		text-decoration: none;
+		color: inherit;
+		box-sizing: border-box;
+		transition:
+			transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+			border-color 0.3s ease,
+			background 0.3s ease,
+			box-shadow 0.3s ease;
+	}
+
+	.cert:hover {
+		transform: translateY(-4px);
+		border-color: var(--pp);
+		background: var(--surface-hover);
+		box-shadow: 0 14px 32px rgb(0 0 0 / 0.28);
+	}
+
+	/* Landscape frame; `contain` so certificate text is never cropped. */
+	.shot {
+		aspect-ratio: 4 / 3;
+		background:
+			repeating-linear-gradient(
+				45deg,
+				color-mix(in srgb, var(--text-color) 3%, transparent) 0 10px,
+				transparent 10px 20px
+			),
+			var(--chip-bg);
+		border-bottom: 1px solid var(--border);
+		display: grid;
+		place-items: center;
+		overflow: hidden;
+	}
+
+	.shot img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		display: block;
+		transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
+	.cert:hover .shot img {
+		transform: scale(1.04);
+	}
+
+	.cap {
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+		padding: 0.85rem 1rem;
+	}
+
+	.cert-name {
+		font-family: 'pop-bold', system-ui, sans-serif;
+		font-size: 0.85rem;
+		line-height: 1.35;
+		flex: 1;
+		min-width: 0;
+	}
+
+	.view {
+		width: 15px;
+		height: 15px;
+		flex-shrink: 0;
+		color: var(--muted);
+		transition:
+			color 0.3s ease,
+			transform 0.3s ease;
+	}
+
+	.cert:hover .view {
+		color: var(--pp);
+		transform: translate(2px, -2px);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.cert,
+		.shot img,
+		.view {
+			transition: none;
+		}
+		.cert:hover,
+		.cert:hover .shot img,
+		.cert:hover .view {
+			transform: none;
+		}
+	}
+</style>

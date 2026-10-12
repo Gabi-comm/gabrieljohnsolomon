@@ -6,7 +6,8 @@
 interface Props {
 	/** Small uppercase label above the heading. */
 	eyebrow?: string;
-	title: string;
+	/** Optional: omit to render just the eyebrow (e.g. a section that needs no H2). */
+	title?: string;
 	subtitle?: string;
 	/** Anchor target, for linking straight to a section. */
 	id?: string;
@@ -20,7 +21,7 @@ const { eyebrow, title, subtitle, id, bare = false } = Astro.props;
 <section class="section" id={id}>
 	<header class="section-head">
 		{eyebrow && <p class="eyebrow">{eyebrow}</p>}
-		<h2 class="section-title">{title}</h2>
+		{title && <h2 class="section-title">{title}</h2>}
 		{subtitle && <p class="section-sub">{subtitle}</p>}
 	</header>
 

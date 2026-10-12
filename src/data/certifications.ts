@@ -19,6 +19,8 @@ export interface Certification {
 	image: string;
 	/** Optional verifiable-credential link (Credly, Coursera, etc.). */
 	credentialUrl?: string;
+	/** Surfaced on the home page's 3-up highlight row. Keep exactly three. */
+	featured?: boolean;
 }
 
 /** Order the category groups appear in on the page. */
@@ -40,16 +42,19 @@ export const certifications: Certification[] = [
 		name: 'AI Engineer for Data Scientists (Associate)',
 		category: 'Certification',
 		image: '/certs/ai-engineer-for-data-scientists-associate.png',
+		featured: true,
 	},
 	{
 		name: 'AI Fluency: Framework & Foundations',
 		category: 'Certification',
 		image: '/certs/ai-fluency-framework-and-foundation.png',
+		featured: true,
 	},
 	{
 		name: 'Certified AI Agent Security Specialist',
 		category: 'Certification',
 		image: '/certs/certified-ai-agent-security-specialist-certification.png',
+		featured: true,
 	},
 	{
 		name: 'Certified AI Data Security Specialist',

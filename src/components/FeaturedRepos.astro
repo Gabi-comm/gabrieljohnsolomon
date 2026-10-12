@@ -13,13 +13,7 @@ import { fetchRepos } from '../lib/github';
 const metas = await fetchRepos(featuredRepos.map((r) => r.slug));
 ---
 
-<Section
-	id="work"
-	eyebrow="Featured work"
-	title="Projects I'm proud of"
-	subtitle="Machine learning, computer vision and automation work — pulled live from my GitHub at build time."
-	bare
->
+<Section id="work" eyebrow="Featured work" bare>
 	<div class="grid">
 		{featuredRepos.map((repo, i) => <RepoCard repo={repo} meta={metas[i] ?? null} />)}
 	</div>
