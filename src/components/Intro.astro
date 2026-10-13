@@ -109,6 +109,11 @@ const tagline = 'Gab Builds and Creates';
 		animation: intro-curtain 0.75s cubic-bezier(0.76, 0, 0.24, 1) 2.45s forwards;
 	}
 
+	/* Light theme: the mark takes the theme's terracotta accent instead of purple. */
+	body.light-mode #intro {
+		--mark: var(--pp);
+	}
+
 	html.intro-skip #intro {
 		animation: intro-fade 0.3s ease forwards;
 	}
