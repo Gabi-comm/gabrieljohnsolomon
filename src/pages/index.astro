@@ -7,6 +7,14 @@ import TechStack from '../components/TechStack.astro';
 
 const FULL_NAME = 'Gabriel John Solomon';
 
+// About-section carousel. width/height are the files' true sizes; cards crop to
+// 4:5 with object-fit, and `focus` keeps the face in frame.
+const PHOTOS = [
+	{ src: '/me3.jpg', width: 900, height: 908, alt: 'Gabriel John Solomon in orange-tinted glasses', focus: '50% 35%' },
+	{ src: '/me.jpg', width: 956, height: 956, alt: 'Gabriel John Solomon at his desk by a sunlit window', focus: '50% 40%' },
+	{ src: '/me2.jpg', width: 583, height: 728, alt: 'Gabriel John Solomon speaking at an event' },
+];
+
 // Each letter gets its own span so the name can fade in one character at a time.
 // Letters are grouped per word, and each word is kept whole, so on a narrow
 // screen the heading wraps only between words, never mid-word. Letter spans
@@ -104,27 +112,27 @@ const NAME_WORDS = FULL_NAME.split(' ').map((word) => [...word].map((ch) => ({ c
 
 	<!-- About -->
 	<section class="about" id="about">
+		<!-- Photos ride a slow 3D ring. Each card is placed at its own angle (--a)
+		     plus the ring's shared spin (--t), then turned back to face the viewer, so
+		     the pictures stay upright while circling. Hover pauses it. -->
 		<div class="photos">
-			<!-- width/height are the files' true intrinsic sizes so the browser reserves
-			     the right space (no layout shift); CSS below sets the displayed size. -->
-			<img
-				src="/me.jpg"
-				width="956"
-				height="956"
-				alt="Gabriel John Solomon"
-				loading="lazy"
-				decoding="async"
-				class="photo photo-front"
-			/>
-			<img
-				src="/me2.jpg"
-				width="583"
-				height="728"
-				alt="Gabriel John Solomon speaking at an event"
-				loading="lazy"
-				decoding="async"
-				class="photo photo-back"
-			/>
+			<div class="orbit">
+				{
+					PHOTOS.map((photo, i) => (
+						<figure class="orbit-card" style={`--a:${(360 / PHOTOS.length) * i}deg`}>
+							<img
+								src={photo.src}
+								width={photo.width}
+								height={photo.height}
+								alt={photo.alt}
+								loading="lazy"
+								decoding="async"
+								style={photo.focus ? `object-position:${photo.focus}` : undefined}
+							/>
+						</figure>
+					))
+				}
+			</div>
 		</div>
 
 		<div class="bio">
@@ -336,8 +344,14 @@ const NAME_WORDS = FULL_NAME.split(' ').map((word) => [...word].map((ch) => ({ c
 
 	.hb {
 		fill: #6d4ae0;
+		transition: fill 0.45s cubic-bezier(0.4, 0, 0.2, 1);
 		transform-box: fill-box;
 		animation: var(--cycle) steps(5, end) calc(var(--start) + var(--d, 0s)) infinite both;
+	}
+
+	/* Light theme: terracotta accent instead of purple, matching the rest of it. */
+	:global(body.light-mode) .hb {
+		fill: var(--pp);
 	}
 
 	.hb-top {
@@ -640,28 +654,63 @@ const NAME_WORDS = FULL_NAME.split(' ').map((word) => [...word].map((ch) => ({ c
 		box-sizing: border-box;
 	}
 
+	/* ---------- Photo ring ---------- */
+	/* --t is registered so it can be animated as an angle; every card reads it. */
+	@property --t {
+		syntax: '<angle>';
+		inherits: true;
+		initial-value: 0deg;
+	}
+
 	.photos {
-		display: flex;
-		align-items: flex-start;
-		gap: 1rem;
-	}
-
-	.photo {
-		border-radius: 27px;
-		box-shadow: var(--shad);
+		--card: clamp(150px, 19vw, 220px);
+		--radius: calc(var(--card) * 0.78);
+		width: calc(var(--card) + var(--radius) * 2);
 		max-width: 100%;
-		/* Each photo keeps its own natural aspect ratio. */
-		height: auto;
+		height: calc(var(--card) * 1.25 + 3rem);
+		display: grid;
+		place-items: center;
+		perspective: 1100px;
 	}
 
-	.photo-front {
-		width: 250px;
+	.orbit {
+		position: relative;
+		width: var(--card);
+		aspect-ratio: 4 / 5;
+		transform-style: preserve-3d;
+		/* Slight top-down tilt so the path reads as a circle, not a slide. */
+		transform: rotateX(-6deg);
+		animation: orbit-spin 36s linear infinite;
 	}
 
-	.photo-back {
-		width: 220px;
-		/* Slight offset keeps the original staggered look without fixed margins. */
-		margin-top: clamp(1.5rem, 6vw, 4.5rem);
+	.photos:hover .orbit {
+		animation-play-state: paused;
+	}
+
+	@keyframes orbit-spin {
+		to {
+			--t: 360deg;
+		}
+	}
+
+	.orbit-card {
+		--angle: calc(var(--a) + var(--t));
+		position: absolute;
+		inset: 0;
+		margin: 0;
+		border-radius: 24px;
+		overflow: hidden;
+		box-shadow: var(--shad);
+		transform: rotateY(var(--angle)) translateZ(var(--radius)) rotateY(calc(var(--angle) * -1));
+		/* Cards dim as they swing to the back. */
+		filter: brightness(calc(0.62 + 0.38 * cos(var(--angle))));
+	}
+
+	.orbit-card img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
 	}
 
 	.bio {
@@ -706,11 +755,7 @@ const NAME_WORDS = FULL_NAME.split(' ').map((word) => [...word].map((ch) => ({ c
 		}
 
 		.photos {
-			justify-content: center;
-		}
-
-		.photo-back {
-			margin-top: 2.5rem;
+			justify-self: center;
 		}
 	}
 
@@ -740,15 +785,9 @@ const NAME_WORDS = FULL_NAME.split(' ').map((word) => [...word].map((ch) => ({ c
 	}
 
 	@media (max-width: 560px) {
-		/* Both classes named explicitly so this doesn't rely on source order to beat
-		   the fixed .photo-front / .photo-back widths above. */
-		.photo-front,
-		.photo-back {
-			width: calc(50% - 0.5rem);
-		}
-
-		.photo-back {
-			margin-top: 1.5rem;
+		.photos {
+			--card: clamp(130px, 38vw, 170px);
+			--radius: calc(var(--card) * 0.62);
 		}
 
 		.bio p {
@@ -771,7 +810,8 @@ const NAME_WORDS = FULL_NAME.split(' ').map((word) => [...word].map((ch) => ({ c
 		   the underline still need their end state, so they are held at 100% rather
 		   than simply switched off — otherwise the name would stay invisible. */
 		.blob,
-		.scroll-cue {
+		.scroll-cue,
+		.orbit {
 			animation: none;
 		}
 
