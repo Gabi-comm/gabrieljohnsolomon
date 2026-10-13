@@ -1,5 +1,6 @@
 ---
 import { ClientRouter } from 'astro:transitions';
+import Intro from '../components/Intro.astro';
 
 interface Props {
 	title?: string;
@@ -36,6 +37,27 @@ const pageTitle = title === 'Gabriel John Solomon' ? title : `${title} · Gabrie
 		<meta name="twitter:description" content={description} />
 
 		<ClientRouter />
+
+		<!-- Decides, before first paint, whether the intro plays: on every full page
+		     load (including reloads), never with reduced motion. Client-side
+		     navigation doesn't re-run this, so moving between pages skips it.
+		     See components/Intro.astro. -->
+		<script is:inline>
+			(function () {
+				try {
+					if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+					var html = document.documentElement;
+					html.classList.add('intro');
+					// Page entrance animations add this so they start as the curtain lifts.
+					html.style.setProperty('--intro-delay', '2.5s');
+					var font = document.createElement('link');
+					font.rel = 'stylesheet';
+					font.href =
+						'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&family=Space+Grotesk:wght@600&display=swap';
+					document.head.appendChild(font);
+				} catch (e) {}
+			})();
+		</script>
 
 		<style>
 			:root {
@@ -332,7 +354,8 @@ const pageTitle = title === 'Gabriel John Solomon' ? title : `${title} · Gabrie
 			}
 
 			.dock-container {
-				animation: slideDownFader 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+				/* Waits for the intro curtain when it plays (--intro-delay, see Intro.astro). */
+				animation: slideDownFader 1.2s cubic-bezier(0.16, 1, 0.3, 1) var(--intro-delay, 0s) both;
 				position: fixed;
 				top: 25px;
 				z-index: 9999;
@@ -423,6 +446,8 @@ const pageTitle = title === 'Gabriel John Solomon' ? title : `${title} · Gabrie
 				document.body.classList.add('light-mode');
 			}
 		</script>
+
+		<Intro />
 
 		<canvas id="star-canvas" transition:persist></canvas>
 

@@ -28,13 +28,30 @@ const NAME_WORDS = FULL_NAME.split(' ').map((word) => [...word].map((ch) => ({ c
 
 		<div class="hero-inner">
 			<p class="status">
-				<span class="status-dot" aria-hidden="true"></span>
-				BS Computer Science · University of the East – Caloocan
+				<svg class="status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<path d="M21.42 10.92a1 1 0 0 0-.02-1.84L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.83l8.57 3.91a2 2 0 0 0 1.66 0z"></path>
+					<path d="M22 10v6"></path>
+					<path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"></path>
+				</svg>
+				<span class="status-degree">BS Computer Science</span>
+				<span class="status-sep" aria-hidden="true"></span>
+				<span class="status-school">
+					<span class="school-full">University of the East – Caloocan</span>
+					<span class="school-short">UE Caloocan</span>
+				</span>
 			</p>
 
 			<p class="greeting">
 				Hello!! I'm
-				<span class="wave" aria-hidden="true">👋</span>
+				<!-- The "G." mark re-tracing itself on a loop, echoing the site intro. -->
+				<svg class="hi-mark" viewBox="0 0 13 10" shape-rendering="crispEdges" aria-hidden="true">
+					<rect class="hb hb-top" x="0" y="0" width="10" height="2"></rect>
+					<rect class="hb hb-left" x="0" y="0" width="2" height="10"></rect>
+					<rect class="hb hb-bottom" x="0" y="8" width="10" height="2"></rect>
+					<rect class="hb hb-right" x="8" y="5" width="2" height="3"></rect>
+					<rect class="hb hb-tab" x="5" y="5" width="5" height="2"></rect>
+					<rect class="hb-dot" x="11" y="8" width="2" height="2"></rect>
+				</svg>
 			</p>
 
 			<h1 class="name" aria-label={FULL_NAME}>
@@ -250,53 +267,48 @@ const NAME_WORDS = FULL_NAME.split(' ').map((word) => [...word].map((ch) => ({ c
 	}
 
 	/* ---------- Status pill ---------- */
+	/* Degree first in full text colour, school after a hairline in muted text, so
+	   the line reads as "what" then "where" instead of one grey run-on. */
 	.status {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.5rem;
+		gap: 0.6rem;
 		margin: 0 0 clamp(1rem, 3vw, 1.5rem);
-		padding: 0.4rem 0.9rem;
+		padding: 0.45rem 1rem 0.45rem 0.8rem;
 		border-radius: 999px;
 		border: 1px solid var(--border);
 		background: var(--surface);
 		backdrop-filter: blur(12px);
 		-webkit-backdrop-filter: blur(12px);
 		font-family: 'pop-thin', system-ui, sans-serif;
-		font-size: clamp(0.68rem, 1.9vw, 0.78rem);
-		letter-spacing: 0.04em;
+		font-size: clamp(0.72rem, 1.9vw, 0.82rem);
+		letter-spacing: 0.03em;
 		color: var(--muted);
 		max-width: 100%;
+		white-space: nowrap;
 	}
 
-	.status-dot {
-		position: relative;
-		width: 7px;
-		height: 7px;
-		border-radius: 50%;
-		background: #22c55e;
+	.status-icon {
+		width: 1.15em;
+		height: 1.15em;
+		flex-shrink: 0;
+		color: var(--pp);
+	}
+
+	.status-degree {
+		font-family: 'pop-bold', system-ui, sans-serif;
+		color: var(--text-color);
+	}
+
+	.status-sep {
+		width: 1px;
+		height: 0.95em;
+		background: var(--divider-bg);
 		flex-shrink: 0;
 	}
 
-	/* Expanding ring, so the dot reads as live rather than as a static bullet. */
-	.status-dot::after {
-		content: '';
-		position: absolute;
-		inset: 0;
-		border-radius: 50%;
-		background: #22c55e;
-		animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
-	}
-
-	@keyframes ping {
-		0% {
-			transform: scale(1);
-			opacity: 0.7;
-		}
-		75%,
-		100% {
-			transform: scale(2.8);
-			opacity: 0;
-		}
+	.school-short {
+		display: none;
 	}
 
 	/* ---------- Greeting ---------- */
@@ -310,25 +322,101 @@ const NAME_WORDS = FULL_NAME.split(' ').map((word) => [...word].map((ch) => ({ c
 		margin: 0 0 0.3rem;
 	}
 
-	.wave {
-		display: inline-block;
-		transform-origin: 70% 70%;
-		animation: wave 2.6s ease-in-out infinite;
+	/* "G." mark beside the greeting. Each bar traces in pixel steps, holds, then
+	   un-traces in the same order; the dot blinks like a cursor while it holds.
+	   The first cycle waits for the site intro (--intro-delay). */
+	.hi-mark {
+		--cycle: 5s;
+		--start: calc(var(--intro-delay, 0s) + 0.6s);
+		width: 1.45em;
+		height: 1.1em;
+		overflow: visible;
+		flex-shrink: 0;
 	}
 
-	@keyframes wave {
-		0%,
-		60%,
+	.hb {
+		fill: #6d4ae0;
+		transform-box: fill-box;
+		animation: var(--cycle) steps(5, end) calc(var(--start) + var(--d, 0s)) infinite both;
+	}
+
+	.hb-top {
+		transform-origin: right;
+		animation-name: trace-x;
+	}
+	.hb-left {
+		--d: 0.22s;
+		transform-origin: top;
+		animation-name: trace-y;
+	}
+	.hb-bottom {
+		--d: 0.44s;
+		transform-origin: left;
+		animation-name: trace-x;
+	}
+	.hb-right {
+		--d: 0.66s;
+		transform-origin: bottom;
+		animation-name: trace-y;
+	}
+	.hb-tab {
+		--d: 0.8s;
+		transform-origin: right;
+		animation-name: trace-x;
+	}
+
+	@keyframes trace-x {
+		0% {
+			transform: scaleX(0);
+		}
+		4%,
+		86% {
+			transform: scaleX(1);
+		}
+		90%,
 		100% {
-			transform: rotate(0deg);
+			transform: scaleX(0);
 		}
-		10%,
-		30% {
-			transform: rotate(14deg);
+	}
+
+	@keyframes trace-y {
+		0% {
+			transform: scaleY(0);
 		}
-		20%,
-		40% {
-			transform: rotate(-8deg);
+		4%,
+		86% {
+			transform: scaleY(1);
+		}
+		90%,
+		100% {
+			transform: scaleY(0);
+		}
+	}
+
+	.hb-dot {
+		fill: var(--text-color);
+		animation: hi-blink var(--cycle) steps(1, end) var(--start) infinite both;
+	}
+
+	@keyframes hi-blink {
+		0%,
+		20% {
+			opacity: 0;
+		}
+		21%,
+		36%,
+		52%,
+		68% {
+			opacity: 1;
+		}
+		28%,
+		44%,
+		60% {
+			opacity: 0;
+		}
+		88%,
+		100% {
+			opacity: 0;
 		}
 	}
 
@@ -364,7 +452,8 @@ const NAME_WORDS = FULL_NAME.split(' ').map((word) => [...word].map((ch) => ({ c
 	.ch {
 		opacity: 0;
 		animation: letter-in 0.5s ease forwards;
-		animation-delay: calc(0.3s + var(--i) * 0.035s);
+		/* --intro-delay holds this back until the site intro lifts (Intro.astro). */
+		animation-delay: calc(var(--intro-delay, 0s) + 0.3s + var(--i) * 0.035s);
 	}
 
 	@keyframes letter-in {
@@ -382,7 +471,7 @@ const NAME_WORDS = FULL_NAME.split(' ').map((word) => [...word].map((ch) => ({ c
 		border-radius: 2px;
 		background: linear-gradient(90deg, transparent, var(--pp), transparent);
 		transform: scaleX(0);
-		animation: rule-in 1s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards;
+		animation: rule-in 1s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--intro-delay, 0s) + 0.9s) forwards;
 	}
 
 	@keyframes rule-in {
@@ -626,18 +715,14 @@ const NAME_WORDS = FULL_NAME.split(' ').map((word) => [...word].map((ch) => ({ c
 	}
 
 	@media (max-width: 480px) {
-		/* The status line can't fit one row on a phone. Let it wrap to two and soften
-		   the radius so it reads as a deliberate label, not a stretched pill. */
-		.status {
-			border-radius: var(--radius);
-			padding: 0.45rem 0.7rem;
-			text-align: left;
-			align-items: flex-start;
+		/* The full school name can't share one row with the degree on a phone;
+		   the short form keeps the pill to a single line. */
+		.school-full {
+			display: none;
 		}
 
-		.status-dot {
-			/* Keeps the dot on the first line once the text wraps. */
-			margin-top: 0.34rem;
+		.school-short {
+			display: inline;
 		}
 
 		.hero {
@@ -685,10 +770,14 @@ const NAME_WORDS = FULL_NAME.split(' ').map((word) => [...word].map((ch) => ({ c
 		/* Everything decorative that loops or moves is stopped. The letter reveal and
 		   the underline still need their end state, so they are held at 100% rather
 		   than simply switched off — otherwise the name would stay invisible. */
-		.wave,
 		.blob,
-		.status-dot::after,
 		.scroll-cue {
+			animation: none;
+		}
+
+		/* Logo mark held fully drawn. */
+		.hb,
+		.hb-dot {
 			animation: none;
 		}
 
