@@ -1,11 +1,18 @@
 ---
 /**
- * The inner content of the experience section: highlight stats, the role timeline,
- * awards and standing affiliations. Shared between the home-page teaser (which caps
- * the timeline with `limit` and shows a "View all" link) and the full /exp page
- * (which passes no limit and renders every role).
+ * The inner content of the experience section: highlight stats, the role timeline
+ * (grouped into professional and leadership work), awards, and memberships that
+ * have no timeline role. Shared between the home-page teaser (which caps the
+ * timeline with `limit` and shows a "View all" link) and the full /exp page.
  */
-import { experiences, organizations, highlights, awards } from '../data/experience';
+import {
+	experiences,
+	organizations,
+	highlights,
+	awards,
+	KIND_LABEL,
+	type ExperienceKind,
+} from '../data/experience';
 
 interface Props {
 	/** Cap the timeline to the first N roles and show a link to the full page. */
@@ -15,133 +22,253 @@ interface Props {
 const { limit } = Astro.props;
 const shown = limit ? experiences.slice(0, limit) : experiences;
 const hasMore = limit !== undefined && experiences.length > limit;
+
+const KIND_ORDER: ExperienceKind[] = ['professional', 'leadership'];
+const groups = KIND_ORDER.map((kind) => ({
+	kind,
+	label: KIND_LABEL[kind],
+	items: shown.filter((e) => e.kind === kind),
+})).filter((g) => g.items.length > 0);
 ---
 
-<div class="highlights">
-	{
-		highlights.map((h) => (
-			<div class="highlight">
-				<span class="highlight-label">{h.label}</span>
-				<span class="highlight-detail">{h.detail}</span>
-			</div>
-		))
-	}
-</div>
-
-<ol class="timeline">
-	{
-		shown.map((item) => (
-			<li class:list={['entry', { current: item.current }]}>
-				<span class="marker" aria-hidden="true" />
-
-				<div class="entry-body">
-					<div class="entry-head">
-						<h3 class="entry-role">{item.role}</h3>
-						{item.current && <span class="badge">Current</span>}
-						{item.period && <span class="period">{item.period}</span>}
-					</div>
-
-					<p class="entry-org">
-						{item.url ? (
-							<a href={item.url} target="_blank" rel="noopener noreferrer">
-								{item.org}
-							</a>
-						) : (
-							item.org
-						)}
-					</p>
-
-					<p class="entry-desc">{item.description}</p>
+<div class="exp" data-exp-reveal>
+	<div class="highlights">
+		{
+			highlights.map((h) => (
+				<div class="highlight reveal">
+					<span class="highlight-label">{h.label}</span>
+					<span class="highlight-detail">{h.detail}</span>
 				</div>
-			</li>
+			))
+		}
+	</div>
+
+	{
+		groups.map((group) => (
+			<section class="group" aria-label={group.label}>
+				<h3 class="group-label">
+					{group.label}
+					<span class="group-count">{group.items.length}</span>
+				</h3>
+
+				<ol class="timeline">
+					{group.items.map((item) => (
+						<li class:list={['entry', 'reveal', { current: item.current }]}>
+							<span class="avatar-wrap" aria-hidden="true">
+								<span class="avatar">
+									{item.logo ? (
+										<img src={item.logo} alt="" width="44" height="44" loading="lazy" decoding="async" />
+									) : (
+										<span class="initials">{item.initials ?? item.org.charAt(0)}</span>
+									)}
+								</span>
+							</span>
+
+							<article class="card">
+								<header class="card-head">
+									<div class="titles">
+										<h4 class="role">{item.role}</h4>
+										<p class="org">
+											{item.url ? (
+												<a href={item.url} target="_blank" rel="noopener noreferrer">
+													{item.org}
+												</a>
+											) : (
+												item.org
+											)}
+										</p>
+									</div>
+
+									{(item.period || item.current) && (
+										<span class="when">
+											{item.current && <span class="dot" aria-hidden="true" />}
+											{item.current ? (
+												<span>
+													{item.period && <span class="since">Since {item.period} · </span>}
+													Present
+												</span>
+											) : (
+												item.period
+											)}
+										</span>
+									)}
+								</header>
+
+								<p class="desc">{item.description}</p>
+
+								{item.bullets && (
+									<ul class="bullets">
+										{item.bullets.map((b) => (
+											<li>{b}</li>
+										))}
+									</ul>
+								)}
+
+								{item.tags && (
+									<ul class="tags" aria-label="Skills">
+										{item.tags.map((t) => (
+											<li>{t}</li>
+										))}
+									</ul>
+								)}
+							</article>
+						</li>
+					))}
+				</ol>
+			</section>
 		))
 	}
-</ol>
 
-{
-	hasMore && (
-		<div class="more">
-			<a class="ghost-btn" href="/exp">
-				View all {experiences.length} roles
-				<svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor">
-					<path d="M5 12h14M13 6l6 6-6 6" stroke-width="2" stroke-linecap="round" />
-				</svg>
-			</a>
-		</div>
-	)
-}
-
-<div class="affiliations">
-	<h3 class="aff-label">Awards &amp; recognition</h3>
-	<ul class="award-list">
-		{
-			awards.map((award) => (
-				<li class="award">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-						<circle cx="12" cy="9" r="6" stroke-width="1.8" />
-						<path d="M9 14.5 8 22l4-2.2 4 2.2-1-7.5" stroke-width="1.8" stroke-linecap="round" />
+	{
+		hasMore && (
+			<div class="more">
+				<a class="ghost-btn" href="/exp">
+					View all {experiences.length} roles
+					<svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor">
+						<path d="M5 12h14M13 6l6 6-6 6" stroke-width="2" stroke-linecap="round" />
 					</svg>
-					{award}
-				</li>
-			))
-		}
-	</ul>
+				</a>
+			</div>
+		)
+	}
+
+	<div class="block">
+		<h3 class="group-label">Awards &amp; recognition</h3>
+		<ul class="award-grid">
+			{
+				awards.map((a) => (
+					<li class="award reveal">
+						<span class="award-icon" aria-hidden="true">
+							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+								<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z" stroke-width="1.8" stroke-linejoin="round" />
+								<path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3" stroke-width="1.8" stroke-linecap="round" />
+							</svg>
+						</span>
+						<span class="award-text">
+							<span class="award-result">{a.result}</span>
+							<span class="award-event">{a.event}</span>
+						</span>
+						{a.year && <span class="award-year">{a.year}</span>}
+					</li>
+				))
+			}
+		</ul>
+	</div>
+
+	{
+		organizations.length > 0 && (
+			<div class="also">
+				<span class="also-label">Also a member of</span>
+				{organizations.map((org) => (
+					<span class="aff">
+						{org.logo ? (
+							<img src={org.logo} alt="" width="22" height="22" loading="lazy" />
+						) : (
+							<span class="initials small">{org.initials}</span>
+						)}
+						{org.name}
+					</span>
+				))}
+			</div>
+		)
+	}
 </div>
 
-<div class="affiliations">
-	<h3 class="aff-label">Affiliated with</h3>
-	<ul class="aff-list">
-		{
-			organizations.map((org) => (
-				<li class="aff">
-					{org.logo ? (
-						<img class="aff-mark" src={org.logo} alt="" width="26" height="26" loading="lazy" />
-					) : org.icon ? (
-						<span
-							class="aff-mark aff-icon"
-							style={`--icon:url('/icons/${org.icon}.svg')`}
-							aria-hidden="true"
-						/>
-					) : (
-						<span class="aff-mark aff-initials" aria-hidden="true">
-							{org.initials}
-						</span>
-					)}
-					<span class="aff-text">
-						<span class="aff-name">{org.name}</span>
-						<span class="aff-role">{org.role}</span>
-					</span>
-				</li>
-			))
-		}
-	</ul>
-</div>
+<script>
+	/**
+	 * Fade-and-rise entries as they scroll into view. Progressive enhancement: the
+	 * hidden state only applies once this script adds `.js-reveal`, so without JS (or
+	 * with reduced motion) everything is simply visible.
+	 */
+	function initExpReveal() {
+		const roots = document.querySelectorAll<HTMLElement>('[data-exp-reveal]');
+		if (!roots.length) return;
+		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+		if (!('IntersectionObserver' in window)) return;
+
+		const io = new IntersectionObserver(
+			(entries) => {
+				for (const e of entries) {
+					if (e.isIntersecting) {
+						e.target.classList.add('is-in');
+						io.unobserve(e.target);
+					}
+				}
+			},
+			{ rootMargin: '0px 0px -8% 0px', threshold: 0.12 }
+		);
+
+		roots.forEach((root) => {
+			if (root.classList.contains('js-reveal')) return;
+			root.classList.add('js-reveal');
+			root.querySelectorAll<HTMLElement>('.reveal').forEach((el, i) => {
+				// Small stagger within each run of siblings, capped so long lists don't drag.
+				el.style.setProperty('--d', `${Math.min(i % 6, 5) * 60}ms`);
+				io.observe(el);
+			});
+		});
+	}
+
+	document.addEventListener('astro:page-load', initExpReveal);
+	if (document.readyState !== 'loading') initExpReveal();
+	else document.addEventListener('DOMContentLoaded', initExpReveal);
+</script>
 
 <style>
+	/* ---------- Reveal ---------- */
+	.js-reveal .reveal {
+		opacity: 0;
+		transform: translateY(14px);
+		transition:
+			opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0ms),
+			transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0ms);
+	}
+
+	.js-reveal .reveal.is-in {
+		opacity: 1;
+		transform: none;
+	}
+
 	/* ---------- Highlights ---------- */
 	.highlights {
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 		gap: clamp(0.7rem, 2vw, 1.1rem);
-		margin-bottom: clamp(1.75rem, 4vw, 2.5rem);
+		margin-bottom: clamp(2rem, 5vw, 3rem);
 	}
 
 	.highlight {
+		position: relative;
+		overflow: hidden;
 		display: flex;
 		flex-direction: column;
-		gap: 0.3rem;
-		padding: 1.1rem 1.25rem;
+		align-items: center;
+		gap: 0.4rem;
+		padding: 1.3rem 1.25rem;
 		border-radius: var(--radius);
 		background: var(--surface);
 		border: 1px solid var(--border);
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
 		text-align: center;
-		align-items: center;
+	}
+
+	/* Thin accent line along the top edge. */
+	.highlight::before {
+		content: '';
+		position: absolute;
+		inset: 0 25% auto;
+		height: 2px;
+		border-radius: 0 0 2px 2px;
+		background: linear-gradient(90deg, transparent, var(--pp), transparent);
+		opacity: 0.8;
 	}
 
 	.highlight-label {
 		font-family: 'pop-bold', system-ui, sans-serif;
-		font-size: clamp(1.25rem, 3.5vw, 1.7rem);
+		font-size: clamp(1.35rem, 3.6vw, 1.85rem);
 		line-height: 1;
+		letter-spacing: -0.01em;
 		color: var(--pp);
 	}
 
@@ -152,27 +279,68 @@ const hasMore = limit !== undefined && experiences.length > limit;
 		color: var(--muted);
 	}
 
+	/* ---------- Groups ---------- */
+	.group + .group {
+		margin-top: clamp(1.75rem, 4vw, 2.5rem);
+	}
+
+	.group-label {
+		display: flex;
+		align-items: center;
+		gap: 0.55rem;
+		font-family: 'pop-bold', system-ui, sans-serif;
+		font-size: 0.7rem;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: var(--muted);
+		margin: 0 0 1rem;
+	}
+
+	.group-label::after {
+		content: '';
+		flex: 1;
+		height: 1px;
+		background: var(--border);
+	}
+
+	.group-count {
+		display: inline-grid;
+		place-items: center;
+		min-width: 1.25rem;
+		height: 1.25rem;
+		padding: 0 0.35rem;
+		border-radius: 999px;
+		font-size: 0.65rem;
+		letter-spacing: 0;
+		color: var(--pp);
+		background: color-mix(in srgb, var(--pp) 12%, transparent);
+	}
+
 	/* ---------- Timeline ---------- */
 	.timeline {
 		list-style: none;
 		margin: 0;
 		padding: 0;
-		position: relative;
 	}
 
 	.entry {
+		--avatar: 44px;
 		position: relative;
-		padding: 0 0 clamp(1.4rem, 3.5vw, 2rem) 2rem;
+		display: grid;
+		grid-template-columns: var(--avatar) minmax(0, 1fr);
+		gap: clamp(0.8rem, 2vw, 1.1rem);
+		padding-bottom: clamp(0.9rem, 2.2vw, 1.15rem);
 	}
 
+	/* Rail joining one avatar to the next; stops at the last entry. */
 	.entry::before {
 		content: '';
 		position: absolute;
-		left: 5px;
-		top: 0.55rem;
+		left: calc(var(--avatar) / 2);
+		top: var(--avatar);
 		bottom: 0;
 		width: 1px;
-		background: var(--border);
+		background: linear-gradient(var(--border), var(--border));
 	}
 
 	.entry:last-child {
@@ -183,85 +351,218 @@ const hasMore = limit !== undefined && experiences.length > limit;
 		display: none;
 	}
 
-	.marker {
-		position: absolute;
-		left: 0;
-		top: 0.4rem;
-		width: 11px;
-		height: 11px;
+	/* Grid cell for the avatar; sits above the rail line. */
+	.avatar-wrap {
+		position: relative;
+		z-index: 1;
+		width: var(--avatar);
+		height: var(--avatar);
+	}
+
+	.avatar {
+		width: var(--avatar);
+		height: var(--avatar);
 		border-radius: 50%;
+		overflow: hidden;
+		display: grid;
+		place-items: center;
+		background: var(--surface-hover);
 		border: 2px solid var(--border);
-		background: var(--bg-color);
+		box-sizing: border-box;
+		transition: border-color 0.3s ease;
 	}
 
-	.entry.current .marker {
+
+	.avatar img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+
+	.initials {
+		font-family: 'pop-bold', system-ui, sans-serif;
+		font-size: 1rem;
+		color: var(--pp);
+	}
+
+	.card {
+		padding: clamp(0.95rem, 2.4vw, 1.2rem) clamp(1rem, 2.6vw, 1.35rem);
+		border-radius: var(--radius);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
+		transition:
+			border-color 0.3s ease,
+			background 0.3s ease,
+			transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
+	.entry:hover .card {
+		border-color: color-mix(in srgb, var(--pp) 55%, var(--border));
+		background: var(--surface-hover);
+		transform: translateX(3px);
+	}
+
+	.entry:hover .avatar {
 		border-color: var(--pp);
-		background: var(--pp);
 	}
 
-	.entry-head {
+	.card-head {
 		display: flex;
-		align-items: center;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 0.5rem 1rem;
 		flex-wrap: wrap;
-		gap: 0.5rem;
-		margin-bottom: 0.2rem;
 	}
 
-	.entry-role {
+	.titles {
+		min-width: 0;
+		flex: 1 1 16rem;
+	}
+
+	.role {
 		font-family: 'pop-bold', system-ui, sans-serif;
 		font-size: 1rem;
 		line-height: 1.3;
 		margin: 0;
 	}
 
-	.badge {
-		font-size: 0.62rem;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		padding: 0.18rem 0.5rem;
-		border-radius: 999px;
-		border: 1px solid var(--pp);
-		color: var(--pp);
-		white-space: nowrap;
-	}
-
-	.period {
-		font-size: 0.75rem;
-		color: var(--muted);
-		margin-left: auto;
-		white-space: nowrap;
-	}
-
-	.entry-org {
+	.org {
 		font-family: 'pop-thin', system-ui, sans-serif;
-		font-size: 0.85rem;
+		font-size: 0.84rem;
 		color: var(--pp);
-		margin: 0 0 0.35rem;
+		margin: 0.15rem 0 0;
+		line-height: 1.4;
 	}
 
-	.entry-org a {
+	.org a {
 		color: inherit;
 		text-decoration: none;
 	}
 
-	.entry-org a:hover {
+	.org a:hover {
 		text-decoration: underline;
 	}
 
-	.entry-desc {
+	/* Status pill in the theme's neutral tones: "Present" in the text colour, the
+	   start year muted beside it. */
+	.when {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		flex-shrink: 0;
+		padding: 0.3rem 0.7rem 0.3rem 0.6rem;
+		border-radius: 999px;
+		border: 1px solid var(--border);
+		background: var(--chip-bg);
+		font-family: 'pop-bold', system-ui, sans-serif;
+		font-size: 0.64rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		line-height: 1;
+		color: var(--text-color);
+		white-space: nowrap;
+	}
+
+	.since {
+		color: var(--muted);
+	}
+
+	/* Dot with an expanding ring — a ripple drawn with a border, not a glow. */
+	.dot {
+		position: relative;
+		width: 7px;
+		height: 7px;
+		flex-shrink: 0;
+		border-radius: 50%;
+		background: currentColor;
+	}
+
+	.dot::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		border-radius: 50%;
+		border: 1.5px solid currentColor;
+		animation: ripple 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+	}
+
+	@keyframes ripple {
+		from {
+			transform: scale(1);
+			opacity: 0.7;
+		}
+		to {
+			transform: scale(2.6);
+			opacity: 0;
+		}
+	}
+
+	.desc {
 		font-family: 'pop-thin', system-ui, sans-serif;
 		font-size: 0.875rem;
 		line-height: 1.65;
 		color: var(--muted);
-		margin: 0;
-		max-width: 62ch;
+		margin: 0.6rem 0 0;
+		max-width: 68ch;
 	}
 
-	/* ---------- "View all" button ---------- */
+	.bullets {
+		list-style: none;
+		margin: 0.7rem 0 0;
+		padding: 0;
+		display: grid;
+		gap: 0.45rem;
+		max-width: 72ch;
+	}
+
+	.bullets li {
+		position: relative;
+		padding-left: 1.1rem;
+		font-family: 'pop-thin', system-ui, sans-serif;
+		font-size: 0.85rem;
+		line-height: 1.6;
+		color: var(--text-color);
+		opacity: 0.88;
+	}
+
+	.bullets li::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 0.68em;
+		width: 0.5rem;
+		height: 2px;
+		border-radius: 2px;
+		background: var(--pp);
+	}
+
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.35rem;
+		list-style: none;
+		margin: 0.85rem 0 0;
+		padding: 0;
+	}
+
+	.tags li {
+		font-size: 0.68rem;
+		padding: 0.2rem 0.55rem;
+		border-radius: 999px;
+		background: var(--chip-bg);
+		border: 1px solid var(--border);
+		color: var(--text-color);
+		white-space: nowrap;
+	}
+
+	/* ---------- "View all" ---------- */
 	.more {
 		display: flex;
 		justify-content: center;
-		margin-top: clamp(1.75rem, 4vw, 2.5rem);
+		margin-top: clamp(1.5rem, 4vw, 2.25rem);
 	}
 
 	.ghost-btn {
@@ -290,165 +591,166 @@ const hasMore = limit !== undefined && experiences.length > limit;
 		transform: translateY(-2px);
 	}
 
-	.ghost-btn svg {
-		width: 15px;
-		height: 15px;
-	}
-
-	/* ---------- Affiliations ---------- */
-	.affiliations {
-		margin-top: clamp(1.75rem, 4vw, 2.5rem);
-		padding-top: clamp(1.25rem, 3vw, 1.75rem);
-		border-top: 1px solid var(--border);
-	}
-
-	.aff-label {
-		font-family: 'pop-bold', system-ui, sans-serif;
-		font-size: 0.7rem;
-		letter-spacing: 0.16em;
-		text-transform: uppercase;
-		color: var(--muted);
-		margin: 0 0 0.9rem;
-	}
-
-	.aff-list {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem;
-		list-style: none;
-		margin: 0;
-		padding: 0;
-	}
-
 	/* ---------- Awards ---------- */
-	.award-list {
+	.block {
+		margin-top: clamp(2.25rem, 5vw, 3rem);
+	}
+
+	.award-grid {
 		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 0.55rem 1.5rem;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: clamp(0.6rem, 1.6vw, 0.85rem);
 		list-style: none;
 		margin: 0;
 		padding: 0;
 	}
 
 	.award {
+		position: relative;
 		display: flex;
 		align-items: flex-start;
-		gap: 0.55rem;
+		gap: 0.75rem;
+		padding: 0.95rem 1rem;
+		border-radius: var(--radius);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		transition:
+			border-color 0.3s ease,
+			background 0.3s ease;
+	}
+
+	.award:hover {
+		border-color: color-mix(in srgb, var(--pp) 55%, var(--border));
+		background: var(--surface-hover);
+	}
+
+	.award-icon {
+		display: grid;
+		place-items: center;
+		width: 34px;
+		height: 34px;
+		flex-shrink: 0;
+		border-radius: 10px;
+		color: var(--pp);
+		background: color-mix(in srgb, var(--pp) 12%, transparent);
+	}
+
+	.award-text {
+		display: flex;
+		flex-direction: column;
+		gap: 0.15rem;
+		min-width: 0;
+		flex: 1;
+	}
+
+	.award-result {
+		font-family: 'pop-bold', system-ui, sans-serif;
+		font-size: 0.88rem;
+		line-height: 1.3;
+	}
+
+	.award-event {
 		font-family: 'pop-thin', system-ui, sans-serif;
-		font-size: 0.85rem;
-		line-height: 1.55;
+		font-size: 0.76rem;
+		line-height: 1.45;
 		color: var(--muted);
 	}
 
-	.award svg {
-		width: 15px;
-		height: 15px;
+	.award-year {
 		flex-shrink: 0;
-		margin-top: 0.18rem;
-		color: var(--pp);
+		font-size: 0.66rem;
+		color: var(--muted);
+		padding: 0.12rem 0.45rem;
+		border-radius: 999px;
+		border: 1px solid var(--border);
 	}
 
-	@media (max-width: 720px) {
-		.award-list {
-			grid-template-columns: minmax(0, 1fr);
-		}
+	/* ---------- Also a member of ---------- */
+	.also {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.6rem;
+		margin-top: clamp(1.5rem, 3.5vw, 2rem);
+		padding-top: clamp(1.1rem, 2.6vw, 1.4rem);
+		border-top: 1px solid var(--border);
 	}
 
-	@media (max-width: 520px) {
-		.aff-list {
-			gap: 0.45rem;
-		}
-
-		.aff {
-			width: 100%;
-			align-items: flex-start;
-			border-radius: var(--radius);
-			padding: 0.6rem 0.75rem;
-		}
-
-		.aff-text {
-			flex-direction: column;
-			gap: 0.1rem;
-		}
+	.also-label {
+		font-family: 'pop-bold', system-ui, sans-serif;
+		font-size: 0.7rem;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: var(--muted);
 	}
 
 	.aff {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.55rem;
-		padding: 0.45rem 0.9rem 0.45rem 0.5rem;
+		gap: 0.5rem;
+		padding: 0.35rem 0.85rem 0.35rem 0.4rem;
 		border-radius: 999px;
 		background: var(--chip-bg);
 		border: 1px solid var(--border);
+		font-family: 'pop-thin', system-ui, sans-serif;
+		font-size: 0.8rem;
 		max-width: 100%;
 	}
 
-	.aff-text {
-		display: inline-flex;
-		align-items: baseline;
-		gap: 0.45rem;
-		flex-wrap: wrap;
-		min-width: 0;
-	}
-
-	.aff-name,
-	.aff-role {
-		overflow-wrap: anywhere;
-	}
-
-	.aff-mark {
-		width: 26px;
-		height: 26px;
-		flex-shrink: 0;
+	.aff img {
+		width: 22px;
+		height: 22px;
 		border-radius: 50%;
 		object-fit: cover;
+		flex-shrink: 0;
 	}
 
-	.aff-icon {
-		background-color: var(--text-color);
-		mask: var(--icon) center / 88% no-repeat;
-		-webkit-mask: var(--icon) center / 88% no-repeat;
-		border-radius: 0;
+	.initials.small {
+		font-size: 0.6rem;
 	}
 
-	.aff-initials {
-		display: grid;
-		place-items: center;
-		background: var(--surface-hover);
-		border: 1px solid var(--border);
-		color: var(--muted);
-		font-family: 'pop-bold', system-ui, sans-serif;
-		font-size: 0.55rem;
-		letter-spacing: 0.02em;
-	}
-
-	.aff-name {
-		font-family: 'pop-bold', system-ui, sans-serif;
-		font-size: 0.82rem;
-	}
-
-	.aff-role {
-		font-family: 'pop-thin', system-ui, sans-serif;
-		font-size: 0.72rem;
-		color: var(--muted);
+	/* ---------- Responsive ---------- */
+	@media (max-width: 900px) {
+		.award-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
 	}
 
 	@media (max-width: 720px) {
 		.highlights {
 			grid-template-columns: minmax(0, 1fr);
 		}
+	}
 
-		.period {
-			margin-left: 0;
+	@media (max-width: 560px) {
+		.entry {
+			--avatar: 36px;
+		}
+
+		.award-grid {
+			grid-template-columns: minmax(0, 1fr);
+		}
+
+		.entry:hover .card {
+			transform: none;
 		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.ghost-btn {
+		.card,
+		.ghost-btn,
+		.award {
 			transition: none;
 		}
+
+		.entry:hover .card,
 		.ghost-btn:hover {
 			transform: none;
+		}
+
+		.dot::after {
+			animation: none;
+			opacity: 0;
 		}
 	}
 </style>
