@@ -27,6 +27,11 @@ export interface Experience {
 	tags?: string[];
 	/** Full-colour logo in `public/logos/`, shown as the timeline avatar. */
 	logo?: string;
+	/**
+	 * For square, edge-to-edge marks (like Gabriel's own "G."), which a circle would
+	 * crop: shows the logo inset on a white disc instead of filling the avatar.
+	 */
+	logoInset?: boolean;
 	/** Monogram when no logo exists. */
 	initials?: string;
 	/** Optional link for the organisation or the work itself. */
@@ -48,6 +53,14 @@ export interface Award {
 	/** The event it was earned at. */
 	event: string;
 	year?: string;
+}
+
+export interface Competition {
+	name: string;
+	/** Category or organiser, shown muted under the name. */
+	detail?: string;
+	/** One or more editions taken part in, newest last. */
+	years?: string[];
 }
 
 export interface Highlight {
@@ -78,6 +91,21 @@ export const experiences: Experience[] = [
 			'Built controlled ransomware-behaviour simulations for SOC training to strengthen incident-response readiness.',
 		],
 		tags: ['LLM Security', 'Prompt Injection', 'Data Poisoning', 'SOC'],
+	},
+	{
+		role: 'Freelance Developer',
+		org: 'Self-employed · Client projects',
+		kind: 'professional',
+		period: 'Oct 2026',
+		current: true,
+		logo: '/logo.png',
+		logoInset: true,
+		description: 'Designs and ships AI-powered web apps for clients, from first sketch to deployed product.',
+		bullets: [
+			'Built Nibble for SOLIDSTRUK: turns a floor plan into a SketchUp-style 3D model, then AI-rendered visualizations, then a cinematic walkthrough, with a client-approval gate between every step.',
+			'Kept the geometry deterministic: the plan is structured data, so the AI only adds materials and light and never invents walls or rooms.',
+		],
+		tags: ['Next.js', 'Three.js', 'Gemini', 'Generative AI'],
 	},
 	{
 		role: 'President',
@@ -126,6 +154,15 @@ export const experiences: Experience[] = [
 		logo: '/logos/jil.png',
 		description: 'Provides technical and audiovisual support for services and events.',
 	},
+	{
+		role: 'Member',
+		org: 'Quantum Computing Society of the Philippines',
+		kind: 'leadership',
+		current: true,
+		logo: '/logos/qcsp.png',
+		description:
+			'Part of the national quantum computing community, joining its sessions on quantum natural language processing (QNLP) and quantum science outreach.',
+	},
 	// ---- Completed roles ----
 	{
 		role: 'Vice-Chief Operations Officer',
@@ -147,31 +184,63 @@ export const experiences: Experience[] = [
 	},
 ];
 
-/** Competition results and recognition, from the résumé's awards line. */
+/**
+ * Honors and recognition, newest first. Aligned to LinkedIn's Honors & awards
+ * section; the PJDSC and AWS Community Day entries come from the résumé only.
+ */
 export const awards: Award[] = [
 	{ result: 'Best Research Paper', event: 'Technify 2026 · Computer Science', year: '2026' },
-	{ result: 'Top 10 Finalist', event: 'Philippine Junior Data Science Challenge', year: '2024' },
+	{ result: 'Best Pitch Presentation', event: 'Technify 2026 · Computer Science', year: '2026' },
+	{
+		result: '2nd Place, Student Choice Award',
+		event: 'University of the East – Caloocan · Computer Science',
+		year: '2026',
+	},
+	{
+		result: 'Exemplary Academic Performance',
+		event: 'University of the East – Caloocan',
+		year: 'Since Aug 2024',
+	},
+	{
+		result: 'Top 10 Finalist',
+		event: 'Zero Vector Ventures: Build Nothing, Prove Everything Hackathon',
+		year: '2026',
+	},
+	{ result: 'Top 10 Finalist', event: 'Sparkfest: GDG PUP Hackathon', year: '2026' },
 	{ result: 'Semifinalist', event: 'CodeChum National Programming Challenge', year: '2025' },
-	{ result: 'Judge & Mentor', event: 'Caffeine AI Manila Hackathon' },
-	{ result: 'Top 8', event: 'Devcon Game Jam' },
+	{ result: 'Top 7', event: 'DevCon Manila Game-On', year: '2025' },
+	{ result: 'Judge & Mentor', event: 'Caffeine AI Manila Hackathon', year: '2025' },
+	{ result: 'Top 10 Finalist', event: 'Philippine Junior Data Science Challenge', year: '2024' },
 	{ result: 'Event Co-Organizer', event: 'AWS Community Day Manila' },
+];
+
+/** Hackathons and competitions taken part in, newest first. */
+export const competitions: Competition[] = [
+	{
+		name: 'UMak IT Olympics',
+		detail: 'Mobile Application · Game Development Category',
+		years: ['2027'],
+	},
+	{ name: 'Philippine Junior Data Science Challenge', years: ['2025', '2026', '2027'] },
+	{
+		name: 'UMak IT Olympics',
+		detail: 'Mobile Application · Productivity Category',
+		years: ['2026'],
+	},
+	{ name: 'Global Game Jam', years: ['2026'] },
+	{ name: 'CodeKada: The Innovation Hackathon' },
+	{ name: 'Copilot for Microsoft 365 Innovation Challenge', detail: 'by KPMG' },
 ];
 
 /**
  * Memberships that have no role on the timeline. Orgs already shown as a timeline
  * entry are not repeated here.
  */
-export const organizations: Organization[] = [
-	{
-		name: 'Quantum Computing Society of the Philippines',
-		role: 'Member',
-		logo: '/logos/qcsp.png',
-	},
-];
+export const organizations: Organization[] = [];
 
 /** Stand-out facts, shown as large-type stat cards. */
 export const highlights: Highlight[] = [
 	{ label: '1.04 GPA', detail: 'University Full Scholar · Latin Honor standing' },
 	{ label: 'Best Paper', detail: 'Technify 2026 · Computer Science' },
-	{ label: '6 roles', detail: 'Active at once across industry and campus' },
+	{ label: '8 roles', detail: 'Active at once across industry and community' },
 ];

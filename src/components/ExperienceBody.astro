@@ -10,6 +10,7 @@ import {
 	organizations,
 	highlights,
 	awards,
+	competitions,
 	KIND_LABEL,
 	type ExperienceKind,
 } from '../data/experience';
@@ -55,7 +56,7 @@ const groups = KIND_ORDER.map((kind) => ({
 					{group.items.map((item) => (
 						<li class:list={['entry', 'reveal', { current: item.current }]}>
 							<span class="avatar-wrap" aria-hidden="true">
-								<span class="avatar">
+								<span class:list={['avatar', { inset: item.logoInset }]}>
 									{item.logo ? (
 										<img src={item.logo} alt="" width="44" height="44" loading="lazy" decoding="async" />
 									) : (
@@ -149,6 +150,37 @@ const groups = KIND_ORDER.map((kind) => ({
 							<span class="award-event">{a.event}</span>
 						</span>
 						{a.year && <span class="award-year">{a.year}</span>}
+					</li>
+				))
+			}
+		</ul>
+	</div>
+
+	<div class="block">
+		<h3 class="group-label">
+			Hackathons &amp; competitions
+			<span class="group-count">{competitions.length}</span>
+		</h3>
+		<ul class="comp-list">
+			{
+				competitions.map((c) => (
+					<li class="comp reveal">
+						<span class="comp-icon" aria-hidden="true">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+								<path d="m8 9-4 3 4 3M16 9l4 3-4 3M13.5 6l-3 12" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+							</svg>
+						</span>
+						<span class="comp-text">
+							<span class="comp-name">{c.name}</span>
+							{c.detail && <span class="comp-detail">{c.detail}</span>}
+						</span>
+						{c.years && (
+							<span class="comp-years">
+								{c.years.map((y) => (
+									<span class="award-year">{y}</span>
+								))}
+							</span>
+						)}
 					</li>
 				))
 			}
@@ -378,6 +410,17 @@ const groups = KIND_ORDER.map((kind) => ({
 		height: 100%;
 		object-fit: cover;
 		display: block;
+	}
+
+	/* Square marks sit inside a white disc rather than being cropped by the circle. */
+	.avatar.inset {
+		background: #ffffff;
+	}
+
+	.avatar.inset img {
+		object-fit: contain;
+		padding: 22%;
+		box-sizing: border-box;
 	}
 
 	.initials {
@@ -619,6 +662,17 @@ const groups = KIND_ORDER.map((kind) => ({
 			background 0.3s ease;
 	}
 
+	/* Keep the 3-column grid free of a ragged last row by widening the top award
+	   into a featured slot: full width when the count is 3n+1 (7, 10…), two columns
+	   when it is 3n+2 (8, 11…). Both also come out even in the 2-column layout. */
+	.award:first-child:nth-last-child(3n + 1) {
+		grid-column: 1 / -1;
+	}
+
+	.award:first-child:nth-last-child(3n + 2) {
+		grid-column: span 2;
+	}
+
 	.award:hover {
 		border-color: color-mix(in srgb, var(--pp) 55%, var(--border));
 		background: var(--surface-hover);
@@ -663,6 +717,65 @@ const groups = KIND_ORDER.map((kind) => ({
 		padding: 0.12rem 0.45rem;
 		border-radius: 999px;
 		border: 1px solid var(--border);
+	}
+
+	/* ---------- Hackathons & competitions ---------- */
+	.comp-list {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		column-gap: clamp(1.25rem, 3vw, 2rem);
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.comp {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		padding: 0.8rem 0.2rem;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.comp-icon {
+		display: grid;
+		place-items: center;
+		width: 30px;
+		height: 30px;
+		flex-shrink: 0;
+		border-radius: 9px;
+		color: var(--pp);
+		background: color-mix(in srgb, var(--pp) 10%, transparent);
+	}
+
+	.comp-text {
+		display: flex;
+		flex-direction: column;
+		gap: 0.12rem;
+		min-width: 0;
+		flex: 1;
+	}
+
+	.comp-name {
+		font-family: 'pop-bold', system-ui, sans-serif;
+		font-size: 0.85rem;
+		line-height: 1.35;
+	}
+
+	.comp-detail {
+		font-family: 'pop-thin', system-ui, sans-serif;
+		font-size: 0.75rem;
+		line-height: 1.4;
+		color: var(--muted);
+	}
+
+	.comp-years {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: flex-end;
+		gap: 0.3rem;
+		flex-shrink: 0;
+		max-width: 45%;
 	}
 
 	/* ---------- Also a member of ---------- */
@@ -717,7 +830,8 @@ const groups = KIND_ORDER.map((kind) => ({
 	}
 
 	@media (max-width: 720px) {
-		.highlights {
+		.highlights,
+		.comp-list {
 			grid-template-columns: minmax(0, 1fr);
 		}
 	}
@@ -729,6 +843,11 @@ const groups = KIND_ORDER.map((kind) => ({
 
 		.award-grid {
 			grid-template-columns: minmax(0, 1fr);
+		}
+
+		/* One column: no featured span (a 2-column span would add a phantom track). */
+		.award:first-child:nth-last-child(n) {
+			grid-column: auto;
 		}
 
 		.entry:hover .card {
