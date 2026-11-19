@@ -13,16 +13,23 @@ import portrait from '../assets/portrait.txt?raw';
 
 const NAME_LINES = ['Gabriel', 'John', 'Solomon'];
 
-// ASCII portrait: the resting art, plus a "hot" copy pushed four steps up the
-// density ramp, which the hover lens reveals in red.
+// ASCII portrait. Denser glyphs stand for brighter pixels, which reads right as
+// light text on black; on the light theme that turns the portrait into a
+// negative, so light mode gets a copy with the ramp inverted. Each version also
+// has a "hot" copy pushed four steps up the ramp, which the hover lens reveals.
 const ART = portrait.replace(/^(?:[ \t]*\r?\n)+/, '').trimEnd();
 const RAMP = ' `.:~;=+?|)]oX#%&@';
-const ART_HOT = [...ART]
-	.map((c) => {
-		const i = RAMP.indexOf(c);
-		return i > 0 ? RAMP[Math.min(RAMP.length - 1, i + 4)] : c;
-	})
-	.join('');
+const MAX = RAMP.length - 1;
+const remap = (art: string, f: (i: number) => number) =>
+	[...art]
+		.map((c) => {
+			const i = RAMP.indexOf(c);
+			return i > 0 ? RAMP[Math.max(1, Math.min(MAX, f(i)))] : c;
+		})
+		.join('');
+const ART_HOT = remap(ART, (i) => i + 4);
+const ART_INV = remap(ART, (i) => MAX + 1 - i);
+const ART_INV_HOT = remap(ART_INV, (i) => i + 4);
 const ART_ROWS = ART.split('\n').length;
 const ART_COLS = Math.max(...ART.split('\n').map((l) => l.length));
 
@@ -153,8 +160,10 @@ const STATS = [
 				data-cols={ART_COLS}
 			>
 				<div class="ascii-stage">
-					<pre class="ascii-base" aria-hidden="true">{ART}</pre>
-					<pre class="ascii-lens" aria-hidden="true">{ART_HOT}</pre>
+					<pre class="ascii-base dk" aria-hidden="true">{ART}</pre>
+					<pre class="ascii-base lt" aria-hidden="true">{ART_INV}</pre>
+					<pre class="ascii-lens dk" aria-hidden="true">{ART_HOT}</pre>
+					<pre class="ascii-lens lt" aria-hidden="true">{ART_INV_HOT}</pre>
 					<span class="ascii-scan" aria-hidden="true"></span>
 				</div>
 				<figcaption class="ascii-hud" aria-hidden="true">
@@ -298,6 +307,8 @@ const STATS = [
 	.portrait {
 		position: relative;
 		margin: 0;
+		/* Sit level with the name block rather than on the baseline. */
+		align-self: center;
 		aspect-ratio: 833 / 860;
 		display: flex;
 		align-items: flex-end;
@@ -727,6 +738,18 @@ const STATS = [
 		mask: radial-gradient(circle var(--lens) at var(--mx) var(--my), #000 55%, transparent 100%);
 	}
 
+	.ascii .lt {
+		display: none;
+	}
+
+	:global(body.light-mode) .ascii .dk {
+		display: none;
+	}
+
+	:global(body.light-mode) .ascii .lt {
+		display: block;
+	}
+
 	.ascii-scan {
 		position: absolute;
 		left: -0.8rem;
@@ -909,13 +932,15 @@ const STATS = [
 		if (!fig || fig.dataset.bound) return;
 		fig.dataset.bound = '1';
 		const stage = fig.querySelector<HTMLElement>('.ascii-stage')!;
-		const base = fig.querySelector<HTMLElement>('.ascii-base')!;
+		const bases = Array.from(fig.querySelectorAll<HTMLElement>('.ascii-base'));
 		const scan = fig.querySelector<HTMLElement>('.ascii-scan')!;
 		const hud = fig.querySelector<HTMLElement>('[data-hud]')!;
-		const art = base.textContent ?? '';
-		const lines = art.split('\n');
+		// Original text per theme copy, so a decode can always restore it.
+		const arts = new Map(bases.map((b) => [b, b.textContent ?? '']));
+		const visible = () => bases.find((b) => b.offsetParent !== null) ?? bases[0];
+		const linesOf = (b: HTMLElement) => (arts.get(b) ?? '').split('\n');
 		const cols = Number(fig.dataset.cols) || 80;
-		const rows = lines.length;
+		const rows = linesOf(bases[0]).length;
 		const noise = '`.:~;=+?|)]oX#%&@01';
 		const still = window.matchMedia('(prefers-reduced-motion: reduce)');
 		const idle = hud.textContent;
@@ -925,6 +950,9 @@ const STATS = [
 		// above it have resolved back to the portrait.
 		const decode = () => {
 			if (still.matches || raf) return;
+			const base = visible();
+			const art = arts.get(base) ?? '';
+			const lines = art.split('\n');
 			const start = performance.now();
 			const dur = 950;
 			scan.style.opacity = '1';
@@ -959,7 +987,7 @@ const STATS = [
 			const c = Math.floor((x / b.width) * cols);
 			const r = Math.floor((y / b.height) * rows);
 			if (c < 0 || r < 0 || c >= cols || r >= rows) return;
-			const ch = lines[r]?.[c] ?? ' ';
+			const ch = linesOf(visible())[r]?.[c] ?? ' ';
 			hud.textContent = `R${String(r + 1).padStart(2, '0')} · C${String(c + 1).padStart(2, '0')} · ${ch === ' ' ? '␣' : ch}`;
 		});
 		fig.addEventListener('pointerleave', () => (hud.textContent = idle));
