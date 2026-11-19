@@ -1,7 +1,7 @@
 /**
  * Repositories highlighted on the home page.
  *
- * These are the six currently pinned on github.com/Gabi-comm. Live metadata
+ * Six highlighted repos from github.com/Gabi-comm (TerraWindow replaced Road-Damage-and-Defect-Recognition-Model, which now 404s on GitHub). Live metadata
  * (language mix, last push, stars) is fetched at build time by `src/lib/github.ts`;
  * everything below is authored locally because most of these repos have no
  * description on GitHub and the raw slugs don't read well as headings.
@@ -26,11 +26,11 @@ export const GITHUB_USER = 'Gabi-comm';
 
 export const featuredRepos: FeaturedRepo[] = [
 	{
-		slug: 'Road-Damage-and-Defect-Recognition-Model',
-		title: 'Road Damage & Defect Recognition',
+		slug: 'TerraWindow',
+		title: 'TERRAWINDOW',
 		blurb:
-			'A deep learning model that detects and classifies road defects from street imagery, built to support data-driven infrastructure maintenance decisions.',
-		tags: ['Deep Learning', 'Computer Vision', 'Jupyter'],
+			'NASA Space Apps 2026 entry that finds Earth terrain where rovers can rehearse for the Moon and Mars, comparing LOLA/MOLA topography criterion by criterion and computing low-sun rehearsal windows with SPICE.',
+		tags: ['Geospatial', 'FastAPI', 'React', 'NASA Data'],
 	},
 	{
 		slug: 'Network-Log-RAG-Chatbot',

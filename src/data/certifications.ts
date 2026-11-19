@@ -42,29 +42,45 @@ export const certifications: Certification[] = [
 		name: 'AI Engineer for Data Scientists (Associate)',
 		category: 'Certification',
 		image: '/certs/ai-engineer-for-data-scientists-associate.png',
+		credentialUrl: 'https://www.datacamp.com/certificate/AEDS0013014169367',
 		featured: true,
 	},
 	{
 		name: 'AI Fluency: Framework & Foundations',
 		category: 'Certification',
 		image: '/certs/ai-fluency-framework-and-foundation.png',
+		credentialUrl: 'https://verify.skilljar.com/c/96pfwdwa28ir',
 		featured: true,
 	},
 	{
-		name: 'Certified AI Agent Security Specialist',
+		name: 'Proofpoint Certified AI Agent Security Specialist',
 		category: 'Certification',
 		image: '/certs/certified-ai-agent-security-specialist-certification.png',
+		credentialUrl: 'https://www.credly.com/badges/b26c9836-0de8-410e-9a84-f34d02dffa97',
 		featured: true,
 	},
 	{
-		name: 'Certified AI Data Security Specialist',
+		name: 'Proofpoint Certified AI Data Security Specialist',
 		category: 'Certification',
 		image: '/certs/certified-ai-data-security-specialist-certification.png',
+		credentialUrl: 'https://www.credly.com/badges/33ec10b0-c03d-4f02-b305-a13294818075',
 	},
 	{
 		name: 'CodeChum Competition 2024 — Certificate of Completion',
 		category: 'Certification',
 		image: '/certs/codechum-competition-2024-certification-of-completion.png',
+	},
+	{
+		name: 'Supervised Learning with scikit-learn',
+		category: 'Certification',
+		image: '/certs/supervised-learning-with-scikit-learn.png',
+		credentialUrl: 'https://www.datacamp.com/completed/statement-of-accomplishment/course/1e4cbf857cea392519e0658ceb8c42e794c7ba7a',
+	},
+	{
+		name: 'Understanding Machine Learning',
+		category: 'Certification',
+		image: '/certs/understanding-machine-learning.png',
+		credentialUrl: 'https://www.datacamp.com/completed/statement-of-accomplishment/course/6b4fe1a163a6c86332fd8779e2e20f2ea04b6730',
 	},
 	{
 		name: 'Introduction to Machine Learning',
@@ -130,6 +146,11 @@ export const certifications: Certification[] = [
 	},
 
 	// ---- Participation & Badges ----
+	{
+		name: 'NASA Space Apps Challenge 2026 — Galactic Problem Solver',
+		category: 'Participation',
+		image: '/certs/nasa-space-apps-challenge-2026-galactic-problem-solver.jpg',
+	},
 	{
 		name: 'Copilot for Microsoft 365 — KPMG Innovation Challenge',
 		category: 'Participation',

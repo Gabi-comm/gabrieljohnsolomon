@@ -77,20 +77,15 @@ export const KIND_LABEL: Record<ExperienceKind, string> = {
 /** Roles and engagements, most substantial first within each kind. */
 export const experiences: Experience[] = [
 	{
-		role: 'AI Security Intern',
-		org: 'RivanAI Cybersecurity Inc.',
+		role: 'Artificial Intelligence Engineer',
+		org: 'RivanAI Cybersecurity Inc. · Part-time · Hybrid',
 		kind: 'professional',
-		period: 'May 2026',
+		period: 'Jul 2026',
 		current: true,
 		logo: '/logos/rivan.png',
 		description:
-			'Project-based internship securing large language model applications across data pipelines, training and inference.',
-		bullets: [
-			'Engineered and ran adversarial simulations — direct and indirect prompt injection and data-poisoning vectors — to surface vulnerabilities in LLM applications.',
-			'Supported secure LLM development and deployment with technical safeguards across hybrid infrastructure.',
-			'Built controlled ransomware-behaviour simulations for SOC training to strengthen incident-response readiness.',
-		],
-		tags: ['LLM Security', 'Prompt Injection', 'Data Poisoning', 'SOC'],
+			'Joined as a part-time AI Engineer after the internship, building and securing machine learning and retrieval-augmented generation (RAG) systems.',
+		tags: ['Machine Learning', 'RAG', 'LLM Security'],
 	},
 	{
 		role: 'Freelance Developer',
@@ -108,6 +103,30 @@ export const experiences: Experience[] = [
 		tags: ['Next.js', 'Three.js', 'Gemini', 'Generative AI'],
 	},
 	{
+		role: 'Machine Learning Engineer Intern',
+		org: 'FlyRank AI',
+		kind: 'professional',
+		period: 'Jun 2026 – Oct 2026',
+		initials: 'FR',
+		description: 'Machine learning internship working with large language models.',
+		tags: ['Machine Learning', 'LLMs'],
+	},
+	{
+		role: 'AI Security Engineer Intern',
+		org: 'RivanAI Cybersecurity Inc.',
+		kind: 'professional',
+		period: 'May 2026 – Jul 2026',
+		logo: '/logos/rivan.png',
+		description:
+			'Project-based internship securing large language model applications across data pipelines, training and inference.',
+		bullets: [
+			'Engineered and ran adversarial simulations — direct and indirect prompt injection and data-poisoning vectors — to surface vulnerabilities in LLM applications.',
+			'Supported secure LLM development and deployment with technical safeguards across hybrid infrastructure.',
+			'Built controlled ransomware-behaviour simulations for SOC training to strengthen incident-response readiness.',
+		],
+		tags: ['LLM Security', 'Prompt Injection', 'Data Poisoning', 'SOC'],
+	},
+	{
 		role: 'President',
 		org: 'Association of Computer Studies Students — UE Caloocan',
 		kind: 'leadership',
@@ -115,16 +134,6 @@ export const experiences: Experience[] = [
 		current: true,
 		logo: '/logos/acss.png',
 		description: 'Leads technical initiatives and programmes for the computer studies student body.',
-	},
-	{
-		role: 'Vice President',
-		org: 'AWS Learning Club — UE Caloocan',
-		kind: 'leadership',
-		period: 'Jun 2026',
-		current: true,
-		logo: '/logos/aws-learning-club.png',
-		description:
-			'Helps lead the campus cloud community, organising sessions that get students hands-on with AWS services and cloud fundamentals.',
 	},
 	{
 		role: 'Data Analyst',
@@ -165,6 +174,15 @@ export const experiences: Experience[] = [
 	},
 	// ---- Completed roles ----
 	{
+		role: 'Vice President',
+		org: 'AWS Learning Club — UE Caloocan',
+		kind: 'leadership',
+		period: 'Jun 2026 – Oct 2026',
+		logo: '/logos/aws-learning-club.png',
+		description:
+			'Helped lead the campus cloud community, organising sessions that got students hands-on with AWS services and cloud fundamentals.',
+	},
+	{
 		role: 'Vice-Chief Operations Officer',
 		org: 'AWS Learning Club — UE Caloocan',
 		kind: 'leadership',
@@ -185,7 +203,7 @@ export const experiences: Experience[] = [
 ];
 
 /**
- * Honors and recognition, newest first. Aligned to LinkedIn's Honors & awards
+ * Honors and recognition, newest first. Aligned to LinkedIn's Honors & awards (checked Nov 2026)
  * section; the PJDSC and AWS Community Day entries come from the résumé only.
  */
 export const awards: Award[] = [
@@ -199,7 +217,7 @@ export const awards: Award[] = [
 	{
 		result: 'Exemplary Academic Performance',
 		event: 'University of the East – Caloocan',
-		year: 'Since Aug 2024',
+		year: '2025 · 2026',
 	},
 	{
 		result: 'Top 10 Finalist',
@@ -219,13 +237,14 @@ export const competitions: Competition[] = [
 	{
 		name: 'UMak IT Olympics',
 		detail: 'Mobile Application · Game Development Category',
-		years: ['2027'],
+		years: ['2026'],
 	},
 	{ name: 'Philippine Junior Data Science Challenge', years: ['2025', '2026', '2027'] },
+	{ name: 'NASA Space Apps Challenge', detail: 'Galactic Problem Solver', years: ['2026'] },
 	{
 		name: 'UMak IT Olympics',
 		detail: 'Mobile Application · Productivity Category',
-		years: ['2026'],
+		years: ['2025'],
 	},
 	{ name: 'Global Game Jam', years: ['2026'] },
 	{ name: 'CodeKada: The Innovation Hackathon' },
@@ -242,5 +261,5 @@ export const organizations: Organization[] = [];
 export const highlights: Highlight[] = [
 	{ label: '1.04 GPA', detail: 'University Full Scholar · Latin Honor standing' },
 	{ label: 'Best Paper', detail: 'Technify 2026 · Computer Science' },
-	{ label: '8 roles', detail: 'Active at once across industry and community' },
+	{ label: '7 roles', detail: 'Active at once across industry and community' },
 ];

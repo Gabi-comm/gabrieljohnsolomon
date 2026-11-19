@@ -58,6 +58,18 @@ export interface Project {
 
 export const projects: Project[] = [
 	{
+		slug: 'TerraWindow',
+		title: 'TERRAWINDOW — Earth Analogs for the Moon & Mars',
+		blurb:
+			'NASA Space Apps 2026 entry that finds Earth terrain where rovers can rehearse for the lunar south pole and Mars: compares slope, roughness and relief against LOLA/MOLA data criterion by criterion, and computes low-sun rehearsal windows with SPICE — every verdict tied to its evidence.',
+		categories: ['Web', 'Cloud & DevOps'],
+		tags: ['FastAPI', 'React', 'SPICE', 'rasterio', 'MapLibre'],
+		language: 'Python',
+		year: 2026,
+		status: 'Hackathon',
+		featured: true,
+	},
+	{
 		slug: 'NeuroSymbolic',
 		title: 'OASYS — Neurosymbolic Road Assessment',
 		blurb:
