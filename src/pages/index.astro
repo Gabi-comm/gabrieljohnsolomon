@@ -134,11 +134,13 @@ const STATS = [
 		id="about"
 		num="01"
 		eyebrow="Profile"
-		title="My Contrib."
 		bare
 	>
 		<div class="about">
-			<ContributionGraph />
+			<div class="about-main">
+				<h2 class="about-title reveal">My Contrib.</h2>
+				<ContributionGraph />
+			</div>
 
 			<div class="about-side">
 			<aside class="glance reveal" aria-label="At a glance">
@@ -586,8 +588,17 @@ const STATS = [
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) 17rem;
 		gap: clamp(1.5rem, 4vw, 3rem);
-		/* Centre the contribution block against the taller side column. */
-		align-items: center;
+		/* Headline lines up with the top of the At a glance box. */
+		align-items: start;
+	}
+
+	.about-title {
+		font-family: var(--f-head);
+		font-weight: 700;
+		font-size: clamp(1.9rem, 5vw, 3.4rem);
+		line-height: 1.02;
+		letter-spacing: -0.035em;
+		margin: 0 0 clamp(1.75rem, 4vw, 2.75rem);
 	}
 
 	/* Tighter hand-off from the profile into Experience. */
