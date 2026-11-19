@@ -6,7 +6,7 @@
 import Layout from '../layouts/Layout.astro';
 import PageHead from '../components/PageHead.astro';
 import CertCard from '../components/CertCard.astro';
-import { certifications, CATEGORY_ORDER, CATEGORY_LABEL, LINKEDIN_URL } from '../data/certifications';
+import { certifications, CATEGORY_ORDER, CATEGORY_LABEL } from '../data/certifications';
 
 const groups = CATEGORY_ORDER.map((cat) => ({
 	label: CATEGORY_LABEL[cat],
@@ -41,15 +41,6 @@ const groups = CATEGORY_ORDER.map((cat) => ({
 			))
 		}
 
-		<a class="classified reveal" href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer">
-			<span class="cl-tag">Notice</span>
-			<span class="li-mark" aria-hidden="true"></span>
-			<span class="cl-copy">
-				<strong>See every credential on LinkedIn</strong>
-				<span>linkedin.com/in/gabrieljohnsolomon</span>
-			</span>
-			<span class="cl-arrow" aria-hidden="true">↗</span>
-		</a>
 	</div>
 </Layout>
 
@@ -111,87 +102,4 @@ const groups = CATEGORY_ORDER.map((cat) => ({
 		}
 	}
 
-	/* ---------- Classified ad ---------- */
-	.classified {
-		--shadow: var(--hard);
-		position: relative;
-		display: flex;
-		align-items: center;
-		gap: 1.1rem;
-		max-width: 36rem;
-		margin: clamp(1rem, 3vw, 1.5rem) auto 0;
-		padding: 1.4rem 1.5rem;
-		border: 2px dashed var(--line-strong);
-		background: var(--card);
-		text-decoration: none;
-		color: var(--fg);
-		box-shadow: 0 0 0 var(--shadow);
-		transition:
-			transform 0.35s var(--ease),
-			box-shadow 0.35s var(--ease),
-			border-style 0.35s;
-	}
-
-	.classified:hover {
-		border-style: solid;
-		transform: translate(-4px, -4px);
-		box-shadow: 4px 4px 0 var(--shadow);
-	}
-
-	.cl-tag {
-		position: absolute;
-		top: -0.7rem;
-		left: 1rem;
-		padding: 0.15rem 0.5rem;
-		background: var(--red);
-		color: #fff;
-		font-family: var(--f-mono);
-		font-size: 0.6rem;
-		font-weight: 700;
-		letter-spacing: 0.18em;
-		text-transform: uppercase;
-	}
-
-	.li-mark {
-		width: 30px;
-		height: 30px;
-		flex-shrink: 0;
-		background-color: var(--fg);
-		-webkit-mask: url('/icons/linkedin.svg') center / contain no-repeat;
-		mask: url('/icons/linkedin.svg') center / contain no-repeat;
-	}
-
-	.cl-copy {
-		display: flex;
-		flex-direction: column;
-		gap: 0.15rem;
-		min-width: 0;
-	}
-
-	.cl-copy strong {
-		font-family: var(--f-head);
-		font-size: 1.05rem;
-		letter-spacing: -0.01em;
-	}
-
-	.cl-copy span {
-		font-family: var(--f-mono);
-		font-size: 0.7rem;
-		color: var(--muted);
-		overflow-wrap: anywhere;
-	}
-
-	.cl-arrow {
-		margin-left: auto;
-		font-family: var(--f-mono);
-		font-size: 1.2rem;
-		transition:
-			transform 0.3s var(--ease),
-			color 0.3s var(--ease);
-	}
-
-	.classified:hover .cl-arrow {
-		color: var(--red-text);
-		transform: translate(3px, -3px);
-	}
 </style>

@@ -725,10 +725,13 @@ const STATS = [
 	.ascii-lens {
 		position: absolute;
 		inset: 0;
-		color: var(--red-text);
+		color: #ff1a0d;
+		text-shadow:
+			0 0 3px rgb(255 20 0 / 0.9),
+			0 0 9px rgb(225 6 0 / 0.75);
 		pointer-events: none;
-		-webkit-mask: radial-gradient(circle var(--lens) at var(--mx) var(--my), #000 55%, transparent 100%);
-		mask: radial-gradient(circle var(--lens) at var(--mx) var(--my), #000 55%, transparent 100%);
+		-webkit-mask: radial-gradient(circle var(--lens) at var(--mx) var(--my), #000 70%, transparent 100%);
+		mask: radial-gradient(circle var(--lens) at var(--mx) var(--my), #000 70%, transparent 100%);
 	}
 
 	.ascii .lt {

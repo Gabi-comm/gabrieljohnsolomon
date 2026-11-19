@@ -112,10 +112,6 @@ const fileSwap = {
 						<Logo size={64} />
 						<p class="col-name dot-type">Gabriel John Solomon</p>
 					</div>
-					<p class="col-note">
-						Printed in matte black, stark white &amp; signal red. Set in Doto, Space Grotesk and
-						Newsreader. Built with Astro.
-					</p>
 					<nav class="col-links" aria-label="Elsewhere">
 						<a href={`https://github.com/${GITHUB_USER}`} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
 						<a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
@@ -277,7 +273,7 @@ const fileSwap = {
 
 			.colophon-grid {
 				display: grid;
-				grid-template-columns: auto minmax(0, 1fr) auto;
+				grid-template-columns: minmax(0, 1fr) auto;
 				gap: clamp(1rem, 4vw, 3rem);
 				align-items: end;
 				padding: clamp(1.5rem, 4vw, 2.5rem) 0;
@@ -297,15 +293,6 @@ const fileSwap = {
 				font-size: 1.15rem;
 				line-height: 1;
 				text-transform: uppercase;
-			}
-
-			.col-note {
-				margin: 0;
-				max-width: 44ch;
-				font-style: italic;
-				font-size: 0.95rem;
-				line-height: 1.5;
-				color: var(--muted);
 			}
 
 			.col-links {
