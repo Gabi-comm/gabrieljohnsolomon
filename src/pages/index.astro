@@ -164,11 +164,10 @@ const STATS = [
 					<pre class="ascii-base lt" aria-hidden="true">{ART_INV}</pre>
 					<pre class="ascii-lens dk" aria-hidden="true">{ART_HOT}</pre>
 					<pre class="ascii-lens lt" aria-hidden="true">{ART_INV_HOT}</pre>
-					<span class="ascii-scan" aria-hidden="true"></span>
 				</div>
 				<figcaption class="ascii-hud" aria-hidden="true">
 					<span>G.J.S · {ART_COLS}×{ART_ROWS}</span>
-					<span class="hud-pos" data-hud>Hover to scan</span>
+					<span class="hud-pos" data-hud>Hover to inspect</span>
 				</figcaption>
 			</figure>
 
@@ -683,8 +682,7 @@ const STATS = [
 	}
 
 	/* Hover: a red lens follows the pointer showing a denser copy of the art,
-	   a scan bar sweeps down on entry and decodes the rows out of noise, and a
-	   HUD reads out the row, column and glyph under the pointer. */
+	   and a HUD reads out the row, column and glyph under the pointer. */
 	@property --lens {
 		syntax: '<length>';
 		inherits: true;
@@ -722,11 +720,6 @@ const STATS = [
 
 	.ascii-base {
 		color: var(--fg);
-		transition: color 0.4s var(--ease);
-	}
-
-	.ascii:hover .ascii-base {
-		color: color-mix(in srgb, var(--fg) 38%, transparent);
 	}
 
 	.ascii-lens {
@@ -748,18 +741,6 @@ const STATS = [
 
 	:global(body.light-mode) .ascii .lt {
 		display: block;
-	}
-
-	.ascii-scan {
-		position: absolute;
-		left: -0.8rem;
-		right: -0.8rem;
-		top: 0;
-		height: 2px;
-		background: var(--red);
-		opacity: 0;
-		pointer-events: none;
-		will-change: transform;
 	}
 
 	.ascii-hud {
@@ -926,58 +907,22 @@ const STATS = [
 
 	document.addEventListener('astro:page-load', initCounters);
 
-	/** ASCII portrait hover: pointer lens, scan-and-decode on entry, HUD readout. */
+	/** ASCII portrait hover: a red lens that follows the pointer, plus a HUD readout. */
 	function initAscii() {
 		const fig = document.querySelector<HTMLElement>('[data-ascii]');
 		if (!fig || fig.dataset.bound) return;
 		fig.dataset.bound = '1';
 		const stage = fig.querySelector<HTMLElement>('.ascii-stage')!;
 		const bases = Array.from(fig.querySelectorAll<HTMLElement>('.ascii-base'));
-		const scan = fig.querySelector<HTMLElement>('.ascii-scan')!;
 		const hud = fig.querySelector<HTMLElement>('[data-hud]')!;
-		// Original text per theme copy, so a decode can always restore it.
+		// Text of each theme copy, for the HUD readout.
 		const arts = new Map(bases.map((b) => [b, b.textContent ?? '']));
 		const visible = () => bases.find((b) => b.offsetParent !== null) ?? bases[0];
 		const linesOf = (b: HTMLElement) => (arts.get(b) ?? '').split('\n');
 		const cols = Number(fig.dataset.cols) || 80;
 		const rows = linesOf(bases[0]).length;
-		const noise = '`.:~;=+?|)]oX#%&@01';
-		const still = window.matchMedia('(prefers-reduced-motion: reduce)');
 		const idle = hud.textContent;
-		let raf = 0;
 
-		// Rows below the bar are faint static, rows at the bar are noise, rows
-		// above it have resolved back to the portrait.
-		const decode = () => {
-			if (still.matches || raf) return;
-			const base = visible();
-			const art = arts.get(base) ?? '';
-			const lines = art.split('\n');
-			const start = performance.now();
-			const dur = 950;
-			scan.style.opacity = '1';
-			const frame = (t: number) => {
-				const p = Math.min((t - start) / dur, 1);
-				const edge = p * (rows + 3);
-				base.textContent = lines
-					.map((line, r) => {
-						if (r < edge - 3) return line;
-						if (r > edge) return line.replace(/\S/g, () => (Math.random() < 0.6 ? ' ' : '.'));
-						return line.replace(/\S/g, () => noise[(Math.random() * noise.length) | 0]);
-					})
-					.join('\n');
-				scan.style.transform = `translateY(${(Math.min(edge, rows) / rows) * stage.offsetHeight}px)`;
-				if (p < 1) raf = requestAnimationFrame(frame);
-				else {
-					base.textContent = art;
-					scan.style.opacity = '0';
-					raf = 0;
-				}
-			};
-			raf = requestAnimationFrame(frame);
-		};
-
-		fig.addEventListener('pointerenter', decode);
 		fig.addEventListener('pointermove', (e) => {
 			const b = stage.getBoundingClientRect();
 			const x = e.clientX - b.left;
