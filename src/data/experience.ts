@@ -217,7 +217,7 @@ export const awards: Award[] = [
 	{
 		result: 'Exemplary Academic Performance',
 		event: 'University of the East – Caloocan',
-		year: '2025 · 2026',
+		year: '2023 · 2026',
 	},
 	{
 		result: 'Top 10 Finalist',
