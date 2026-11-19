@@ -13,6 +13,19 @@ import portrait from '../assets/portrait.txt?raw';
 
 const NAME_LINES = ['Gabriel', 'John', 'Solomon'];
 
+// ASCII portrait: the resting art, plus a "hot" copy pushed four steps up the
+// density ramp, which the hover lens reveals in red.
+const ART = portrait.replace(/^(?:[ \t]*\r?\n)+/, '').trimEnd();
+const RAMP = ' `.:~;=+?|)]oX#%&@';
+const ART_HOT = [...ART]
+	.map((c) => {
+		const i = RAMP.indexOf(c);
+		return i > 0 ? RAMP[Math.min(RAMP.length - 1, i + 4)] : c;
+	})
+	.join('');
+const ART_ROWS = ART.split('\n').length;
+const ART_COLS = Math.max(...ART.split('\n').map((l) => l.length));
+
 // The index strip: live counts from the data files, each linking to its page.
 const STATS = [
 	{ label: 'Projects', value: projects.length, href: '/projects', note: 'Filed in the archive' },
@@ -132,8 +145,22 @@ const STATS = [
 				<a class="glance-link" href="/exp">Full record <span aria-hidden="true">→</span></a>
 			</aside>
 
-			<figure class="ascii reveal" role="img" aria-label="ASCII portrait of Gabriel">
-				<pre aria-hidden="true">{portrait.replace(/^(?:[ \t]*\r?\n)+/, '').trimEnd()}</pre>
+			<figure
+				class="ascii reveal"
+				role="img"
+				aria-label="ASCII portrait of Gabriel"
+				data-ascii
+				data-cols={ART_COLS}
+			>
+				<div class="ascii-stage">
+					<pre class="ascii-base" aria-hidden="true">{ART}</pre>
+					<pre class="ascii-lens" aria-hidden="true">{ART_HOT}</pre>
+					<span class="ascii-scan" aria-hidden="true"></span>
+				</div>
+				<figcaption class="ascii-hud" aria-hidden="true">
+					<span>G.J.S · {ART_COLS}×{ART_ROWS}</span>
+					<span class="hud-pos" data-hud>Hover to scan</span>
+				</figcaption>
 			</figure>
 
 			<a
@@ -644,19 +671,95 @@ const STATS = [
 		overflow: hidden;
 	}
 
+	/* Hover: a red lens follows the pointer showing a denser copy of the art,
+	   a scan bar sweeps down on entry and decodes the rows out of noise, and a
+	   HUD reads out the row, column and glyph under the pointer. */
+	@property --lens {
+		syntax: '<length>';
+		inherits: true;
+		initial-value: 0px;
+	}
+
+	.ascii {
+		--mx: 50%;
+		--my: 50%;
+		--lens: 0px;
+		cursor: crosshair;
+		transition:
+			--lens 0.45s var(--ease),
+			border-color 0.3s var(--ease);
+	}
+
+	.ascii:hover {
+		--lens: 62px;
+		border-color: var(--red);
+	}
+
+	.ascii-stage {
+		position: relative;
+	}
+
 	.ascii pre {
 		margin: 0;
 		font-family: var(--f-mono);
 		font-size: calc(100cqi / 48.5);
 		line-height: 1.05;
 		letter-spacing: 0;
-		color: var(--fg);
 		white-space: pre;
 		user-select: none;
+	}
+
+	.ascii-base {
+		color: var(--fg);
 		transition: color 0.4s var(--ease);
 	}
 
-	.ascii:hover pre {
+	.ascii:hover .ascii-base {
+		color: color-mix(in srgb, var(--fg) 38%, transparent);
+	}
+
+	.ascii-lens {
+		position: absolute;
+		inset: 0;
+		color: var(--red-text);
+		pointer-events: none;
+		-webkit-mask: radial-gradient(circle var(--lens) at var(--mx) var(--my), #000 55%, transparent 100%);
+		mask: radial-gradient(circle var(--lens) at var(--mx) var(--my), #000 55%, transparent 100%);
+	}
+
+	.ascii-scan {
+		position: absolute;
+		left: -0.8rem;
+		right: -0.8rem;
+		top: 0;
+		height: 2px;
+		background: var(--red);
+		opacity: 0;
+		pointer-events: none;
+		will-change: transform;
+	}
+
+	.ascii-hud {
+		display: flex;
+		justify-content: space-between;
+		gap: 0.5rem;
+		margin-top: 0.7rem;
+		padding-top: 0.5rem;
+		border-top: 1px dashed var(--line);
+		font-family: var(--f-mono);
+		font-size: 0.6rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: var(--muted);
+	}
+
+	.hud-pos {
+		color: var(--fg);
+		font-variant-numeric: tabular-nums;
+		transition: color 0.3s var(--ease);
+	}
+
+	.ascii:hover .hud-pos {
 		color: var(--red-text);
 	}
 
@@ -799,6 +902,72 @@ const STATS = [
 	}
 
 	document.addEventListener('astro:page-load', initCounters);
+
+	/** ASCII portrait hover: pointer lens, scan-and-decode on entry, HUD readout. */
+	function initAscii() {
+		const fig = document.querySelector<HTMLElement>('[data-ascii]');
+		if (!fig || fig.dataset.bound) return;
+		fig.dataset.bound = '1';
+		const stage = fig.querySelector<HTMLElement>('.ascii-stage')!;
+		const base = fig.querySelector<HTMLElement>('.ascii-base')!;
+		const scan = fig.querySelector<HTMLElement>('.ascii-scan')!;
+		const hud = fig.querySelector<HTMLElement>('[data-hud]')!;
+		const art = base.textContent ?? '';
+		const lines = art.split('\n');
+		const cols = Number(fig.dataset.cols) || 80;
+		const rows = lines.length;
+		const noise = '`.:~;=+?|)]oX#%&@01';
+		const still = window.matchMedia('(prefers-reduced-motion: reduce)');
+		const idle = hud.textContent;
+		let raf = 0;
+
+		// Rows below the bar are faint static, rows at the bar are noise, rows
+		// above it have resolved back to the portrait.
+		const decode = () => {
+			if (still.matches || raf) return;
+			const start = performance.now();
+			const dur = 950;
+			scan.style.opacity = '1';
+			const frame = (t: number) => {
+				const p = Math.min((t - start) / dur, 1);
+				const edge = p * (rows + 3);
+				base.textContent = lines
+					.map((line, r) => {
+						if (r < edge - 3) return line;
+						if (r > edge) return line.replace(/\S/g, () => (Math.random() < 0.6 ? ' ' : '.'));
+						return line.replace(/\S/g, () => noise[(Math.random() * noise.length) | 0]);
+					})
+					.join('\n');
+				scan.style.transform = `translateY(${(Math.min(edge, rows) / rows) * stage.offsetHeight}px)`;
+				if (p < 1) raf = requestAnimationFrame(frame);
+				else {
+					base.textContent = art;
+					scan.style.opacity = '0';
+					raf = 0;
+				}
+			};
+			raf = requestAnimationFrame(frame);
+		};
+
+		fig.addEventListener('pointerenter', decode);
+		fig.addEventListener('pointermove', (e) => {
+			const b = stage.getBoundingClientRect();
+			const x = e.clientX - b.left;
+			const y = e.clientY - b.top;
+			fig.style.setProperty('--mx', `${x}px`);
+			fig.style.setProperty('--my', `${y}px`);
+			const c = Math.floor((x / b.width) * cols);
+			const r = Math.floor((y / b.height) * rows);
+			if (c < 0 || r < 0 || c >= cols || r >= rows) return;
+			const ch = lines[r]?.[c] ?? ' ';
+			hud.textContent = `R${String(r + 1).padStart(2, '0')} · C${String(c + 1).padStart(2, '0')} · ${ch === ' ' ? '␣' : ch}`;
+		});
+		fig.addEventListener('pointerleave', () => (hud.textContent = idle));
+	}
+
+	document.addEventListener('astro:page-load', initAscii);
+	if (document.readyState !== 'loading') initAscii();
+	else document.addEventListener('DOMContentLoaded', initAscii);
 	if (document.readyState !== 'loading') initCounters();
 	else document.addEventListener('DOMContentLoaded', initCounters);
 </script>
