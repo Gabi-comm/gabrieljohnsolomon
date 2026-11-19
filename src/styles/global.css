@@ -192,7 +192,7 @@ body.theme-anim *:not(.no-theme-anim) {
 	width: 100%;
 	max-width: var(--content-width);
 	margin-inline: auto;
-	padding: clamp(1.75rem, 4vw, 3rem) var(--gutter) clamp(3.5rem, 9vw, 6rem);
+	padding: clamp(1.75rem, 4vw, 3rem) var(--gutter) clamp(1rem, 2.5vw, 1.5rem);
 }
 
 /* ---------- Buttons ---------- */
