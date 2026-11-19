@@ -143,6 +143,14 @@ body::after {
 	mix-blend-mode: overlay;
 }
 
+/* Phones and touch screens: the grain overlay is blended over the whole
+   viewport on every scroll frame, which is what made scrolling stutter. */
+@media (max-width: 760px), (hover: none) {
+	body::after {
+		display: none;
+	}
+}
+
 /* Theme cross-fade: added on click, removed ~500ms later. */
 body.theme-anim,
 body.theme-anim *:not(.no-theme-anim) {
@@ -328,7 +336,6 @@ html.js-reveal .reveal.is-in {
 	to {
 		opacity: 0;
 		transform: translateY(18px) scale(0.985);
-		filter: brightness(0.6);
 	}
 }
 
@@ -343,7 +350,6 @@ html.js-reveal .reveal.is-in {
 	to {
 		opacity: 0;
 		transform: translateY(-18px) scale(0.985);
-		filter: brightness(0.6);
 	}
 }
 

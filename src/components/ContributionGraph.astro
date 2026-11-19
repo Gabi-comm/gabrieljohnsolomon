@@ -376,6 +376,15 @@ const STATS = s
 		}
 	}
 
+	@media (max-width: 760px), (hover: none) {
+		:global(html.js-reveal) .contrib:not(.is-in) .c-svg .c-d {
+			opacity: 1;
+		}
+		.contrib.is-in .c-svg .c-d {
+			animation: none;
+		}
+	}
+
 	@keyframes c-on {
 		from {
 			opacity: 0;

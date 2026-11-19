@@ -312,6 +312,19 @@ const sections = [
 		animation: d-in 0.9s var(--ease) both;
 	}
 
+	@media (max-width: 760px), (hover: none) {
+		.d-title {
+			animation-name: head-lite;
+		}
+	}
+
+	@keyframes head-lite {
+		from {
+			opacity: 0;
+			translate: 0 14px;
+		}
+	}
+
 	@keyframes d-in {
 		from {
 			opacity: 0;

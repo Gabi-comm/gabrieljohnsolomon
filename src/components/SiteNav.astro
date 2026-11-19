@@ -60,6 +60,14 @@ const LINKS = [
 		border-bottom: 1px solid var(--line);
 	}
 
+	@media (max-width: 760px), (hover: none) {
+		.sitebar {
+			background: color-mix(in srgb, var(--bg) 97%, transparent);
+			backdrop-filter: none;
+			-webkit-backdrop-filter: none;
+		}
+	}
+
 	.sitebar-inner {
 		height: 100%;
 		max-width: calc(var(--content-width) + 2 * var(--gutter));
