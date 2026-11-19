@@ -9,6 +9,7 @@ import ContributionGraph from '../components/ContributionGraph.astro';
 import { projects } from '../data/projects';
 import { experiences, competitions } from '../data/experience';
 import { certifications } from '../data/certifications';
+import portrait from '../assets/portrait.txt?raw';
 
 const NAME_LINES = ['Gabriel', 'John', 'Solomon'];
 
@@ -118,6 +119,7 @@ const STATS = [
 		<div class="about">
 			<ContributionGraph />
 
+			<div class="about-side">
 			<aside class="glance reveal" aria-label="At a glance">
 				<p class="glance-head">At a glance</p>
 				<dl>
@@ -129,6 +131,22 @@ const STATS = [
 				</dl>
 				<a class="glance-link" href="/exp">Full record <span aria-hidden="true">→</span></a>
 			</aside>
+
+			<figure class="ascii reveal" role="img" aria-label="ASCII portrait of Gabriel">
+				<pre aria-hidden="true">{portrait.replace(/^(?:[ \t]*\r?\n)+/, '').trimEnd()}</pre>
+			</figure>
+
+			<a
+				class="gh-link reveal"
+				href="https://github.com/Gabi-comm"
+				target="_blank"
+				rel="noopener noreferrer"
+			>
+				<span class="gh-mark" aria-hidden="true"></span>
+				<span class="gh-text">github.com/<b>Gabi-comm</b></span>
+				<span class="gh-arrow" aria-hidden="true">↗</span>
+			</a>
+			</div>
 		</div>
 	</Section>
 
@@ -596,6 +614,93 @@ const STATS = [
 
 	.glance-link:hover span {
 		transform: translateX(4px);
+	}
+
+	/* Right column: glance card, ASCII portrait, GitHub link. */
+	.about-side {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		min-width: 0;
+	}
+
+	/* 80-column ASCII scaled to the column width (a mono glyph is ~0.6em wide). */
+	.ascii {
+		container-type: inline-size;
+		margin: 0;
+		padding: 0.9rem 0.8rem;
+		border: 1.5px solid var(--line-strong);
+		background: var(--card);
+		overflow: hidden;
+	}
+
+	.ascii pre {
+		margin: 0;
+		font-family: var(--f-mono);
+		font-size: calc(100cqi / 48.5);
+		line-height: 1.05;
+		letter-spacing: 0;
+		color: var(--fg);
+		white-space: pre;
+		user-select: none;
+		transition: color 0.4s var(--ease);
+	}
+
+	.ascii:hover pre {
+		color: var(--red-text);
+	}
+
+	.gh-link {
+		display: flex;
+		align-items: center;
+		gap: 0.7rem;
+		padding: 0.85rem 1rem;
+		border: 1.5px solid var(--line-strong);
+		background: var(--card);
+		font-family: var(--f-mono);
+		font-size: 0.78rem;
+		letter-spacing: 0.04em;
+		text-decoration: none;
+		color: var(--fg);
+		box-shadow: 0 0 0 var(--hard);
+		transition:
+			transform 0.28s var(--ease),
+			box-shadow 0.28s var(--ease),
+			border-color 0.28s var(--ease);
+	}
+
+	.gh-link:hover {
+		transform: translate(-4px, -4px);
+		box-shadow: 4px 4px 0 var(--red);
+		border-color: var(--red);
+	}
+
+	.gh-link b {
+		font-weight: 700;
+		color: var(--red-text);
+	}
+
+	.gh-mark {
+		width: 18px;
+		height: 18px;
+		flex-shrink: 0;
+		background-color: currentColor;
+		-webkit-mask: url('/icons/github.svg') center / contain no-repeat;
+		mask: url('/icons/github.svg') center / contain no-repeat;
+	}
+
+	.gh-text {
+		flex: 1;
+		min-width: 0;
+		overflow-wrap: anywhere;
+	}
+
+	.gh-arrow {
+		transition: transform 0.28s var(--ease);
+	}
+
+	.gh-link:hover .gh-arrow {
+		transform: translate(2px, -2px);
 	}
 
 	/* ---------- Responsive ---------- */
