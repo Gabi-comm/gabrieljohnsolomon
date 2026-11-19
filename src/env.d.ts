@@ -2,16 +2,12 @@
 
 declare global {
 	interface Window {
-		/**
-		 * Guards against re-initialising the background canvas. The canvas element is
-		 * `transition:persist`, so it survives client-side navigation and its
-		 * animation loop must only ever be started once per page load.
-		 */
-		starCanvasInitialized?: boolean;
-		/** Same idea for the theme button's click listener. */
+		/** The theme button lives in the persisted header; bind its listener once. */
 		themeToggleInitialized?: boolean;
 		/** Pending timeout that removes the theme cross-fade class after a toggle. */
 		themeAnimTimer?: number;
+		/** Set when the reveal observer is running; the head script's fallback checks it. */
+		__revealReady?: boolean;
 	}
 }
 

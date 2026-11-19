@@ -1,161 +1,137 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Section from '../components/Section.astro';
 import Experience from '../components/Experience.astro';
 import FeaturedRepos from '../components/FeaturedRepos.astro';
 import Certifications from '../components/Certifications.astro';
 import TechStack from '../components/TechStack.astro';
+import ContributionGraph from '../components/ContributionGraph.astro';
+import { projects } from '../data/projects';
+import { experiences, competitions } from '../data/experience';
+import { certifications } from '../data/certifications';
 
-const FULL_NAME = 'Gabriel John Solomon';
+const NAME_LINES = ['Gabriel', 'John', 'Solomon'];
 
-// About-section carousel. width/height are the files' true sizes; cards crop to
-// 4:5 with object-fit, and `focus` keeps the face in frame.
-const PHOTOS = [
-	{ src: '/me3.jpg', width: 900, height: 908, alt: 'Gabriel John Solomon in orange-tinted glasses', focus: '50% 35%' },
-	{ src: '/me.jpg', width: 956, height: 956, alt: 'Gabriel John Solomon at his desk by a sunlit window', focus: '50% 40%' },
-	{ src: '/me2.jpg', width: 583, height: 728, alt: 'Gabriel John Solomon speaking at an event' },
+// The index strip: live counts from the data files, each linking to its page.
+const STATS = [
+	{ label: 'Projects', value: projects.length, href: '/projects', note: 'Filed in the archive' },
+	{ label: 'Roles', value: experiences.length, href: '/exp', note: 'Industry & leadership' },
+	{ label: 'Certificates', value: certifications.length, href: '/certificates', note: 'Credentials on file' },
+	{ label: 'Competitions', value: competitions.length, href: '/exp', note: 'Hackathons & contests' },
 ];
-
-// Each letter gets its own span so the name can fade in one character at a time.
-// Letters are grouped per word, and each word is kept whole, so on a narrow
-// screen the heading wraps only between words, never mid-word. Letter spans
-// carry no whitespace: the spacing comes from CSS letter-spacing, and the gap
-// between words from the flex gap on the heading.
-let charIndex = 0;
-const NAME_WORDS = FULL_NAME.split(' ').map((word) => [...word].map((ch) => ({ ch, i: charIndex++ })));
 ---
 
 <Layout>
-	<!-- Hero -->
-	<section class="hero">
-		<!-- Drifting colour wash + a glow that follows the pointer. Purely decorative. -->
-		<div class="aurora" aria-hidden="true">
-			<span class="blob blob-a"></span>
-			<span class="blob blob-b"></span>
-			<span class="pointer-glow"></span>
-		</div>
-
-		<div class="hero-inner">
-			<p class="status">
-				<svg class="status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-					<path d="M21.42 10.92a1 1 0 0 0-.02-1.84L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.83l8.57 3.91a2 2 0 0 0 1.66 0z"></path>
-					<path d="M22 10v6"></path>
-					<path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"></path>
-				</svg>
-				<span class="status-degree">BS Computer Science</span>
-				<span class="status-sep" aria-hidden="true"></span>
-				<span class="status-school">
-					<span class="school-full">University of the East – Caloocan</span>
-					<span class="school-short">UE Caloocan</span>
-				</span>
-			</p>
-
-			<p class="greeting">
-				Hello!! I'm
-				<!-- The "G." mark re-tracing itself on a loop, echoing the site intro. -->
-				<svg class="hi-mark" viewBox="0 0 13 10" shape-rendering="crispEdges" aria-hidden="true">
-					<rect class="hb hb-top" x="0" y="0" width="10" height="2"></rect>
-					<rect class="hb hb-left" x="0" y="0" width="2" height="10"></rect>
-					<rect class="hb hb-bottom" x="0" y="8" width="10" height="2"></rect>
-					<rect class="hb hb-right" x="8" y="5" width="2" height="3"></rect>
-					<rect class="hb hb-tab" x="5" y="5" width="5" height="2"></rect>
-					<rect class="hb-dot" x="11" y="8" width="2" height="2"></rect>
-				</svg>
-			</p>
-
-			<h1 class="name" aria-label={FULL_NAME}>
+	<!-- ============ Hero ============ -->
+	<section class="hero" aria-labelledby="hero-name">
+		<div class="hero-copy">
+			<h1 class="hero-name dot-type" id="hero-name" aria-label="Gabriel John Solomon">
 				{
-					NAME_WORDS.map((letters) => (
-						<span class="word" aria-hidden="true">
-							{letters.map(({ ch, i }) => <span class="ch" style={`--i:${i}`}>{ch}</span>)}
+					NAME_LINES.map((line, i) => (
+						<span class="line" aria-hidden="true">
+							<span style={`--l:${i}`}>{line}</span>
 						</span>
 					))
 				}
 			</h1>
 
-			<span class="rule" aria-hidden="true"></span>
+			<p class="hero-dek">
+				AI engineer builds intelligent systems in Python — and insists they be
+				<em>genuinely useful</em> to the people on the other end.
+			</p>
 
-			<p class="role">AI Engineer · AI Security · Student Leader</p>
+			<dl class="hero-facts">
+				<div>
+					<dt>Desk</dt>
+					<dd>AI Engineer · AI Security · Student Leader</dd>
+				</div>
+				<div>
+					<dt>School</dt>
+					<dd>BS Computer Science, University of the East – Caloocan</dd>
+				</div>
+			</dl>
 
-			<div class="cta-row">
-				<!-- Labels are wrapped in spans so `.btn > *` lifts them above the hover
-				     shine; a bare text node can't take a z-index and the sweep would
-				     wash straight over it. -->
-				<a class="btn btn-primary" href="/Resume-SOLOMON.pdf" download="Resume-SOLOMON.pdf">
-					<span>Check out my resume</span>
-				</a>
-
-				<a class="btn btn-ghost" href="#work">
-					<span>Look at my projects</span>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						aria-hidden="true"
+			<div class="hero-cta">
+				<a class="btn btn-red" href="/Resume-SOLOMON.pdf" download="Resume-SOLOMON.pdf">
+					Get the résumé
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"
+						><path d="M12 4v13m-6-6 6 6 6-6M5 20h14" stroke-width="2" stroke-linecap="square"></path></svg
 					>
-						<path d="m9 18 6-6-6-6"></path>
-					</svg>
+				</a>
+				<a class="btn" href="/projects">
+					Read the work
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"
+						><path d="M5 12h14M13 6l6 6-6 6" stroke-width="2" stroke-linecap="square"></path></svg
+					>
 				</a>
 			</div>
 		</div>
 
-		<a class="scroll-cue" href="#work" aria-label="Scroll to featured work">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-				<path d="m6 9 6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-				></path>
-			</svg>
-		</a>
-	</section>
-
-	<!-- About -->
-	<section class="about" id="about">
-		<!-- Photos ride a slow 3D ring. Each card is placed at its own angle (--a)
-		     plus the ring's shared spin (--t), then turned back to face the viewer, so
-		     the pictures stay upright while circling. Hover pauses it. -->
-		<div class="photos">
-			<div class="orbit">
-				{
-					PHOTOS.map((photo, i) => (
-						<figure class="orbit-card" style={`--a:${(360 / PHOTOS.length) * i}deg`}>
-							<img
-								src={photo.src}
-								width={photo.width}
-								height={photo.height}
-								alt={photo.alt}
-								loading="lazy"
-								decoding="async"
-								style={photo.focus ? `object-position:${photo.focus}` : undefined}
-							/>
-						</figure>
-					))
-				}
+		<figure class="portrait">
+			<div class="halftone" aria-hidden="true"></div>
+			<div class="slab" aria-hidden="true">
+				<span class="slab-label dot-type">G.J.S — 001</span>
 			</div>
-		</div>
-
-		<div class="bio">
-			<h2 class="bio-head">AI Engineer · AI Security · Student Leader</h2>
-
-			<!-- Kept deliberately short: the degree, university, awards, tools and every
-			     leadership role are already shown by the hero pill, the experience
-			     timeline and the tech stack. This paragraph carries only what those
-			     sections can't — what the work is actually for. -->
-			<p>
-				I build <b>intelligent systems in Python</b> — computer vision models, retrieval-augmented
-				chatbots, and automation that turns messy data into something a person can actually act
-				on.
-			</p>
-
-			<p>
-				Most of what I know came from high-stakes rooms: national competitions, hackathons I was
-				later asked to judge, and student organisations where the technical call is mine to make.
-				I care less about a model that scores well than about a system someone finds genuinely
-				useful.
-			</p>
-		</div>
+			<picture>
+				<source srcset="/portrait-cutout.webp" type="image/webp" />
+				<img
+					class="cutout"
+					src="/portrait-cutout.png"
+					width="833"
+					height="752"
+					alt="Gabriel John Solomon at his desk in a white shirt and red tie"
+					fetchpriority="high"
+					decoding="async"
+				/>
+			</picture>
+			<span class="crop tl" aria-hidden="true"></span>
+			<span class="crop tr" aria-hidden="true"></span>
+		</figure>
 	</section>
+
+	<!-- ============ Index strip ============ -->
+	<nav class="index-strip" aria-label="At a glance">
+		{
+			STATS.map((st, i) => (
+				<a class="stat reveal" href={st.href}>
+					<span class="stat-top">
+						<span class="stat-no">{String(i + 1).padStart(2, '0')}</span>
+						<span class="stat-label">{st.label}</span>
+						<span class="stat-arrow" aria-hidden="true">→</span>
+					</span>
+					<span class="stat-value dot-type" data-count={st.value}>
+						{String(st.value).padStart(2, '0')}
+					</span>
+					<span class="stat-note">{st.note}</span>
+				</a>
+			))
+		}
+	</nav>
+
+	<!-- ============ Profile ============ -->
+	<Section
+		id="about"
+		num="01"
+		eyebrow="Profile"
+		title="Less about the score — more about the person using it."
+		bare
+	>
+		<div class="about">
+			<ContributionGraph />
+
+			<aside class="glance reveal" aria-label="At a glance">
+				<p class="glance-head">At a glance</p>
+				<dl>
+					<div><dt>Role</dt><dd>AI Engineer, RivanAI Cybersecurity</dd></div>
+					<div><dt>Study</dt><dd>BS Computer Science</dd></div>
+					<div><dt>Campus</dt><dd>UE Caloocan</dd></div>
+					<div><dt>Stack</dt><dd>Python · CV · LLMs</dd></div>
+					<div><dt>Focus</dt><dd>AI Security</dd></div>
+				</dl>
+				<a class="glance-link" href="/exp">Full record <span aria-hidden="true">→</span></a>
+			</aside>
+		</div>
+	</Section>
 
 	<Experience />
 	<FeaturedRepos />
@@ -166,735 +142,549 @@ const NAME_WORDS = FULL_NAME.split(' ').map((word) => [...word].map((ch) => ({ c
 <style>
 	/* ---------- Hero ---------- */
 	.hero {
-		position: relative;
-		/* Own stacking context so the aurora layers sit behind the copy but still
-		   above the page's star canvas. */
-		isolation: isolate;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		text-align: center;
-		min-height: min(92vh, 820px);
-		padding: clamp(6rem, 15vh, 9rem) var(--gutter) clamp(3.5rem, 8vh, 5rem);
-		box-sizing: border-box;
-		/* Full-bleed: the aurora and the pointer glow span the whole viewport, so
-		   there is no clipped edge at the sides; only the copy is width-capped. */
-		width: 100%;
-	}
-
-	.hero-inner {
-		position: relative;
-		z-index: 1;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		width: 100%;
 		max-width: var(--content-width);
+		margin-inline: auto;
+		padding: clamp(1.5rem, 4vw, 3rem) var(--gutter) 0;
+		display: grid;
+		grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+		gap: clamp(1.5rem, 4vw, 3.5rem);
+		align-items: end;
 	}
 
-	/* ---------- Aurora backdrop ---------- */
-	.aurora {
-		position: absolute;
-		/* Exactly the hero's box, so the pointer glow's --px/--py (measured
-		   against the hero) land right under the cursor. */
-		inset: 0;
-		z-index: 0;
-		pointer-events: none;
-		overflow: hidden;
-		/* Fade out at the top and bottom instead of stopping at a hard line. */
-		-webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 78%, transparent 100%);
-		mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 78%, transparent 100%);
+	.hero-copy {
+		padding-bottom: clamp(1.5rem, 4vw, 3rem);
 	}
 
-	.blob {
-		position: absolute;
-		width: 46vw;
-		height: 46vw;
-		max-width: 620px;
-		max-height: 620px;
-		border-radius: 50%;
-		filter: blur(90px);
-		opacity: 0.5;
-		will-change: transform;
+	.hero-name {
+		margin: 0.8rem 0 0;
+		font-size: clamp(3.4rem, 9.6vw, 8.6rem);
+		font-weight: 900;
+		line-height: 0.86;
+		letter-spacing: -0.015em;
+		text-transform: uppercase;
 	}
 
-	.blob-a {
-		top: 2%;
-		left: 4%;
-		background: radial-gradient(circle, var(--pp) 0%, transparent 68%);
-		animation: drift-a 22s ease-in-out infinite alternate;
-	}
-
-	.blob-b {
-		bottom: 0;
-		right: 2%;
-		background: radial-gradient(circle, var(--blob-2) 0%, transparent 68%);
-		animation: drift-b 27s ease-in-out infinite alternate;
-	}
-
-	:global(body.light-mode) .blob {
-		opacity: 0.3;
-	}
-
-	@keyframes drift-a {
-		from {
-			transform: translate3d(0, 0, 0) scale(1);
-		}
-		to {
-			transform: translate3d(9vw, 5vh, 0) scale(1.15);
-		}
-	}
-
-	@keyframes drift-b {
-		from {
-			transform: translate3d(0, 0, 0) scale(1.1);
-		}
-		to {
-			transform: translate3d(-7vw, -6vh, 0) scale(0.95);
-		}
-	}
-
-	/* Follows the cursor. --px/--py are set from JS and default to centre, so the
-	   glow still looks deliberate on touch devices where no pointer event fires. */
-	.pointer-glow {
-		position: absolute;
-		left: var(--px, 50%);
-		top: var(--py, 42%);
-		width: 34rem;
-		height: 34rem;
-		transform: translate(-50%, -50%);
-		border-radius: 50%;
-		background: radial-gradient(circle, var(--pp) 0%, transparent 62%);
-		opacity: 0.16;
-		filter: blur(60px);
-	}
-
-	:global(body.light-mode) .pointer-glow {
-		opacity: 0.12;
-	}
-
-	/* ---------- Status pill ---------- */
-	/* Degree first in full text colour, school after a hairline in muted text, so
-	   the line reads as "what" then "where" instead of one grey run-on. */
-	.status {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.6rem;
-		margin: 0 0 clamp(1rem, 3vw, 1.5rem);
-		padding: 0.45rem 1rem 0.45rem 0.8rem;
-		border-radius: 999px;
-		border: 1px solid var(--border);
-		background: var(--surface);
-		backdrop-filter: blur(12px);
-		-webkit-backdrop-filter: blur(12px);
-		font-family: 'pop-thin', system-ui, sans-serif;
-		font-size: clamp(0.72rem, 1.9vw, 0.82rem);
-		letter-spacing: 0.03em;
-		color: var(--muted);
-		max-width: 100%;
-		white-space: nowrap;
-	}
-
-	.status-icon {
-		width: 1.15em;
-		height: 1.15em;
-		flex-shrink: 0;
-		color: var(--pp);
-	}
-
-	.status-degree {
-		font-family: 'pop-bold', system-ui, sans-serif;
-		color: var(--text-color);
-	}
-
-	.status-sep {
-		width: 1px;
-		height: 0.95em;
-		background: var(--divider-bg);
-		flex-shrink: 0;
-	}
-
-	.school-short {
-		display: none;
-	}
-
-	/* ---------- Greeting ---------- */
-	.greeting {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.45rem;
-		font-family: 'pop-thin', system-ui, sans-serif;
-		font-size: clamp(1rem, 2.6vw, 1.2rem);
-		color: var(--muted);
-		margin: 0 0 0.3rem;
-	}
-
-	/* "G." mark beside the greeting. Each bar traces in pixel steps, holds, then
-	   un-traces in the same order; the dot blinks like a cursor while it holds.
-	   The first cycle waits for the site intro (--intro-delay). */
-	.hi-mark {
-		--cycle: 5s;
-		--start: calc(var(--intro-delay, 0s) + 0.6s);
-		width: 1.45em;
-		height: 1.1em;
-		overflow: visible;
-		flex-shrink: 0;
-	}
-
-	.hb {
-		fill: #6d4ae0;
-		transition: fill 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-		transform-box: fill-box;
-		animation: var(--cycle) steps(5, end) calc(var(--start) + var(--d, 0s)) infinite both;
-	}
-
-	/* Light theme: terracotta accent instead of purple, matching the rest of it. */
-	:global(body.light-mode) .hb {
-		fill: var(--pp);
-	}
-
-	.hb-top {
-		transform-origin: right;
-		animation-name: trace-x;
-	}
-	.hb-left {
-		--d: 0.22s;
-		transform-origin: top;
-		animation-name: trace-y;
-	}
-	.hb-bottom {
-		--d: 0.44s;
-		transform-origin: left;
-		animation-name: trace-x;
-	}
-	.hb-right {
-		--d: 0.66s;
-		transform-origin: bottom;
-		animation-name: trace-y;
-	}
-	.hb-tab {
-		--d: 0.8s;
-		transform-origin: right;
-		animation-name: trace-x;
-	}
-
-	@keyframes trace-x {
-		0% {
-			transform: scaleX(0);
-		}
-		4%,
-		86% {
-			transform: scaleX(1);
-		}
-		90%,
-		100% {
-			transform: scaleX(0);
-		}
-	}
-
-	@keyframes trace-y {
-		0% {
-			transform: scaleY(0);
-		}
-		4%,
-		86% {
-			transform: scaleY(1);
-		}
-		90%,
-		100% {
-			transform: scaleY(0);
-		}
-	}
-
-	.hb-dot {
-		fill: var(--text-color);
-		animation: hi-blink var(--cycle) steps(1, end) var(--start) infinite both;
-	}
-
-	@keyframes hi-blink {
-		0%,
-		20% {
-			opacity: 0;
-		}
-		21%,
-		36%,
-		52%,
-		68% {
-			opacity: 1;
-		}
-		28%,
-		44%,
-		60% {
-			opacity: 0;
-		}
-		88%,
-		100% {
-			opacity: 0;
-		}
-	}
-
-	/* ---------- Name ---------- */
-	.name {
-		font-family: 'ret', system-ui, sans-serif;
-		font-size: clamp(2rem, 8.5vw, 3.6rem);
-		line-height: 1.1;
-		/* The spaced-out look between letters, done properly with CSS. */
-		letter-spacing: 0.3em;
-		margin: 0;
-		/* Words sit on one line when they fit and wrap between each other (only)
-		   when they don't, each line centred. The gap is the space between words. */
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: center;
-		column-gap: 0.45em;
-		row-gap: 0.15em;
-		/* .hero-inner centres its children, which would otherwise let the heading
-		   grow to its one-line width and run off a phone screen instead of wrapping. */
-		max-width: 100%;
-		/* Plain solid colour: white on the dark theme, near-black on the light one. */
-		color: var(--text-color);
-	}
-
-	.word {
-		white-space: nowrap;
-		/* letter-spacing also adds space after a word's last letter; take it back
-		   so every line stays visually centred. */
-		margin-right: -0.3em;
-	}
-
-	.ch {
-		opacity: 0;
-		animation: letter-in 0.5s ease forwards;
-		/* --intro-delay holds this back until the site intro lifts (Intro.astro). */
-		animation-delay: calc(var(--intro-delay, 0s) + 0.3s + var(--i) * 0.035s);
-	}
-
-	@keyframes letter-in {
-		to {
-			opacity: 1;
-		}
-	}
-
-	/* Gradient rule that draws itself out under the name. */
-	.rule {
+	/* Each line rises out of its own mask, staggered. */
+	.hero-name .line {
 		display: block;
-		width: min(20rem, 60%);
-		height: 2px;
-		margin: clamp(0.9rem, 2.5vw, 1.25rem) 0 clamp(0.8rem, 2vw, 1rem);
-		border-radius: 2px;
-		background: linear-gradient(90deg, transparent, var(--pp), transparent);
-		transform: scaleX(0);
-		animation: rule-in 1s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--intro-delay, 0s) + 0.9s) forwards;
+		overflow: hidden;
+		padding-bottom: 0.04em;
 	}
 
-	@keyframes rule-in {
-		to {
-			transform: scaleX(1);
+	.hero-name .line > span {
+		display: inline-block;
+		white-space: nowrap;
+		animation: line-up 1s var(--ease) calc(var(--intro-delay, 0s) + 0.25s + var(--l) * 0.09s) both;
+	}
+
+	/* Red full stop drawn as a square dot (Doto's period glyph reads as a plus). */
+	.hero-name .line:last-child > span::after {
+		content: '';
+		display: inline-block;
+		width: 0.15em;
+		height: 0.15em;
+		margin-left: 0.08em;
+		background: var(--red);
+	}
+
+	@keyframes line-up {
+		from {
+			transform: translateY(105%);
 		}
 	}
 
-	/* ---------- Role ---------- */
-	.role {
-		display: block;
-		font-family: 'pop-bold', system-ui, sans-serif;
-		font-size: clamp(0.85rem, 2.6vw, 1.05rem);
-		line-height: 1.5;
-		letter-spacing: 0.06em;
-		color: var(--text-color);
+	@keyframes fade-up {
+		from {
+			opacity: 0;
+			transform: translateY(14px);
+		}
+	}
+
+	.hero-dek {
+		margin: clamp(1.1rem, 2.6vw, 1.6rem) 0 0;
+		max-width: 30ch;
+		font-size: clamp(1.15rem, 2.3vw, 1.5rem);
+		line-height: 1.35;
+		animation: fade-up 0.8s var(--ease) calc(var(--intro-delay, 0s) + 0.6s) both;
+	}
+
+	.hero-dek em {
+		color: var(--red-text);
+	}
+
+	.hero-facts {
+		margin: clamp(1.2rem, 3vw, 1.75rem) 0 0;
+		border-top: 1px solid var(--line-strong);
+		animation: fade-up 0.8s var(--ease) calc(var(--intro-delay, 0s) + 0.7s) both;
+	}
+
+	.hero-facts > div {
+		display: grid;
+		grid-template-columns: 5.5rem minmax(0, 1fr);
+		gap: 1rem;
+		padding: 0.55rem 0;
+		border-bottom: 1px solid var(--line);
+	}
+
+	.hero-facts dt {
+		font-family: var(--f-mono);
+		font-size: 0.66rem;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: var(--muted);
+		padding-top: 0.2rem;
+	}
+
+	.hero-facts dd {
 		margin: 0;
-		padding-inline: 0.5rem;
-		text-align: center;
-		/* Fits on one line on a wide screen but never exceeds the viewport, so it
-		   wraps instead of overflowing on a phone. */
-		max-width: min(46ch, 100%);
-	}
-
-	/* ---------- Buttons ---------- */
-	.cta-row {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: center;
-		gap: 0.85rem;
-		margin-top: clamp(1.5rem, 4vw, 2.25rem);
-	}
-
-	.btn {
-		position: relative;
-		overflow: hidden;
-		display: inline-flex;
-		align-items: center;
-		gap: 0.5rem;
-		padding: 0.85rem 1.5rem;
-		border-radius: var(--radius);
-		font-family: 'pop-thin', system-ui, sans-serif;
+		font-family: var(--f-head);
+		font-weight: 500;
 		font-size: 0.95rem;
-		font-weight: 700;
-		text-decoration: none;
-		border: 1px solid transparent;
-		transition:
-			transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-			color 0.3s ease,
-			background 0.3s ease,
-			border-color 0.3s ease,
-			box-shadow 0.3s ease;
 	}
 
-	/* Light sweeps across the button on hover. */
-	.btn::before {
+	.hero-cta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.85rem;
+		margin-top: clamp(1.4rem, 3vw, 2rem);
+		animation: fade-up 0.8s var(--ease) calc(var(--intro-delay, 0s) + 0.8s) both;
+	}
+
+	/* ---------- Portrait ---------- */
+	.portrait {
+		position: relative;
+		margin: 0;
+		aspect-ratio: 833 / 860;
+		display: flex;
+		align-items: flex-end;
+		isolation: isolate;
+	}
+
+	/* Silver halftone field, fading out toward the edges. */
+	.halftone {
+		position: absolute;
+		inset: 4% -2% 10% 6%;
+		z-index: -2;
+		background-image: radial-gradient(circle, var(--silver-2) 1.6px, transparent 2px);
+		background-size: 9px 9px;
+		-webkit-mask-image: radial-gradient(closest-side, #000 20%, transparent 100%);
+		mask-image: radial-gradient(closest-side, #000 20%, transparent 100%);
+		opacity: 0.55;
+		animation: fade-in 1.4s var(--ease) calc(var(--intro-delay, 0s) + 0.4s) both;
+	}
+
+	/* The red slab behind the head, with a stepped brutalist notch at its foot. */
+	.slab {
+		position: absolute;
+		z-index: -1;
+		top: 0;
+		left: 27%;
+		width: 48%;
+		height: 74%;
+		background: var(--red);
+		clip-path: polygon(0 0, 100% 0, 100% 100%, 78% 100%, 78% 90%, 22% 90%, 22% 100%, 0 100%);
+		transform-origin: top;
+		animation: slab-down 1.1s cubic-bezier(0.65, 0, 0.2, 1) calc(var(--intro-delay, 0s) + 0.15s) both;
+	}
+
+	@keyframes slab-down {
+		from {
+			transform: scaleY(0);
+		}
+	}
+
+	@keyframes fade-in {
+		from {
+			opacity: 0;
+		}
+	}
+
+	.slab-label {
+		position: absolute;
+		top: 0.9rem;
+		right: 0.55rem;
+		writing-mode: vertical-rl;
+		font-size: 0.85rem;
+		color: rgb(255 255 255 / 0.85);
+		letter-spacing: 0.1em;
+	}
+
+	.portrait picture {
+		display: block;
+		width: 100%;
+	}
+
+	.cutout {
+		display: block;
+		width: 100%;
+		height: auto;
+		animation: portrait-in 1.1s var(--ease) calc(var(--intro-delay, 0s) + 0.45s) both;
+	}
+
+	@keyframes portrait-in {
+		from {
+			opacity: 0;
+			transform: translateY(28px);
+		}
+	}
+
+	/* Printer's crop marks at the top corners. */
+	.crop {
+		position: absolute;
+		top: -6px;
+		width: 16px;
+		height: 16px;
+		border-color: var(--fg);
+		border-style: solid;
+		border-width: 0;
+		opacity: 0.6;
+	}
+	.crop.tl {
+		left: -6px;
+		border-top-width: 1.5px;
+		border-left-width: 1.5px;
+	}
+	.crop.tr {
+		right: -6px;
+		border-top-width: 1.5px;
+		border-right-width: 1.5px;
+	}
+
+	/* Pointer over the picture: a hard outline traces the whole silhouette.
+	   Chained drop-shadows each shadow the result of the previous ones, so four
+	   cardinal offsets build an even ring. The first ring is page-coloured — a
+	   gap that keeps the red ring from melting into the red slab behind. Both
+	   states list the same eight shadows so the filter interpolates smoothly. */
+	.cutout {
+		--gap: transparent;
+		--ring: transparent;
+		--g: 0px;
+		--r: 0px;
+		filter: drop-shadow(var(--g) 0 0 var(--gap)) drop-shadow(calc(var(--g) * -1) 0 0 var(--gap))
+			drop-shadow(0 var(--g) 0 var(--gap)) drop-shadow(0 calc(var(--g) * -1) 0 var(--gap))
+			drop-shadow(var(--r) 0 0 var(--ring)) drop-shadow(calc(var(--r) * -1) 0 0 var(--ring))
+			drop-shadow(0 var(--r) 0 var(--ring)) drop-shadow(0 calc(var(--r) * -1) 0 var(--ring));
+		transition: filter 0.4s var(--ease);
+	}
+
+	.portrait picture:hover .cutout {
+		--gap: var(--bg);
+		--ring: var(--red);
+		--g: 3px;
+		--r: 4px;
+		/* Let the slab start collapsing before the ring lands. */
+		transition-delay: 0.18s;
+	}
+
+	/* The red slab pours into the outline: it contracts toward the figure
+	   (same vertex count as its resting polygon, so clip-path interpolates)
+	   and fades while the ring draws on. Reverses when the pointer leaves. */
+	.slab {
+		transition:
+			clip-path 0.55s var(--ease-io) 0.1s,
+			opacity 0.45s var(--ease) 0.15s;
+	}
+
+	.portrait:has(picture:hover) .slab {
+		clip-path: polygon(46% 62%, 54% 62%, 54% 100%, 54% 100%, 54% 100%, 46% 100%, 46% 100%, 46% 100%);
+		opacity: 0;
+		transition:
+			clip-path 0.55s var(--ease-io),
+			opacity 0.4s var(--ease) 0.2s;
+	}
+
+	/* Native scroll-linked parallax as the hero leaves the screen: the slab drifts
+	   up faster than the portrait. No JS, compositor-only. */
+	@supports (animation-timeline: view()) {
+		@media (prefers-reduced-motion: no-preference) {
+			.portrait {
+				view-timeline-name: --hero;
+			}
+			.slab {
+				animation:
+					slab-down 1.1s cubic-bezier(0.65, 0, 0.2, 1) calc(var(--intro-delay, 0s) + 0.15s) both,
+					slab-par linear both;
+				animation-timeline: auto, --hero;
+				animation-range: normal, exit 0% exit 100%;
+				animation-composition: replace, add;
+			}
+			.halftone {
+				animation:
+					fade-in 1.4s var(--ease) calc(var(--intro-delay, 0s) + 0.4s) both,
+					halftone-par linear both;
+				animation-timeline: auto, --hero;
+				animation-range: normal, exit 0% exit 100%;
+			}
+		}
+	}
+
+	@keyframes slab-par {
+		to {
+			translate: 0 -14%;
+		}
+	}
+
+	@keyframes halftone-par {
+		to {
+			translate: 0 -24%;
+		}
+	}
+
+	/* ---------- Index strip ----------
+	   Four joined hairline cells, Nothing-widget style: mono label, big
+	   dot-matrix count, a quiet note. Hover inverts the cell. */
+	.index-strip {
+		max-width: var(--content-width);
+		margin: clamp(4rem, 7vw, 5.5rem) auto 0;
+		padding-inline: var(--gutter);
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+
+	.stat {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		gap: 0.9rem;
+		padding: 1.1rem 1.25rem 1.25rem;
+		border: 1px solid var(--line);
+		margin-left: -1px;
+		color: var(--fg);
+		text-decoration: none;
+		isolation: isolate;
+		transition: color 0.4s var(--ease);
+	}
+
+	.stat:first-child {
+		margin-left: 0;
+	}
+
+	/* Fill rises from the bottom on hover. */
+	.stat::before {
 		content: '';
 		position: absolute;
-		top: 0;
-		left: -120%;
-		width: 60%;
-		height: 100%;
-		background: linear-gradient(100deg, transparent, rgb(255 255 255 / 0.35), transparent);
-		transform: skewX(-18deg);
-		transition: left 0.55s ease;
+		inset: 0;
+		z-index: -1;
+		background: var(--fg);
+		transform: scaleY(0);
+		transform-origin: bottom;
+		transition: transform 0.5s var(--ease);
 	}
 
-	.btn:hover::before {
-		left: 130%;
+	.stat:hover {
+		color: var(--bg);
 	}
 
-	/* Keeps the label and icon above the sweep. */
-	.btn > * {
-		position: relative;
-		z-index: 1;
+	.stat:hover::before {
+		transform: scaleY(1);
 	}
 
-	.btn-primary {
-		background: var(--name-bg);
-		color: var(--opp);
+	.stat-top {
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+		font-family: var(--f-mono);
+		font-size: 0.66rem;
+		font-weight: 700;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
 	}
 
-	.btn-primary:hover {
-		color: var(--pp);
-		transform: translateY(-3px);
-		box-shadow: 0 12px 28px rgb(0 0 0 / 0.3);
+	.stat-no {
+		color: var(--red-text);
 	}
 
-	.btn-ghost {
-		background: var(--surface);
-		border-color: var(--border);
-		color: var(--text-color);
-		backdrop-filter: blur(12px);
-		-webkit-backdrop-filter: blur(12px);
-	}
-
-	.btn-ghost:hover {
-		border-color: var(--pp);
-		color: var(--pp);
-		transform: translateY(-3px);
-		box-shadow: 0 12px 28px rgb(0 0 0 / 0.25);
-	}
-
-	.btn-ghost svg {
-		width: 18px;
-		height: 18px;
-		transition: transform 0.3s ease;
-	}
-
-	.btn-ghost:hover svg {
-		transform: translateX(3px);
-	}
-
-	/* ---------- Scroll cue ---------- */
-	.scroll-cue {
-		position: absolute;
-		bottom: clamp(1rem, 3vh, 2rem);
-		left: 50%;
-		margin-left: -19px;
-		z-index: 1;
-		display: grid;
-		place-items: center;
-		width: 38px;
-		height: 38px;
-		border-radius: 50%;
-		border: 1px solid var(--border);
-		background: var(--surface);
-		color: var(--muted);
-		animation: bob 2.4s ease-in-out infinite;
+	.stat-arrow {
+		margin-left: auto;
+		opacity: 0;
+		transform: translateX(-6px);
 		transition:
-			color 0.3s ease,
-			border-color 0.3s ease;
+			opacity 0.35s var(--ease),
+			transform 0.35s var(--ease);
 	}
 
-	.scroll-cue:hover {
-		color: var(--pp);
-		border-color: var(--pp);
+	.stat:hover .stat-arrow {
+		opacity: 1;
+		transform: none;
 	}
 
-	.scroll-cue svg {
-		width: 18px;
-		height: 18px;
+	.stat-value {
+		font-size: clamp(3rem, 6vw, 4.75rem);
+		line-height: 0.85;
+		font-variant-numeric: tabular-nums;
 	}
 
-	@keyframes bob {
-		0%,
-		100% {
-			transform: translateY(0);
-		}
-		50% {
-			transform: translateY(6px);
-		}
+	.stat-note {
+		font-family: var(--f-mono);
+		font-size: 0.64rem;
+		letter-spacing: 0.08em;
+		color: var(--muted);
+		transition: color 0.4s var(--ease);
+	}
+
+	.stat:hover .stat-note {
+		color: color-mix(in srgb, var(--bg) 70%, var(--fg));
 	}
 
 	/* ---------- About ---------- */
 	.about {
 		display: grid;
-		grid-template-columns: auto minmax(0, 1fr);
+		grid-template-columns: minmax(0, 1fr) 17rem;
 		gap: clamp(1.5rem, 4vw, 3rem);
-		align-items: center;
-		width: 100%;
-		max-width: var(--content-width);
-		margin-inline: auto;
-		padding-inline: var(--gutter);
-		margin-block: clamp(2rem, 8vw, 5rem);
-		box-sizing: border-box;
+		align-items: start;
 	}
 
-	/* ---------- Photo ring ---------- */
-	/* --t is registered so it can be animated as an angle; every card reads it. */
-	@property --t {
-		syntax: '<angle>';
-		inherits: true;
-		initial-value: 0deg;
-	}
-
-	.photos {
-		--card: clamp(150px, 19vw, 220px);
-		--radius: calc(var(--card) * 0.78);
-		width: calc(var(--card) + var(--radius) * 2);
-		max-width: 100%;
-		height: calc(var(--card) * 1.25 + 3rem);
-		display: grid;
-		place-items: center;
-		perspective: 1100px;
-	}
-
-	.orbit {
+	.glance {
+		border: 1.5px solid var(--line-strong);
+		background: var(--card);
+		padding: 1.1rem 1.2rem 1.2rem;
 		position: relative;
-		width: var(--card);
-		aspect-ratio: 4 / 5;
-		transform-style: preserve-3d;
-		/* Slight top-down tilt so the path reads as a circle, not a slide. */
-		transform: rotateX(-6deg);
-		animation: orbit-spin 36s linear infinite;
 	}
 
-	.photos:hover .orbit {
-		animation-play-state: paused;
+	.glance-head {
+		margin: 0 0 0.6rem;
+		font-family: var(--f-mono);
+		font-size: 0.68rem;
+		font-weight: 700;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
 	}
 
-	@keyframes orbit-spin {
-		to {
-			--t: 360deg;
-		}
-	}
-
-	.orbit-card {
-		--angle: calc(var(--a) + var(--t));
-		position: absolute;
-		inset: 0;
+	.glance dl {
 		margin: 0;
-		border-radius: 24px;
-		overflow: hidden;
-		box-shadow: var(--shad);
-		transform: rotateY(var(--angle)) translateZ(var(--radius)) rotateY(calc(var(--angle) * -1));
-		/* Cards dim as they swing to the back. */
-		filter: brightness(calc(0.62 + 0.38 * cos(var(--angle))));
 	}
 
-	.orbit-card img {
-		display: block;
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
+	.glance dl > div {
+		display: flex;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 0.5rem 0;
+		border-top: 1px dashed var(--line);
 	}
 
-	.bio {
-		background: var(--surface);
-		border: 1px solid var(--border);
-		border-radius: var(--radius-lg);
-		backdrop-filter: blur(12px);
-		-webkit-backdrop-filter: blur(12px);
-		padding: clamp(1.25rem, 3.5vw, 2rem);
-		box-shadow: 0 8px 32px rgb(0 0 0 / 0.25);
-	}
-
-	.bio-head {
-		font-family: 'pop-bold', system-ui, sans-serif;
-		font-size: clamp(1rem, 2.8vw, 1.2rem);
-		line-height: 1.35;
-		margin: 0 0 1rem;
-	}
-
-	.bio p {
-		font-family: 'pop-thin', system-ui, sans-serif;
-		font-size: clamp(0.85rem, 2.2vw, 0.95rem);
-		line-height: 1.75;
-		text-align: justify;
-		margin: 0 0 1rem;
+	.glance dt {
+		font-family: var(--f-mono);
+		font-size: 0.64rem;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
 		color: var(--muted);
 	}
 
-	.bio p:last-child {
-		margin-bottom: 0;
+	.glance dd {
+		margin: 0;
+		text-align: right;
+		font-family: var(--f-head);
+		font-size: 0.85rem;
+		font-weight: 500;
 	}
 
-	.bio b {
-		color: var(--text-color);
+	.glance-link {
+		display: inline-block;
+		margin-top: 0.8rem;
+		font-family: var(--f-mono);
+		font-size: 0.7rem;
 		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		text-decoration: none;
+		color: var(--red-text);
 	}
 
-	/* Stack the photos above the bio before the columns get too cramped. */
+	.glance-link span {
+		display: inline-block;
+		transition: transform 0.3s var(--ease);
+	}
+
+	.glance-link:hover span {
+		transform: translateX(4px);
+	}
+
+	/* ---------- Responsive ---------- */
 	@media (max-width: 960px) {
+		.hero {
+			grid-template-columns: minmax(0, 1fr);
+		}
+		.portrait {
+			max-width: 560px;
+			width: 100%;
+			justify-self: center;
+			margin-bottom: 1.5rem;
+		}
 		.about {
 			grid-template-columns: minmax(0, 1fr);
 		}
+	}
 
-		.photos {
-			justify-self: center;
+	@media (max-width: 640px) {
+		.hero-facts > div {
+			grid-template-columns: minmax(0, 1fr);
+			gap: 0.15rem;
+		}
+		.hero-cta .btn {
+			flex: 1 1 100%;
 		}
 	}
 
-	@media (max-width: 480px) {
-		/* The full school name can't share one row with the degree on a phone;
-		   the short form keeps the pill to a single line. */
-		.school-full {
-			display: none;
+	@media (max-width: 860px) {
+		.index-strip {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}
-
-		.school-short {
-			display: inline;
+		.stat {
+			margin-left: 0;
 		}
-
-		.hero {
-			/* 92vh pushes the buttons below the fold on a short screen; let the hero
-			   size to its content instead. */
-			min-height: auto;
-			padding-top: 5.5rem;
-			padding-bottom: 4rem;
+		/* 2×2: collapse the doubled hairlines between rows and columns. */
+		.stat:nth-child(even) {
+			margin-left: -1px;
 		}
-
-		/* Without a full-height hero the cue would sit on top of the buttons. */
-		.scroll-cue {
-			display: none;
-		}
-	}
-
-	@media (max-width: 560px) {
-		.photos {
-			--card: clamp(130px, 38vw, 170px);
-			--radius: calc(var(--card) * 0.62);
-		}
-
-		.bio p {
-			text-align: left;
-		}
-
-		.btn {
-			width: 100%;
-			justify-content: center;
-		}
-
-		.cta-row {
-			width: 100%;
-			max-width: 22rem;
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		/* Everything decorative that loops or moves is stopped. The letter reveal and
-		   the underline still need their end state, so they are held at 100% rather
-		   than simply switched off — otherwise the name would stay invisible. */
-		.blob,
-		.scroll-cue,
-		.orbit {
-			animation: none;
-		}
-
-		/* Logo mark held fully drawn. */
-		.hb,
-		.hb-dot {
-			animation: none;
-		}
-
-		.ch {
-			animation: none;
-			opacity: 1;
-		}
-
-		.rule {
-			animation: none;
-			transform: scaleX(1);
-		}
-
-		.btn,
-		.btn::before,
-		.btn-ghost svg {
-			transition: none;
-		}
-
-		.btn:hover::before {
-			left: -120%;
-		}
-
-		.btn:hover {
-			transform: none;
-		}
-
-		.btn-ghost:hover svg {
-			transform: none;
+		.stat:nth-child(n + 3) {
+			margin-top: -1px;
 		}
 	}
 </style>
 
 <script>
 	/**
-	 * Soft glow in the hero that tracks the pointer.
-	 *
-	 * Initialisation deliberately has two entry points. `astro:page-load` is what
-	 * fires on client-side navigation, but it only ever fires if the view-transition
-	 * router script actually loads — if that request fails, anything hung solely off
-	 * that event silently never runs. So a readyState fallback covers the first
-	 * paint, and a flag on the element keeps the listener from being attached twice.
+	 * Dot-matrix counters tick up from zero the first time they scroll into view.
+	 * The real number is in the HTML, so no-JS and reduced-motion visitors simply
+	 * see it; the count only runs when scroll reveals are active.
 	 */
-	function initPointerGlow() {
-		const hero = document.querySelector<HTMLElement>('.hero');
-		if (!hero) return;
-		if (hero.dataset.glowReady === 'true') return;
-		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+	function initCounters() {
+		if (!document.documentElement.classList.contains('js-reveal')) return;
+		const els = document.querySelectorAll<HTMLElement>('[data-count]:not([data-counted])');
+		if (!els.length) return;
 
-		hero.dataset.glowReady = 'true';
-		let frame = 0;
+		const pad = (n: number) => String(n).padStart(2, '0');
+		const run = (el: HTMLElement) => {
+			const target = Number(el.dataset.count) || 0;
+			const start = performance.now();
+			const dur = 1100 + Math.min(target, 30) * 12;
+			const step = (t: number) => {
+				const p = Math.min((t - start) / dur, 1);
+				el.textContent = pad(Math.round(target * (1 - Math.pow(1 - p, 4))));
+				if (p < 1) requestAnimationFrame(step);
+			};
+			requestAnimationFrame(step);
+		};
 
-		hero.addEventListener(
-			'pointermove',
-			(event) => {
-				// Ignore touch: the glow would jump around under the user's finger.
-				if (event.pointerType === 'touch') return;
-				if (frame) return;
-
-				frame = requestAnimationFrame(() => {
-					frame = 0;
-					const box = hero.getBoundingClientRect();
-					const x = ((event.clientX - box.left) / box.width) * 100;
-					const y = ((event.clientY - box.top) / box.height) * 100;
-					hero.style.setProperty('--px', `${x.toFixed(2)}%`);
-					hero.style.setProperty('--py', `${y.toFixed(2)}%`);
-				});
+		const io = new IntersectionObserver(
+			(entries) => {
+				for (const e of entries) {
+					if (!e.isIntersecting) continue;
+					io.unobserve(e.target);
+					run(e.target as HTMLElement);
+				}
 			},
-			{ passive: true }
+			{ threshold: 0.6 }
 		);
+
+		els.forEach((el) => {
+			el.dataset.counted = '';
+			el.textContent = '00';
+			io.observe(el);
+		});
 	}
 
-	document.addEventListener('astro:page-load', initPointerGlow);
-
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', initPointerGlow);
-	} else {
-		initPointerGlow();
-	}
+	document.addEventListener('astro:page-load', initCounters);
+	if (document.readyState !== 'loading') initCounters();
+	else document.addEventListener('DOMContentLoaded', initCounters);
 </script>

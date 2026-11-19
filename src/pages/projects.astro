@@ -2,8 +2,8 @@
 /**
  * Projects gallery.
  *
- * A glassmorphism toolbar (search box + category pills) filters a grid of glass
- * project cards entirely client-side — no round-trips, so filtering is instant and
+ * A sticky toolbar (search box + category chips) filters a joined newspaper
+ * grid of project listings entirely client-side — no round-trips, so filtering is instant and
  * works on the static deploy. Data comes from `src/data/projects.ts`; the pill set
  * is the subset of CATEGORY_ORDER actually used by at least one project, so no pill
  * ever shows zero results on load.
@@ -12,7 +12,8 @@
  * only ever hides cards, never creates them.
  */
 import Layout from '../layouts/Layout.astro';
-import { projects, GITHUB_USER, CATEGORY_ORDER } from '../data/projects';
+import PageHead from '../components/PageHead.astro';
+import { projects, GITHUB_USER, CATEGORY_ORDER, projectImage } from '../data/projects';
 
 const repoUrl = (slug: string) => `https://github.com/${GITHUB_USER}/${slug}`;
 
@@ -49,8 +50,12 @@ const langColor: Record<string, string> = {
 	title="Projects"
 	description="Machine learning, computer vision, LLM, and cybersecurity projects built by Gabriel John Solomon — filter the full gallery by category or search."
 >
-	<div class="projects-page">
-		<!-- Glassmorphism filter toolbar -->
+	<div class="page projects-page">
+		<PageHead
+			title="The Work"
+		/>
+
+		<!-- Sticky filter toolbar -->
 		<div class="toolbar" role="search">
 			<div class="search">
 				<svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none"
@@ -91,29 +96,37 @@ const langColor: Record<string, string> = {
 		<div id="toolbar-spacer" aria-hidden="true"></div>
 
 		<p class="result-line" aria-live="polite">
-			Showing <span id="result-count">{sorted.length}</span> of {projects.length} projects
+			Showing <span id="result-count" class="dot-type">{sorted.length}</span> of {projects.length} projects
 		</p>
 
 		<div class="grid" id="project-grid">
 			{
 				sorted.map((p) => (
 					<article
-						class="card"
+						class="card reveal"
 						data-categories={p.categories.join('|')}
 						data-haystack={`${p.title} ${p.blurb} ${p.tags.join(' ')} ${p.categories.join(' ')} ${p.language}`.toLowerCase()}
 					>
-						<div class="card-sheen" aria-hidden="true" />
+						<figure class="card-shot">
+							<img
+								src={projectImage(p.slug)}
+								alt=""
+								width="1200"
+								height="750"
+								loading="lazy"
+								decoding="async"
+							/>
+						</figure>
 
 						<div class="card-head">
+							<span class="card-no dot-type" aria-hidden="true" />
 							<span class="repo-mark" aria-hidden="true" />
 							{p.status && <span class="status">{p.status}</span>}
 							{p.featured && <span class="featured-dot" title="Featured">★</span>}
 						</div>
 
 						<h2 class="card-title">
-							<a href={repoUrl(p.slug)} target="_blank" rel="noopener noreferrer">
-								{p.title}
-							</a>
+							<a href={`/projects/${p.slug}`}>{p.title}</a>
 						</h2>
 
 						<p class="card-blurb">{p.blurb}</p>
@@ -124,7 +137,7 @@ const langColor: Record<string, string> = {
 							))}
 						</ul>
 
-						<ul class="tags" aria-label="Stack">
+						<ul class="tag-list" aria-label="Stack">
 							{p.tags.map((t) => (
 								<li>{t}</li>
 							))}
@@ -143,12 +156,20 @@ const langColor: Record<string, string> = {
 						</footer>
 
 						<div class="card-links">
+							<a class="link" href={`/projects/${p.slug}`}>
+								Read more
+								<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor">
+									<path d="M5 12h14M13 6l6 6-6 6" stroke-width="2" stroke-linecap="round" />
+								</svg>
+							</a>
+							{!p.noRepo && (
 							<a class="link" href={repoUrl(p.slug)} target="_blank" rel="noopener noreferrer">
 								Code
 								<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor">
 									<path d="M7 17 17 7M9 7h8v8" stroke-width="2" stroke-linecap="round" />
 								</svg>
 							</a>
+							)}
 							{p.demoUrl && (
 								<a class="link" href={p.demoUrl} target="_blank" rel="noopener noreferrer">
 									Live
@@ -166,7 +187,7 @@ const langColor: Record<string, string> = {
 			<button id="reset-filters" type="button" class="ghost-btn">Reset filters</button>
 		</div>
 
-		<div class="all-repos">
+		<div class="more-row">
 			<a
 				class="ghost-btn"
 				href={`https://github.com/${GITHUB_USER}?tab=repositories`}
@@ -233,7 +254,7 @@ const langColor: Record<string, string> = {
 
 			if (countEl) countEl.textContent = String(shown);
 			if (emptyState) emptyState.hidden = shown !== 0;
-			grid.hidden = shown === 0;
+			if (grid) grid.hidden = shown === 0;
 			if (clearBtn) clearBtn.hidden = q === '';
 		}
 
@@ -282,69 +303,41 @@ const langColor: Record<string, string> = {
 	else document.addEventListener('DOMContentLoaded', initProjectFilter);
 </script>
 
+
 <style>
-	.projects-page {
-		/* Distance from the viewport top at which the fixed toolbar is pinned, and
-		   the matching flow offset so the spacer lines up with it. */
-		--toolbar-top: 90px;
-		width: 100%;
-		max-width: var(--content-width);
-		margin-inline: auto;
-		padding-inline: var(--gutter);
-		padding-top: var(--toolbar-top);
-		padding-bottom: clamp(3.5rem, 9vw, 6rem);
-		box-sizing: border-box;
-	}
-
-	/* Reserves the fixed toolbar's height in normal flow (set in JS). */
+	/* The toolbar is sticky (in flow) now, so the old fixed-toolbar spacer is not
+	   needed; the script still sizes it, harmlessly. */
 	#toolbar-spacer {
-		width: 100%;
-		margin-bottom: 1.1rem;
+		display: none;
 	}
 
-	/* ---- Glassmorphism toolbar (fixed to the top, under the dock) ---- */
+	/* ---------- Sticky toolbar ---------- */
 	.toolbar {
-		position: fixed;
-		top: var(--toolbar-top);
-		left: 0;
-		right: 0;
-		margin-inline: auto;
-		/* Match the centred content column width (page max-width minus its gutters),
-		   clamped to the viewport so it never overflows on narrow screens. */
-		width: min(
-			calc(100% - 2 * var(--gutter)),
-			calc(var(--content-width) - 2 * var(--gutter))
-		);
-		box-sizing: border-box;
+		position: sticky;
+		top: calc(var(--header-h) + 10px);
 		z-index: 20;
 		display: flex;
 		flex-direction: column;
-		gap: 0.9rem;
-		padding: clamp(0.9rem, 2.5vw, 1.3rem);
-		border-radius: var(--radius-lg);
-		border: 1px solid var(--border);
-		background: var(--surface);
-		backdrop-filter: blur(18px) saturate(140%);
-		-webkit-backdrop-filter: blur(18px) saturate(140%);
-		box-shadow:
-			0 8px 32px rgb(0 0 0 / 0.28),
-			inset 0 1px 0 rgb(255 255 255 / 0.08);
+		gap: 0.85rem;
+		padding: 0.9rem;
+		margin-bottom: 1rem;
+		background: var(--sheet);
+		border: 1.5px solid var(--line-strong);
+		box-shadow: 4px 4px 0 var(--hard);
 	}
 
 	.search {
 		display: flex;
 		align-items: center;
 		gap: 0.6rem;
-		padding: 0.1rem 0.5rem 0.1rem 0.9rem;
-		border-radius: 999px;
-		border: 1px solid var(--border);
-		background: var(--chip-bg);
-		transition: border-color 0.25s ease, box-shadow 0.25s ease;
+		padding: 0 0.4rem 0 0.85rem;
+		border: 1.5px solid var(--line);
+		background: var(--card);
+		transition: border-color 0.25s var(--ease);
 	}
 
 	.search:focus-within {
-		border-color: var(--pp);
-		box-shadow: 0 0 0 3px color-mix(in srgb, var(--pp) 22%, transparent);
+		border-color: var(--red);
 	}
 
 	.search-icon {
@@ -359,10 +352,10 @@ const langColor: Record<string, string> = {
 		min-width: 0;
 		border: none;
 		background: transparent;
-		color: var(--text-color);
-		font-family: 'pop-thin', system-ui, sans-serif;
-		font-size: 0.95rem;
-		padding: 0.7rem 0;
+		color: var(--fg);
+		font-family: var(--f-mono);
+		font-size: 0.9rem;
+		padding: 0.75rem 0;
 		outline: none;
 	}
 
@@ -370,7 +363,6 @@ const langColor: Record<string, string> = {
 		color: var(--muted);
 	}
 
-	/* Hide the native clear/search decorations so our own button is the only one. */
 	#project-search::-webkit-search-decoration,
 	#project-search::-webkit-search-cancel-button {
 		-webkit-appearance: none;
@@ -385,16 +377,17 @@ const langColor: Record<string, string> = {
 		height: 30px;
 		flex-shrink: 0;
 		border: none;
-		border-radius: 50%;
 		background: transparent;
 		color: var(--muted);
 		cursor: pointer;
-		transition: background 0.2s ease, color 0.2s ease;
+		transition:
+			background-color 0.2s var(--ease),
+			color 0.2s var(--ease);
 	}
 
 	.search-clear:hover {
-		background: var(--surface-hover);
-		color: var(--text-color);
+		background: var(--red);
+		color: #fff;
 	}
 
 	.search-clear svg {
@@ -402,63 +395,82 @@ const langColor: Record<string, string> = {
 		height: 15px;
 	}
 
+	/* Category filters: outline chips; the active one is solid, like the nav. */
 	.pills {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.5rem;
+		gap: 0.4rem;
 	}
 
 	.pill {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.4rem;
-		padding: 0.42rem 0.8rem;
+		gap: 0.45rem;
+		padding: 0.42rem 0.85rem;
+		border: 1px solid var(--line);
 		border-radius: 999px;
-		border: 1px solid var(--border);
-		background: var(--chip-bg);
+		background: transparent;
 		color: var(--muted);
-		font-family: 'pop-thin', system-ui, sans-serif;
-		font-size: 0.8rem;
+		font-family: var(--f-mono);
+		font-size: 0.64rem;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
 		cursor: pointer;
 		white-space: nowrap;
 		transition:
-			color 0.25s ease,
-			border-color 0.25s ease,
-			background 0.25s ease,
-			transform 0.2s ease;
+			color 0.3s var(--ease),
+			background-color 0.3s var(--ease),
+			border-color 0.3s var(--ease);
 	}
 
 	.pill:hover {
-		color: var(--text-color);
-		border-color: var(--pp);
-		transform: translateY(-1px);
+		color: var(--fg);
+		border-color: var(--line-strong);
 	}
 
 	.pill.active {
-		color: var(--opp);
-		background: var(--pp);
-		border-color: var(--pp);
-		font-family: 'pop-bold', system-ui, sans-serif;
+		color: var(--bg);
+		background: var(--fg);
+		border-color: var(--fg);
 	}
 
 	.pill .count {
-		font-size: 0.68rem;
-		opacity: 0.75;
+		font-family: var(--f-dot);
+		font-size: 0.85rem;
+		font-weight: 900;
+		letter-spacing: 0;
+	}
+
+	.pill.active .count {
+		color: var(--red);
 	}
 
 	.result-line {
-		font-family: 'pop-thin', system-ui, sans-serif;
-		font-size: 0.8rem;
+		display: flex;
+		align-items: baseline;
+		gap: 0.4rem;
+		margin: 0 0 1rem;
+		font-family: var(--f-mono);
+		font-size: 0.7rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
 		color: var(--muted);
-		margin: 0 0 1.1rem;
-		padding-left: 0.25rem;
 	}
 
-	/* ---- Grid & cards ---- */
+	#result-count {
+		font-size: 1.3rem;
+		color: var(--fg);
+		letter-spacing: 0;
+	}
+
+	/* ---------- Joined listing grid ---------- */
 	.grid {
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
-		gap: clamp(0.9rem, 2vw, 1.3rem);
+		border-top: 1.5px solid var(--line-strong);
+		border-left: 1.5px solid var(--line-strong);
+		counter-reset: item;
 	}
 
 	@media (max-width: 1024px) {
@@ -474,166 +486,157 @@ const langColor: Record<string, string> = {
 	}
 
 	.card {
+		counter-increment: item;
 		position: relative;
 		display: flex;
 		flex-direction: column;
-		gap: 0.65rem;
-		padding: 1.25rem;
-		height: 100%;
-		box-sizing: border-box;
-		overflow: hidden;
-		border-radius: var(--radius);
-		border: 1px solid var(--border);
-		background: var(--surface);
-		backdrop-filter: blur(14px) saturate(130%);
-		-webkit-backdrop-filter: blur(14px) saturate(130%);
-		box-shadow:
-			0 8px 28px rgb(0 0 0 / 0.22),
-			inset 0 1px 0 rgb(255 255 255 / 0.06);
-		transition:
-			transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-			border-color 0.3s ease,
-			box-shadow 0.3s ease,
-			background 0.3s ease;
+		gap: 0.7rem;
+		padding: clamp(1.1rem, 2.4vw, 1.4rem);
+		background: var(--card);
+		border-right: 1.5px solid var(--line-strong);
+		border-bottom: 1.5px solid var(--line-strong);
+		transition: background-color 0.35s var(--ease);
+	}
+
+	.card::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 4px;
+		background: var(--red);
+		transform: scaleX(0);
+		transform-origin: left;
+		transition: transform 0.45s var(--ease);
 	}
 
 	.card:hover {
-		transform: translateY(-5px);
-		border-color: var(--pp);
-		background: var(--surface-hover);
-		box-shadow: 0 18px 40px rgb(0 0 0 / 0.32);
+		background: var(--card-2);
 	}
 
-	/* Diagonal glass sheen that drifts across on hover. */
-	.card-sheen {
-		position: absolute;
-		inset: 0;
-		pointer-events: none;
-		background: linear-gradient(
-			120deg,
-			transparent 30%,
-			color-mix(in srgb, var(--pp) 14%, transparent) 50%,
-			transparent 70%
-		);
-		opacity: 0;
-		transform: translateX(-30%);
-		transition: opacity 0.4s ease, transform 0.6s ease;
+	.card:hover::before {
+		transform: scaleX(1);
 	}
 
-	.card:hover .card-sheen {
-		opacity: 1;
-		transform: translateX(30%);
+	/* Screenshot: silver-toned at rest, full colour on hover. */
+	.card-shot {
+		margin: 0;
+		aspect-ratio: 16 / 10;
+		overflow: hidden;
+		border: 1.5px solid var(--line-strong);
+		background: var(--sheet);
+	}
+
+	.card-shot img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: top center;
+		filter: grayscale(1) contrast(1.05);
+		transition:
+			filter 0.5s var(--ease),
+			transform 0.7s var(--ease);
+	}
+
+	.card:hover .card-shot img {
+		filter: none;
+		transform: scale(1.035);
 	}
 
 	.card-head {
 		display: flex;
 		align-items: center;
-		gap: 0.5rem;
+		gap: 0.6rem;
+	}
+
+	/* Counter skips hidden cards, so the visible listings always renumber 01…n. */
+	.card-no::before {
+		content: counter(item, decimal-leading-zero);
+	}
+
+	.card-no {
+		font-size: 1.5rem;
+		line-height: 1;
 	}
 
 	.repo-mark {
-		width: 20px;
-		height: 20px;
+		width: 18px;
+		height: 18px;
 		flex-shrink: 0;
 		background-color: var(--muted);
-		mask: url('/icons/github.svg') center / contain no-repeat;
 		-webkit-mask: url('/icons/github.svg') center / contain no-repeat;
-		transition: background-color 0.3s ease;
+		mask: url('/icons/github.svg') center / contain no-repeat;
+		transition: background-color 0.3s var(--ease);
 	}
 
 	.card:hover .repo-mark {
-		background-color: var(--pp);
+		background-color: var(--red-text);
 	}
 
 	.status {
-		font-family: 'pop-bold', system-ui, sans-serif;
-		font-size: 0.6rem;
-		letter-spacing: 0.08em;
+		font-family: var(--f-mono);
+		font-size: 0.58rem;
+		font-weight: 700;
+		letter-spacing: 0.14em;
 		text-transform: uppercase;
-		padding: 0.2rem 0.5rem;
-		border-radius: 999px;
-		color: var(--pp);
-		background: color-mix(in srgb, var(--pp) 14%, transparent);
-		border: 1px solid color-mix(in srgb, var(--pp) 35%, transparent);
+		padding: 0.18rem 0.45rem;
+		border: 1.5px solid var(--red);
+		color: var(--red-text);
+		transform: rotate(-3deg);
 	}
 
 	.featured-dot {
 		margin-left: auto;
-		color: var(--pp);
-		font-size: 0.9rem;
+		color: var(--red-text);
+		font-size: 0.95rem;
 		line-height: 1;
 	}
 
 	.card-title {
-		font-family: 'pop-bold', system-ui, sans-serif;
-		font-size: 1.02rem;
-		line-height: 1.3;
-		margin: 0;
+		margin: 0.2rem 0 0;
+		font-family: var(--f-head);
+		font-weight: 700;
+		font-size: 1.22rem;
+		line-height: 1.15;
+		letter-spacing: -0.025em;
 	}
 
 	.card-title a {
-		color: inherit;
 		text-decoration: none;
 	}
 
-	/* Stretched hit area makes the whole card open the repo. */
 	.card-title a::after {
 		content: '';
 		position: absolute;
 		inset: 0;
-		border-radius: var(--radius);
-	}
-
-	.card:hover .card-title a {
-		color: var(--pp);
 	}
 
 	.card-blurb {
-		font-family: 'pop-thin', system-ui, sans-serif;
-		font-size: 0.85rem;
-		line-height: 1.6;
-		color: var(--muted);
 		margin: 0;
 		flex-grow: 1;
+		font-size: 0.97rem;
+		line-height: 1.55;
+		color: var(--muted);
 	}
 
 	.cats {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.35rem;
+		gap: 0.25rem 0.8rem;
 		list-style: none;
 		margin: 0;
 		padding: 0;
 	}
 
 	.cats li {
-		font-family: 'pop-bold', system-ui, sans-serif;
+		font-family: var(--f-mono);
 		font-size: 0.62rem;
-		letter-spacing: 0.05em;
+		font-weight: 700;
+		letter-spacing: 0.12em;
 		text-transform: uppercase;
-		padding: 0.2rem 0.5rem;
-		border-radius: 6px;
-		color: var(--pp);
-		background: color-mix(in srgb, var(--pp) 10%, transparent);
-	}
-
-	.tags {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.35rem;
-		list-style: none;
-		margin: 0;
-		padding: 0;
-	}
-
-	.tags li {
-		font-size: 0.68rem;
-		padding: 0.2rem 0.5rem;
-		border-radius: 999px;
-		background: var(--chip-bg);
-		border: 1px solid var(--border);
-		color: var(--text-color);
-		white-space: nowrap;
+		color: var(--red-text);
 	}
 
 	.card-foot {
@@ -641,9 +644,13 @@ const langColor: Record<string, string> = {
 		align-items: center;
 		justify-content: space-between;
 		gap: 0.5rem;
-		font-size: 0.72rem;
+		padding-top: 0.65rem;
+		border-top: 1px dashed var(--line);
+		font-family: var(--f-mono);
+		font-size: 0.66rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
 		color: var(--muted);
-		padding-top: 0.15rem;
 	}
 
 	.lang {
@@ -653,111 +660,73 @@ const langColor: Record<string, string> = {
 	}
 
 	.lang-dot {
-		width: 9px;
-		height: 9px;
+		width: 8px;
+		height: 8px;
 		border-radius: 50%;
 		display: inline-block;
 	}
 
+	.year {
+		font-family: var(--f-dot);
+		font-weight: 800;
+		font-size: 0.95rem;
+		color: var(--fg);
+		letter-spacing: 0;
+	}
+
 	.card-links {
-		display: flex;
-		gap: 1rem;
 		position: relative;
 		z-index: 1;
+		display: flex;
+		gap: 1.1rem;
 	}
 
 	.link {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.3rem;
-		font-size: 0.8rem;
-		font-weight: 600;
-		color: var(--pp);
+		font-family: var(--f-mono);
+		font-size: 0.7rem;
+		font-weight: 700;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
 		text-decoration: none;
+		color: var(--red-text);
 	}
 
 	.link svg {
-		width: 13px;
-		height: 13px;
+		width: 12px;
+		height: 12px;
 	}
 
 	.link:hover {
 		text-decoration: underline;
+		text-underline-offset: 3px;
 	}
 
-	/* ---- Empty state ---- */
+	/* ---------- Empty state ---------- */
 	.empty {
 		text-align: center;
 		padding: clamp(2.5rem, 8vw, 4.5rem) 1rem;
+		border: 2px dashed var(--line-strong);
 	}
 
 	.empty-title {
-		font-family: 'pop-bold', system-ui, sans-serif;
-		font-size: 1.2rem;
 		margin: 0 0 0.4rem;
+		font-family: var(--f-dot);
+		font-weight: 900;
+		font-size: clamp(1.6rem, 4vw, 2.4rem);
+		text-transform: uppercase;
 	}
 
 	.empty-sub {
-		font-family: 'pop-thin', system-ui, sans-serif;
-		color: var(--muted);
 		margin: 0 0 1.25rem;
+		font-style: italic;
+		color: var(--muted);
 	}
 
-	/* ---- Shared ghost button ---- */
-	.all-repos {
-		display: flex;
-		justify-content: center;
-		margin-top: clamp(2rem, 5vw, 3rem);
-	}
-
-	.ghost-btn {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.6rem;
-		padding: 0.7rem 1.35rem;
-		border-radius: 999px;
-		border: 1px solid var(--border);
-		background: var(--surface);
-		color: var(--text-color);
-		font-size: 0.875rem;
-		font-weight: 600;
-		text-decoration: none;
-		cursor: pointer;
-		transition:
-			border-color 0.3s ease,
-			color 0.3s ease,
-			transform 0.3s ease,
-			background 0.3s ease;
-	}
-
-	.ghost-btn:hover {
-		border-color: var(--pp);
-		color: var(--pp);
-		background: var(--surface-hover);
-		transform: translateY(-2px);
-	}
-
-	.gh-mark {
-		width: 17px;
-		height: 17px;
-		background-color: currentColor;
-		mask: url('/icons/github.svg') center / contain no-repeat;
-		-webkit-mask: url('/icons/github.svg') center / contain no-repeat;
-	}
-
-	.ghost-btn svg {
-		width: 15px;
-		height: 15px;
-	}
-
-	@media (max-width: 640px) {
-		.projects-page {
-			--toolbar-top: 74px;
-		}
-	}
-
-	/* Native [hidden] is display:none, but .card/.grid/.search-clear set an explicit
-	   display that would otherwise win — restore hiding so filtering actually hides. */
+	/* Native [hidden] is display:none, but these set an explicit display that
+	   would otherwise win — restore hiding so filtering actually hides. */
 	.card[hidden],
 	.grid[hidden],
 	.search-clear[hidden],
@@ -765,19 +734,21 @@ const langColor: Record<string, string> = {
 		display: none !important;
 	}
 
-	@media (prefers-reduced-motion: reduce) {
-		.card,
-		.repo-mark,
-		.card-sheen,
-		.pill,
-		.ghost-btn {
-			transition: none;
+	@media (max-width: 640px) {
+		.toolbar {
+			top: calc(var(--header-h) + 6px);
+			padding: 0.7rem;
+			box-shadow: 3px 3px 0 var(--hard);
 		}
-		.card:hover {
-			transform: none;
+		.pills {
+			flex-wrap: nowrap;
+			overflow-x: auto;
+			scrollbar-width: none;
+			margin-inline: -0.7rem;
+			padding-inline: 0.7rem;
 		}
-		.card:hover .card-sheen {
-			transform: none;
+		.pills::-webkit-scrollbar {
+			display: none;
 		}
 	}
 </style>

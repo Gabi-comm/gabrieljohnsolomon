@@ -1,0 +1,376 @@
+/* ==========================================================================
+   Design system — Nothing-OS neo-brutalism × broadsheet newspaper.
+   Matte black, stark white, metallic silver, one signal red.
+   Tokens live on `body` (not :root) so the light theme, which is a class on
+   body, re-resolves every alias below in one place.
+   ========================================================================== */
+
+body {
+	/* Core palette — dark (default) */
+	--bg: #0b0b0b;
+	--sheet: #101010;
+	--card: #141414;
+	--card-2: #1b1b1c;
+	--fg: #f2f1ec;
+	--muted: #9a9ca1;
+	--line: rgb(242 241 236 / 0.14);
+	--line-strong: rgb(242 241 236 / 0.82);
+	--dot: rgb(242 241 236 / 0.075);
+	--hard: #8e9196;
+	--red: #e10600;
+	/* Red that clears AA as text on this ground (5.5:1). */
+	--red-text: #ff3b30;
+	--red-deep: #7a0a0a;
+	--silver: #c9cbcf;
+	--silver-2: #8e9196;
+	--steel: #2a2b2e;
+	--metal: linear-gradient(
+		160deg,
+		#f1f2f3 0%,
+		#c4c6ca 38%,
+		#eceded 52%,
+		#a3a5aa 78%,
+		#d6d7da 100%
+	);
+	--metal-ink: #0b0b0b;
+	--grain-opacity: 0.06;
+
+	/* Type */
+	--f-dot: 'Doto', 'JetBrains Mono', ui-monospace, monospace;
+	--f-head: 'Space Grotesk', system-ui, sans-serif;
+	--f-body: 'Newsreader', Georgia, 'Times New Roman', serif;
+	--f-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
+
+	/* Geometry & motion */
+	--content-width: 1240px;
+	--gutter: clamp(16px, 4vw, 40px);
+	--header-h: 68px;
+	--ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+	--ease-io: cubic-bezier(0.7, 0, 0.3, 1);
+
+	/* Legacy aliases, so anything not yet restyled still lands on the palette. */
+	--text-color: var(--fg);
+	--pp: var(--red-text);
+	--border: var(--line);
+	--surface: var(--card);
+	--surface-hover: var(--card-2);
+	--chip-bg: transparent;
+	--opp: var(--bg);
+	--name-bg: var(--fg);
+	--bg-color: var(--bg);
+	--bg-gradient: none;
+	--radius: 0px;
+	--radius-lg: 0px;
+}
+
+body.light-mode {
+	--bg: #e6e5df;
+	--sheet: #f2f1ec;
+	--card: #faf9f5;
+	--card-2: #ffffff;
+	--fg: #0b0b0b;
+	--muted: #55575c;
+	--line: rgb(11 11 11 / 0.16);
+	--line-strong: rgb(11 11 11 / 0.88);
+	--dot: rgb(11 11 11 / 0.09);
+	--hard: #0b0b0b;
+	/* 5.6:1 on the paper. */
+	--red-text: #c40500;
+	--grain-opacity: 0.08;
+	--metal: linear-gradient(
+		160deg,
+		#d9dadc 0%,
+		#a9abb0 40%,
+		#d2d3d5 55%,
+		#8f9196 80%,
+		#bfc1c4 100%
+	);
+}
+
+/* ---------- Base ---------- */
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	background: #0b0b0b;
+	scroll-padding-top: calc(var(--header-h, 68px) + 24px);
+	-webkit-text-size-adjust: 100%;
+	text-rendering: optimizeLegibility;
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	background: var(--bg);
+	color: var(--fg);
+	font-family: var(--f-body);
+	font-size: 1.0625rem;
+	line-height: 1.6;
+	overflow-x: hidden;
+	-webkit-font-smoothing: antialiased;
+}
+
+img {
+	max-width: 100%;
+}
+
+a {
+	color: inherit;
+}
+
+::selection {
+	background: var(--red);
+	color: #fff;
+}
+
+:focus-visible {
+	outline: 2px solid var(--red-text);
+	outline-offset: 3px;
+}
+
+/* Film grain over everything — matte, not glossy. */
+body::after {
+	content: '';
+	position: fixed;
+	inset: 0;
+	z-index: 3000;
+	pointer-events: none;
+	opacity: var(--grain-opacity);
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+	mix-blend-mode: overlay;
+}
+
+/* Theme cross-fade: added on click, removed ~500ms later. */
+body.theme-anim,
+body.theme-anim *:not(.no-theme-anim) {
+	transition-property: background-color, border-color, color, fill, stroke, box-shadow, opacity !important;
+	transition-duration: 0.45s !important;
+	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* ---------- Type primitives ---------- */
+.kicker {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.55rem;
+	font-family: var(--f-mono);
+	font-size: 0.7rem;
+	font-weight: 500;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	color: var(--muted);
+}
+
+.kicker .rdot,
+.rdot {
+	width: 0.55em;
+	height: 0.55em;
+	border-radius: 50%;
+	background: var(--red);
+	flex-shrink: 0;
+}
+
+.dot-type {
+	font-family: var(--f-dot);
+	font-weight: 800;
+	letter-spacing: 0.02em;
+}
+
+.double-rule {
+	border: 0;
+	height: 5px;
+	margin: 0;
+	border-top: 3px solid var(--fg);
+	border-bottom: 1px solid var(--fg);
+}
+
+/* ---------- Page wrapper (subpages) ---------- */
+.page {
+	width: 100%;
+	max-width: var(--content-width);
+	margin-inline: auto;
+	padding: clamp(1.75rem, 4vw, 3rem) var(--gutter) clamp(3.5rem, 9vw, 6rem);
+}
+
+/* ---------- Buttons ---------- */
+.btn,
+.ghost-btn {
+	--shadow: var(--hard);
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.6rem;
+	padding: 0.85rem 1.3rem;
+	border: 1.5px solid var(--fg);
+	border-radius: 0;
+	background: var(--card);
+	color: var(--fg);
+	font-family: var(--f-mono);
+	font-size: 0.78rem;
+	font-weight: 700;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	text-decoration: none;
+	cursor: pointer;
+	box-shadow: 0 0 0 var(--shadow);
+	transition:
+		transform 0.28s var(--ease),
+		box-shadow 0.28s var(--ease),
+		background-color 0.28s var(--ease),
+		color 0.28s var(--ease),
+		border-color 0.28s var(--ease);
+}
+
+.btn:hover,
+.ghost-btn:hover {
+	transform: translate(-4px, -4px);
+	box-shadow: 4px 4px 0 var(--shadow);
+}
+
+.btn:active,
+.ghost-btn:active {
+	transform: translate(0, 0);
+	box-shadow: 0 0 0 var(--shadow);
+	transition-duration: 0.08s;
+}
+
+.btn-red {
+	background: var(--red);
+	border-color: var(--red);
+	color: #fff;
+}
+
+.btn-red:hover {
+	--shadow: var(--fg);
+}
+
+.btn svg,
+.ghost-btn svg {
+	width: 15px;
+	height: 15px;
+	flex-shrink: 0;
+	transition: transform 0.28s var(--ease);
+}
+
+.btn:hover svg,
+.ghost-btn:hover svg {
+	transform: translateX(3px);
+}
+
+.gh-mark {
+	width: 16px;
+	height: 16px;
+	background-color: currentColor;
+	-webkit-mask: url('/icons/github.svg') center / contain no-repeat;
+	mask: url('/icons/github.svg') center / contain no-repeat;
+}
+
+.more-row {
+	display: flex;
+	justify-content: center;
+	margin-top: clamp(1.75rem, 4vw, 2.5rem);
+}
+
+/* ---------- Tags ---------- */
+.tag-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.3rem;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.tag-list li {
+	font-family: var(--f-mono);
+	font-size: 0.64rem;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	padding: 0.22rem 0.45rem;
+	border: 1px solid var(--line);
+	color: var(--fg);
+	white-space: nowrap;
+	line-height: 1.3;
+}
+
+/* ---------- Scroll reveal ----------
+   The hidden state applies only once the head script adds `js-reveal` to <html>
+   (never with reduced motion), so no-JS visitors see everything. */
+/* Animates `translate` (not `transform`) and uses an animation (not a
+   transition), so it never collides with a card's own hover transform/transition. */
+html.js-reveal .reveal:not(.is-in) {
+	opacity: 0;
+}
+
+html.js-reveal .reveal.is-in {
+	animation: reveal-in 0.75s var(--ease) var(--d, 0ms) both;
+}
+
+@keyframes reveal-in {
+	from {
+		opacity: 0;
+		translate: 0 18px;
+	}
+	to {
+		opacity: 1;
+		translate: 0 0;
+	}
+}
+
+/* ---------- Page transitions (Astro view transitions) ----------
+   The old page sinks back and fades; the new one rises in. The header persists
+   and never animates. */
+@keyframes file-out {
+	to {
+		opacity: 0;
+		transform: translateY(18px) scale(0.985);
+		filter: brightness(0.6);
+	}
+}
+
+@keyframes file-in {
+	from {
+		opacity: 0;
+		transform: translateY(42px);
+	}
+}
+
+@keyframes file-out-back {
+	to {
+		opacity: 0;
+		transform: translateY(-18px) scale(0.985);
+		filter: brightness(0.6);
+	}
+}
+
+@keyframes file-in-back {
+	from {
+		opacity: 0;
+		transform: translateY(-34px);
+	}
+}
+
+::view-transition-group(sheet) {
+	animation-duration: 0.55s;
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.001ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.001ms !important;
+		scroll-behavior: auto !important;
+	}
+
+	.btn:hover,
+	.ghost-btn:hover {
+		transform: none;
+	}
+}

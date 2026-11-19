@@ -1,0 +1,753 @@
+---
+/**
+ * Project detail page: a README-style write-up for one project — screenshot,
+ * overview, tech stack, features, how to run and configuration — so a card
+ * click stays on the site instead of bouncing to GitHub.
+ */
+import Layout from '../../layouts/Layout.astro';
+import { projects, GITHUB_USER, projectImage, type Project } from '../../data/projects';
+import { projectDetails } from '../../data/projectDetails';
+
+export function getStaticPaths() {
+	const order = [...projects].sort((a, b) => {
+		if (Boolean(b.featured) !== Boolean(a.featured)) return a.featured ? -1 : 1;
+		if (b.year !== a.year) return b.year - a.year;
+		return a.title.localeCompare(b.title);
+	});
+	return order.map((project, i) => ({
+		params: { slug: project.slug },
+		props: {
+			project,
+			index: i,
+			prev: order[(i - 1 + order.length) % order.length],
+			next: order[(i + 1) % order.length],
+		},
+	}));
+}
+
+interface Props {
+	project: Project;
+	index: number;
+	prev: Project;
+	next: Project;
+}
+
+const { project: p, index, prev, next } = Astro.props;
+const d = projectDetails[p.slug];
+const repo = `https://github.com/${GITHUB_USER}/${p.slug}`;
+const no = String(index + 1).padStart(2, '0');
+
+// Split "A — B" titles into a headline and a subtitle.
+const [head, ...rest] = p.title.split(' — ');
+const sub = rest.join(' — ');
+
+/** Render `code` spans in plain strings. */
+const parts = (t: string) => t.split('`').map((s, i) => ({ s, code: i % 2 === 1 }));
+
+const sections = [
+	{ id: 'overview', label: 'Overview' },
+	{ id: 'stack', label: 'Tech stack' },
+	{ id: 'features', label: 'Features' },
+	{ id: 'run', label: 'How to run' },
+	{ id: 'config', label: 'Configuration' },
+].filter((s) => s.id === 'overview' || d);
+---
+
+<Layout title={head} description={p.blurb}>
+	<article class="page detail">
+		<a class="back" href="/projects">
+			<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor">
+				<path d="M19 12H5M11 6l-6 6 6 6" stroke-width="2" stroke-linecap="round"></path>
+			</svg>
+			All work
+		</a>
+
+		<header class="d-head">
+			<hr class="double-rule" />
+			<div class="d-meta">
+				<span class="d-no dot-type">{no}</span>
+				{p.status && <span class="status">{p.status}</span>}
+				<span>{p.language}</span>
+				<span class="d-year dot-type">{p.year}</span>
+			</div>
+			<h1 class="d-title">{head}</h1>
+			{sub && <p class="d-sub">{sub}</p>}
+			<p class="d-blurb">{p.blurb}</p>
+			<div class="d-actions">
+				{
+					!p.noRepo && (
+						<a class="btn btn-red" href={repo} target="_blank" rel="noopener noreferrer">
+							<span class="gh-mark" aria-hidden="true" />
+							View on GitHub
+						</a>
+					)
+				}
+				{
+					p.demoUrl && (
+						<a class="ghost-btn" href={p.demoUrl} target="_blank" rel="noopener noreferrer">
+							Live demo
+						</a>
+					)
+				}
+				{p.noRepo && <span class="d-private">Repository not public</span>}
+			</div>
+		</header>
+
+		<figure class="d-shot reveal">
+			<img src={projectImage(p.slug)} alt={`${head} screenshot`} width="1200" height="750" />
+		</figure>
+
+		<div class="d-body">
+			<aside class="d-side">
+				<nav class="toc" aria-label="On this page">
+					<p class="side-k">Contents</p>
+					<ol>
+						{
+							sections.map((s, i) => (
+								<li>
+									<a href={`#${s.id}`}>
+										<span class="dot-type">{String(i + 1).padStart(2, '0')}</span>
+										{s.label}
+									</a>
+								</li>
+							))
+						}
+					</ol>
+				</nav>
+				<div class="side-block">
+					<p class="side-k">Filed under</p>
+					<ul class="cats">{p.categories.map((c) => <li>{c}</li>)}</ul>
+				</div>
+			</aside>
+
+			<div class="d-main">
+				<section id="overview" class="d-sec reveal">
+					<h2><span class="dot-type">01</span>Overview</h2>
+					{
+						(d?.overview ?? [p.blurb]).map((para) => (
+							<p class="prose">
+								{parts(para).map((x) => (x.code ? <code>{x.s}</code> : x.s))}
+							</p>
+						))
+					}
+				</section>
+
+				{
+					d && (
+						<>
+							<section id="stack" class="d-sec reveal">
+								<h2>
+									<span class="dot-type">02</span>Tech stack
+								</h2>
+								<dl class="stack">
+									{d.stack.map((g) => (
+										<div class="stack-row">
+											<dt>{g.group}</dt>
+											<dd>
+												{g.items.map((it) => (
+													<span class="chip">{it}</span>
+												))}
+											</dd>
+										</div>
+									))}
+								</dl>
+							</section>
+
+							<section id="features" class="d-sec reveal">
+								<h2>
+									<span class="dot-type">03</span>Features
+								</h2>
+								<ul class="features">
+									{d.features.map((f) => (
+										<li>{parts(f).map((x) => (x.code ? <code>{x.s}</code> : x.s))}</li>
+									))}
+								</ul>
+							</section>
+
+							<section id="run" class="d-sec reveal">
+								<h2>
+									<span class="dot-type">04</span>How to run
+								</h2>
+								<ol class="steps">
+									{d.run.map((r) => (
+										<li>
+											<p class="step-label">{r.label}</p>
+											{r.code && (
+												<pre class="term"><code>{r.code.join('\n')}</code></pre>
+											)}
+										</li>
+									))}
+								</ol>
+							</section>
+
+							<section id="config" class="d-sec reveal">
+								<h2>
+									<span class="dot-type">05</span>Configuration
+								</h2>
+								<table class="config">
+									<thead>
+										<tr>
+											<th scope="col">Key</th>
+											<th scope="col">What it does</th>
+										</tr>
+									</thead>
+									<tbody>
+										{d.config.map((c) => (
+											<tr>
+												<td>
+													<code>{c.key}</code>
+												</td>
+												<td>{c.desc}</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+								{d.notes && (
+									<ul class="notes">
+										{d.notes.map((n) => (
+											<li>{n}</li>
+										))}
+									</ul>
+								)}
+							</section>
+						</>
+					)
+				}
+			</div>
+		</div>
+
+		<nav class="pager" aria-label="More projects">
+			<a href={`/projects/${prev.slug}`} class="pg prev">
+				<span class="pg-k">← Previous</span>
+				<span class="pg-t">{prev.title.split(' — ')[0]}</span>
+			</a>
+			<a href={`/projects/${next.slug}`} class="pg next">
+				<span class="pg-k">Next →</span>
+				<span class="pg-t">{next.title.split(' — ')[0]}</span>
+			</a>
+		</nav>
+	</article>
+</Layout>
+
+<style>
+	.back {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		margin-bottom: 1.1rem;
+		font-family: var(--f-mono);
+		font-size: 0.72rem;
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		text-decoration: none;
+		color: var(--muted);
+		transition: color 0.25s var(--ease);
+	}
+
+	.back svg {
+		width: 15px;
+		height: 15px;
+		transition: transform 0.25s var(--ease);
+	}
+
+	.back:hover {
+		color: var(--red-text);
+	}
+
+	.back:hover svg {
+		transform: translateX(-4px);
+	}
+
+	/* ---------- Head ---------- */
+	.d-meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem 1rem;
+		margin-top: 0.9rem;
+		font-family: var(--f-mono);
+		font-size: 0.7rem;
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: var(--muted);
+	}
+
+	.d-no {
+		font-size: 1.6rem;
+		line-height: 1;
+		color: var(--red-text);
+		letter-spacing: 0;
+	}
+
+	.d-year {
+		margin-left: auto;
+		font-size: 1.2rem;
+		color: var(--fg);
+		letter-spacing: 0;
+	}
+
+	.status {
+		padding: 0.18rem 0.45rem;
+		border: 1.5px solid var(--red);
+		color: var(--red-text);
+		transform: rotate(-3deg);
+	}
+
+	.d-title {
+		margin: clamp(0.6rem, 2vw, 1rem) 0 0;
+		font-family: var(--f-dot);
+		font-weight: 900;
+		font-size: clamp(2.4rem, 8vw, 6.2rem);
+		line-height: 0.9;
+		letter-spacing: -0.01em;
+		text-transform: uppercase;
+		overflow-wrap: anywhere;
+		animation: d-in 0.9s var(--ease) both;
+	}
+
+	@keyframes d-in {
+		from {
+			opacity: 0;
+			letter-spacing: 0.1em;
+			filter: blur(6px);
+		}
+	}
+
+	.d-sub {
+		margin: 0.7rem 0 0;
+		font-family: var(--f-head);
+		font-weight: 600;
+		font-size: clamp(1.1rem, 2.4vw, 1.5rem);
+		letter-spacing: -0.02em;
+	}
+
+	.d-blurb {
+		max-width: 62ch;
+		margin: 1rem 0 0;
+		font-size: clamp(1.02rem, 1.6vw, 1.15rem);
+		line-height: 1.6;
+		color: var(--muted);
+	}
+
+	.d-actions {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.8rem;
+		margin-top: 1.5rem;
+	}
+
+	.gh-mark {
+		width: 16px;
+		height: 16px;
+		background-color: currentColor;
+		-webkit-mask: url('/icons/github.svg') center / contain no-repeat;
+		mask: url('/icons/github.svg') center / contain no-repeat;
+	}
+
+	.d-private {
+		font-family: var(--f-mono);
+		font-size: 0.7rem;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: var(--muted);
+		padding: 0.6rem 0.9rem;
+		border: 1.5px dashed var(--line-strong);
+	}
+
+	/* ---------- Screenshot ---------- */
+	.d-shot {
+		margin: clamp(1.75rem, 4vw, 2.75rem) 0 0;
+		border: 1.5px solid var(--line-strong);
+		box-shadow: 8px 8px 0 var(--hard);
+		background: var(--sheet);
+		overflow: hidden;
+	}
+
+	.d-shot img {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+
+	/* ---------- Body ---------- */
+	.d-body {
+		display: grid;
+		grid-template-columns: 220px minmax(0, 1fr);
+		gap: clamp(2rem, 5vw, 4rem);
+		margin-top: clamp(2.5rem, 6vw, 4rem);
+	}
+
+	.d-side {
+		position: sticky;
+		top: calc(var(--header-h) + 24px);
+		align-self: start;
+		display: flex;
+		flex-direction: column;
+		gap: 1.6rem;
+	}
+
+	.side-k {
+		margin: 0 0 0.6rem;
+		padding-bottom: 0.45rem;
+		border-bottom: 1.5px solid var(--line-strong);
+		font-family: var(--f-mono);
+		font-size: 0.66rem;
+		font-weight: 700;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: var(--muted);
+	}
+
+	.toc ol {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.toc a {
+		display: flex;
+		align-items: baseline;
+		gap: 0.7rem;
+		padding: 0.45rem 0;
+		border-bottom: 1px dashed var(--line);
+		font-family: var(--f-head);
+		font-weight: 600;
+		font-size: 0.95rem;
+		text-decoration: none;
+		transition:
+			color 0.25s var(--ease),
+			padding-left 0.25s var(--ease);
+	}
+
+	.toc a span {
+		color: var(--muted);
+		font-size: 0.9rem;
+	}
+
+	.toc a:hover {
+		color: var(--red-text);
+		padding-left: 0.3rem;
+	}
+
+	.cats {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.3rem 0.8rem;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.cats li {
+		font-family: var(--f-mono);
+		font-size: 0.64rem;
+		font-weight: 700;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: var(--red-text);
+	}
+
+	.d-main {
+		display: flex;
+		flex-direction: column;
+		gap: clamp(2.5rem, 5vw, 3.5rem);
+		min-width: 0;
+	}
+
+	.d-sec {
+		scroll-margin-top: calc(var(--header-h) + 24px);
+	}
+
+	.d-sec h2 {
+		display: flex;
+		align-items: baseline;
+		gap: 0.8rem;
+		margin: 0 0 1.1rem;
+		padding-bottom: 0.6rem;
+		border-bottom: 3px solid var(--fg);
+		font-family: var(--f-head);
+		font-weight: 700;
+		font-size: clamp(1.5rem, 3vw, 2.1rem);
+		letter-spacing: -0.03em;
+	}
+
+	.d-sec h2 .dot-type {
+		color: var(--red-text);
+		font-size: 0.85em;
+		letter-spacing: 0;
+	}
+
+	.prose {
+		max-width: 68ch;
+		margin: 0 0 1rem;
+		font-size: 1.08rem;
+		line-height: 1.7;
+	}
+
+	code {
+		font-family: var(--f-mono);
+		font-size: 0.86em;
+		padding: 0.05em 0.35em;
+		background: var(--card-2);
+		border: 1px solid var(--line);
+	}
+
+	/* Tech stack as a ledger. */
+	.stack {
+		margin: 0;
+		border-top: 1px solid var(--line);
+	}
+
+	.stack-row {
+		display: grid;
+		grid-template-columns: 140px minmax(0, 1fr);
+		gap: 1rem;
+		padding: 0.8rem 0;
+		border-bottom: 1px solid var(--line);
+	}
+
+	.stack dt {
+		font-family: var(--f-mono);
+		font-size: 0.7rem;
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: var(--muted);
+		padding-top: 0.35rem;
+	}
+
+	.stack dd {
+		margin: 0;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+	}
+
+	.chip {
+		padding: 0.3rem 0.6rem;
+		border: 1.5px solid var(--line-strong);
+		font-family: var(--f-mono);
+		font-size: 0.74rem;
+		font-weight: 600;
+		transition:
+			background-color 0.25s var(--ease),
+			color 0.25s var(--ease);
+	}
+
+	.chip:hover {
+		background: var(--fg);
+		color: var(--bg);
+	}
+
+	.features {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		gap: 0.2rem;
+	}
+
+	.features li {
+		position: relative;
+		padding: 0.55rem 0 0.55rem 1.6rem;
+		border-bottom: 1px dashed var(--line);
+		font-size: 1.04rem;
+		line-height: 1.55;
+	}
+
+	.features li::before {
+		content: '';
+		position: absolute;
+		left: 0.2rem;
+		top: 1.05rem;
+		width: 0.5rem;
+		height: 0.5rem;
+		background: var(--red);
+	}
+
+	.steps {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		counter-reset: step;
+		display: flex;
+		flex-direction: column;
+		gap: 1.2rem;
+	}
+
+	.steps li {
+		counter-increment: step;
+	}
+
+	.step-label {
+		display: flex;
+		align-items: baseline;
+		gap: 0.6rem;
+		margin: 0 0 0.5rem;
+		font-family: var(--f-head);
+		font-weight: 600;
+		font-size: 1.02rem;
+	}
+
+	.step-label::before {
+		content: counter(step, decimal-leading-zero);
+		font-family: var(--f-dot);
+		font-weight: 900;
+		color: var(--muted);
+	}
+
+	.term {
+		position: relative;
+		margin: 0;
+		padding: 1rem 1.1rem 1rem 2.3rem;
+		background: #0d0d0d;
+		color: #f2f1ec;
+		border: 1.5px solid var(--line-strong);
+		box-shadow: 5px 5px 0 var(--hard);
+		overflow-x: auto;
+		scrollbar-width: thin;
+		scrollbar-color: #5a5c60 transparent;
+		font-size: 0.86rem;
+		line-height: 1.65;
+	}
+
+	.term::before {
+		content: '$';
+		position: absolute;
+		left: 1rem;
+		top: 1rem;
+		font-family: var(--f-mono);
+		color: #ff3b30;
+	}
+
+	.term code {
+		padding: 0;
+		background: none;
+		border: 0;
+		font-size: inherit;
+		white-space: pre;
+	}
+
+	.config {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 0.98rem;
+	}
+
+	.config th {
+		text-align: left;
+		padding: 0.55rem 0.7rem 0.55rem 0;
+		border-bottom: 1.5px solid var(--line-strong);
+		font-family: var(--f-mono);
+		font-size: 0.66rem;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: var(--muted);
+	}
+
+	.config td {
+		padding: 0.7rem 0.7rem 0.7rem 0;
+		border-bottom: 1px solid var(--line);
+		vertical-align: top;
+		line-height: 1.5;
+	}
+
+	.config td:first-child {
+		width: 38%;
+		overflow-wrap: anywhere;
+	}
+
+	.notes {
+		list-style: none;
+		margin: 1.2rem 0 0;
+		padding: 0.9rem 1rem;
+		border-left: 4px solid var(--red);
+		background: var(--card);
+		display: grid;
+		gap: 0.4rem;
+		font-size: 0.98rem;
+		line-height: 1.55;
+	}
+
+	/* ---------- Pager ---------- */
+	.pager {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		margin-top: clamp(3rem, 7vw, 5rem);
+		border-top: 3px solid var(--fg);
+	}
+
+	.pg {
+		display: flex;
+		flex-direction: column;
+		gap: 0.4rem;
+		padding: 1.2rem 0;
+		text-decoration: none;
+		transition: color 0.25s var(--ease);
+	}
+
+	.pg.next {
+		text-align: right;
+		align-items: flex-end;
+		border-left: 1px solid var(--line);
+		padding-left: 1rem;
+	}
+
+	.pg.prev {
+		padding-right: 1rem;
+	}
+
+	.pg-k {
+		font-family: var(--f-mono);
+		font-size: 0.66rem;
+		font-weight: 700;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: var(--muted);
+	}
+
+	.pg-t {
+		font-family: var(--f-dot);
+		font-weight: 900;
+		font-size: clamp(1.2rem, 3vw, 2rem);
+		line-height: 1;
+		text-transform: uppercase;
+	}
+
+	.pg:hover .pg-t {
+		color: var(--red-text);
+	}
+
+	@media (max-width: 860px) {
+		.d-body {
+			grid-template-columns: minmax(0, 1fr);
+		}
+		.d-side {
+			position: static;
+		}
+		.toc {
+			display: none;
+		}
+	}
+
+	@media (max-width: 560px) {
+		.stack-row {
+			grid-template-columns: minmax(0, 1fr);
+			gap: 0.5rem;
+		}
+		.stack dt {
+			padding-top: 0;
+		}
+		.d-shot {
+			box-shadow: 5px 5px 0 var(--hard);
+		}
+		.config td:first-child {
+			width: 42%;
+		}
+	}
+</style>

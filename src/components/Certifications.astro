@@ -1,9 +1,7 @@
 ---
 /**
- * Home-page certifications highlight.
- *
- * Shows just the three featured credentials; the full, grouped gallery of every
- * certificate, seminar and badge lives on /certificates.
+ * Home-page certifications highlight: the three featured credentials. The full,
+ * grouped gallery lives on /certificates.
  */
 import Section from './Section.astro';
 import CertCard from './CertCard.astro';
@@ -13,88 +11,37 @@ const featured = certifications.filter((c) => c.featured).slice(0, 3);
 const total = certifications.length;
 ---
 
-<Section
-	id="certifications"
-	eyebrow="Certifications"
-	title="Credentials & training"
-	bare
->
-	<div class="grid">
+<Section id="certifications" num="04" eyebrow="Certifications" title="Credentials & training." bare>
+	<div class="clip-grid">
 		{featured.map((cert) => <CertCard cert={cert} />)}
 	</div>
 
-	<div class="more">
+	<div class="more-row">
 		<a class="ghost-btn" href="/certificates">
 			View all {total} certificates
-			<svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor">
-				<path d="M5 12h14M13 6l6 6-6 6" stroke-width="2" stroke-linecap="round"></path>
+			<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor">
+				<path d="M5 12h14M13 6l6 6-6 6" stroke-width="2" stroke-linecap="square"></path>
 			</svg>
 		</a>
 	</div>
 </Section>
 
 <style>
-	.grid {
+	.clip-grid {
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
-		gap: clamp(0.85rem, 2vw, 1.25rem);
+		gap: clamp(1rem, 2.4vw, 1.6rem);
 	}
 
 	@media (max-width: 900px) {
-		.grid {
+		.clip-grid {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}
 	}
 
 	@media (max-width: 600px) {
-		.grid {
+		.clip-grid {
 			grid-template-columns: minmax(0, 1fr);
-		}
-	}
-
-	.more {
-		display: flex;
-		justify-content: center;
-		margin-top: clamp(1.5rem, 4vw, 2.25rem);
-	}
-
-	.ghost-btn {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.6rem;
-		padding: 0.7rem 1.35rem;
-		border-radius: 999px;
-		border: 1px solid var(--border);
-		background: var(--surface);
-		color: var(--text-color);
-		font-size: 0.875rem;
-		font-weight: 600;
-		text-decoration: none;
-		transition:
-			border-color 0.3s ease,
-			color 0.3s ease,
-			transform 0.3s ease,
-			background 0.3s ease;
-	}
-
-	.ghost-btn:hover {
-		border-color: var(--pp);
-		color: var(--pp);
-		background: var(--surface-hover);
-		transform: translateY(-2px);
-	}
-
-	.ghost-btn svg {
-		width: 15px;
-		height: 15px;
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.ghost-btn {
-			transition: none;
-		}
-		.ghost-btn:hover {
-			transform: none;
 		}
 	}
 </style>

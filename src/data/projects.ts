@@ -54,7 +54,12 @@ export interface Project {
 	demoUrl?: string;
 	/** Pulled out visually at the top of the grid. */
 	featured?: boolean;
+	/** The repo is private or gone — show no GitHub link. */
+	noRepo?: boolean;
 }
+
+/** Card / detail-page screenshot for a project. */
+export const projectImage = (slug: string) => `/projects/${slug}.webp`;
 
 export const projects: Project[] = [
 	{
@@ -67,6 +72,17 @@ export const projects: Project[] = [
 		language: 'Python',
 		year: 2026,
 		status: 'Hackathon',
+		featured: true,
+	},
+	{
+		slug: 'ML-E',
+		title: 'ML-E — Machine Learning, Engineered to Be Seen',
+		blurb:
+			'A local studio for learning ML and AI engineering by watching it work: every idea is an animated scene, and every line of code runs in a real Jupyter kernel with training metrics streamed back as pictures.',
+		categories: ['Machine Learning', 'Neural Networks', 'Web'],
+		tags: ['Next.js', 'FastAPI', 'Jupyter Kernel', 'Three.js', 'D3'],
+		language: 'TypeScript',
+		year: 2026,
 		featured: true,
 	},
 	{
@@ -90,6 +106,7 @@ export const projects: Project[] = [
 		tags: ['Deep Learning', 'Object Detection', 'Jupyter'],
 		language: 'Jupyter Notebook',
 		year: 2026,
+		noRepo: true,
 	},
 	{
 		slug: 'GOATS',
@@ -238,16 +255,6 @@ export const projects: Project[] = [
 		year: 2026,
 	},
 	{
-		slug: 'Costing',
-		title: 'Cost Calculator',
-		blurb:
-			'A standalone Next.js cost-calculator built for a freelance client to price work transparently, with a billing-oriented UI.',
-		categories: ['Web'],
-		tags: ['Next.js', 'TypeScript', 'Freelance'],
-		language: 'TypeScript',
-		year: 2026,
-	},
-	{
 		slug: 'ACSS_Website',
 		title: 'ACSS Organisation Website',
 		blurb:
@@ -256,16 +263,5 @@ export const projects: Project[] = [
 		tags: ['JavaScript', 'Org Site'],
 		language: 'JavaScript',
 		year: 2026,
-	},
-	{
-		slug: 'Enrollment-form-RivanCyber',
-		title: 'RivanCyber Enrollment Form',
-		blurb:
-			'A deployed enrollment form for the RivanCyber programme — a focused, single-purpose web form shipped to production.',
-		categories: ['Web'],
-		tags: ['HTML', 'Forms', 'Vercel'],
-		language: 'HTML',
-		year: 2026,
-		demoUrl: 'https://rivancyber-enrollment-form.vercel.app',
 	},
 ];

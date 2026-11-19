@@ -1,13 +1,10 @@
 ---
 /**
- * Tech stack, grouped by category.
+ * Tech stack, grouped by category, set as a listings table.
  *
- * Replaces the previous auto-scrolling marquee: a static grid is readable, works at
- * every width, and doesn't animate indefinitely.
- *
- * Icons are real brand SVGs from `public/icons/`, drawn with a CSS mask so a single
- * monochrome file can take the text color by default and the brand color on hover.
- * `--brand` / `--brand-light` are set per pill (see `src/data/tech.ts` for why both).
+ * Icons are real brand SVGs from `public/icons/`, drawn with a CSS mask so one
+ * monochrome file takes the text colour by default and the brand colour on hover.
+ * `--brand` / `--brand-light` are set per item (see `src/data/tech.ts`).
  */
 import Section from './Section.astro';
 import { techCategories } from '../data/tech';
@@ -15,26 +12,24 @@ import { techCategories } from '../data/tech';
 
 <Section
 	id="stack"
+	num="05"
 	eyebrow="Tech stack"
-	title="Tools I build with"
+	title="Tools of the trade."
 	subtitle="The languages, frameworks and platforms I reach for across machine learning, data and automation work."
+	bare
 >
-	<div class="categories">
+	<div class="listing">
 		{
-			techCategories.map((category) => (
-				<div class="category">
-					<h3 class="cat-label">{category.label}</h3>
-					<ul class="pills">
+			techCategories.map((category, i) => (
+				<div class="row reveal">
+					<h3 class="row-label">
+						<span class="dot-type row-no">{String(i + 1).padStart(2, '0')}</span>
+						{category.label}
+					</h3>
+					<ul class="chips">
 						{category.items.map((tech) => (
-							<li
-								class="pill"
-								style={`--brand:${tech.brand};--brand-light:${tech.brandLight ?? tech.brand}`}
-							>
-								<span
-									class="pill-icon"
-									style={`--icon:url('/icons/${tech.icon}.svg')`}
-									aria-hidden="true"
-								/>
+							<li class="chip" style={`--brand:${tech.brand};--brand-light:${tech.brandLight ?? tech.brand}`}>
+								<span class="chip-icon" style={`--icon:url('/icons/${tech.icon}.svg')`} aria-hidden="true" />
 								<span>{tech.name}</span>
 							</li>
 						))}
@@ -46,112 +41,91 @@ import { techCategories } from '../data/tech';
 </Section>
 
 <style>
-	.categories {
-		display: grid;
-		gap: clamp(1.25rem, 3vw, 1.85rem);
+	.listing {
+		border-top: 1.5px solid var(--line-strong);
 	}
 
-	.category {
+	.row {
 		display: grid;
-		/* Label in a fixed column on wide screens, stacked on narrow. */
-		grid-template-columns: 11.5rem minmax(0, 1fr);
-		gap: 1rem;
+		grid-template-columns: 14rem minmax(0, 1fr);
+		gap: 1.25rem;
 		align-items: start;
-		padding-bottom: clamp(1.25rem, 3vw, 1.85rem);
-		border-bottom: 1px solid var(--border);
+		padding: clamp(1rem, 2.6vw, 1.4rem) 0;
+		border-bottom: 1px solid var(--line);
 	}
 
-	.category:last-child {
-		padding-bottom: 0;
-		border-bottom: none;
-	}
-
-	.cat-label {
-		font-family: 'pop-bold', system-ui, sans-serif;
+	.row-label {
+		display: flex;
+		align-items: baseline;
+		gap: 0.7rem;
+		margin: 0;
+		padding-top: 0.45rem;
+		font-family: var(--f-mono);
 		font-size: 0.7rem;
+		font-weight: 700;
 		letter-spacing: 0.16em;
 		text-transform: uppercase;
-		color: var(--muted);
-		margin: 0;
-		padding-top: 0.55rem;
-		line-height: 1.5;
 	}
 
-	.pills {
+	.row-no {
+		font-size: 1.1rem;
+		color: var(--red-text);
+		letter-spacing: 0;
+	}
+
+	.chips {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.5rem;
+		gap: 0.45rem;
 		list-style: none;
 		margin: 0;
 		padding: 0;
 	}
 
-	.pill {
+	.chip {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.5rem;
-		padding: 0.5rem 0.9rem;
-		border-radius: 999px;
-		background: var(--chip-bg);
-		border: 1px solid var(--border);
-		font-family: 'pop-thin', system-ui, sans-serif;
-		font-size: 0.85rem;
+		padding: 0.45rem 0.8rem;
+		border: 1.5px solid var(--line);
+		background: var(--card);
+		font-family: var(--f-head);
+		font-size: 0.88rem;
 		font-weight: 500;
-		color: var(--text-color);
 		white-space: nowrap;
 		cursor: default;
 		transition:
-			transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-			border-color 0.25s ease,
-			color 0.25s ease,
-			background 0.25s ease;
+			color 0.25s var(--ease),
+			border-color 0.25s var(--ease),
+			transform 0.25s var(--ease);
 	}
 
-	.pill:hover {
-		transform: translateY(-2px);
-		border-color: currentColor;
-		background: var(--surface-hover);
+	.chip:hover {
 		color: var(--brand);
+		border-color: currentColor;
+		transform: translateY(-2px);
 	}
 
-	:global(body.light-mode) .pill:hover {
+	:global(body.light-mode) .chip:hover {
 		color: var(--brand-light);
 	}
 
-	.pill-icon {
-		width: 17px;
-		height: 17px;
+	.chip-icon {
+		width: 16px;
+		height: 16px;
 		flex-shrink: 0;
-		/* The mask takes its color from the pill, so hover recolors the glyph too. */
 		background-color: currentColor;
-		mask: var(--icon) center / contain no-repeat;
 		-webkit-mask: var(--icon) center / contain no-repeat;
+		mask: var(--icon) center / contain no-repeat;
 	}
 
 	@media (max-width: 720px) {
-		.category {
+		.row {
 			grid-template-columns: minmax(0, 1fr);
 			gap: 0.7rem;
 		}
-
-		.cat-label {
+		.row-label {
 			padding-top: 0;
-		}
-	}
-
-	@media (max-width: 480px) {
-		.pill {
-			font-size: 0.8rem;
-			padding: 0.42rem 0.75rem;
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.pill {
-			transition: none;
-		}
-		.pill:hover {
-			transform: none;
 		}
 	}
 </style>

@@ -1,0 +1,44 @@
+---
+/**
+ * Dot-matrix "G." mark. Ink dots take currentColor; the full stop is signal red.
+ */
+import { LOGO_CELLS, LOGO_PERIOD, LOGO_COLS, LOGO_ROWS } from '../data/logo';
+
+interface Props {
+	size?: number | string;
+	class?: string;
+	/** Adds per-dot --i for staggered light-up animations. */
+	animated?: boolean;
+}
+
+const { size = 40, class: cls, animated = false } = Astro.props;
+const R = 0.4;
+---
+
+<svg
+	class:list={['logo-mark', cls, { 'is-animated': animated }]}
+	viewBox={`0 0 ${LOGO_COLS} ${LOGO_ROWS}`}
+	width={size}
+	height={typeof size === 'number' ? (size * LOGO_ROWS) / LOGO_COLS : undefined}
+	aria-hidden="true"
+>
+	{
+		LOGO_CELLS.map((d) => (
+			<circle class="on" cx={d.x + 0.5} cy={d.y + 0.5} r={R} style={animated ? `--i:${d.i}` : undefined} />
+		))
+	}
+	{LOGO_PERIOD.map((d) => <circle class="period" cx={d.x + 0.5} cy={d.y + 0.5} r={R} />)}
+</svg>
+
+<style>
+	.logo-mark {
+		display: block;
+		overflow: visible;
+	}
+	.on {
+		fill: currentColor;
+	}
+	.period {
+		fill: var(--red, #e10600);
+	}
+</style>

@@ -1,0 +1,494 @@
+---
+/**
+ * GitHub contribution calendar drawn as a Nothing-style dot matrix, with year
+ * tabs and a ledger of activity stats. Data is fetched at build time (see
+ * lib/contributions.ts); if GitHub can't be reached the component renders
+ * nothing and the profile section carries on without it.
+ */
+import { fetchContributions, type Calendar } from '../lib/contributions';
+import { GITHUB_USER } from '../data/projects';
+
+const data = await fetchContributions(GITHUB_USER, 2023);
+
+const PITCH = 14;
+const R = 5;
+const LEFT = 30;
+const TOP = 18;
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+const fmt = (iso: string) => {
+	const d = new Date(`${iso}T00:00:00Z`);
+	return `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
+};
+
+/** Lay a calendar out GitHub-style: one column per week, Sunday on top. */
+function layout(cal: Calendar, asOf: string) {
+	const first = new Date(`${cal.days[0].date}T00:00:00Z`).getUTCDay();
+	const cells = cal.days.map((d, i) => {
+		const k = i + first;
+		return { ...d, col: Math.floor(k / 7), row: k % 7, future: d.date > asOf };
+	});
+	const cols = cells[cells.length - 1].col + 1;
+
+	const months: { x: number; label: string }[] = [];
+	let lastMonth = -1;
+	let lastCol = -9;
+	for (const c of cells) {
+		const m = Number(c.date.slice(5, 7)) - 1;
+		if (m !== lastMonth && Number(c.date.slice(8, 10)) <= 7 && c.row === 0) {
+			if (c.col - lastCol >= 3) {
+				months.push({ x: LEFT + c.col * PITCH, label: MONTHS[m] });
+				lastCol = c.col;
+			}
+			lastMonth = m;
+		}
+	}
+	return { cells, months, width: LEFT + cols * PITCH, height: TOP + 7 * PITCH };
+}
+
+const graphs = data ? data.calendars.map((c) => ({ cal: c, ...layout(c, data.stats.asOf) })) : [];
+const s = data?.stats;
+
+const STATS = s
+	? [
+			{ k: 'Today', v: s.today },
+			{ k: 'Yesterday', v: s.yesterday },
+			{ k: 'This week', v: s.thisWeek },
+			{ k: 'Last 7 days', v: s.last7 },
+			{ k: 'Current streak', v: s.streak, unit: 'd', hot: true },
+			{ k: 'This month', v: s.thisMonth },
+			{ k: 'Last month', v: s.lastMonth },
+			{ k: 'Last 30 days', v: s.last30 },
+			{ k: 'Last 3 months', v: s.last3Months },
+			{ k: 'Last year', v: s.lastYear, hot: true },
+		]
+	: [];
+---
+
+{
+	data && s && (
+		<div class="contrib reveal" data-contrib>
+			<div class="c-head">
+				<p class="c-total">
+					<span class="dot-type c-num" data-count={s.lastYear}>
+						{s.lastYear}
+					</span>
+					<span class="c-cap">
+						contributions
+						<br />
+						in the last year
+					</span>
+				</p>
+				<div class="c-tabs" role="tablist" aria-label="Contribution year">
+					{graphs.map((g, i) => (
+						<button
+							type="button"
+							role="tab"
+							class="c-tab"
+							id={`ctab-${i}`}
+							aria-controls={`cpanel-${i}`}
+							aria-selected={i === 0 ? 'true' : 'false'}
+							tabindex={i === 0 ? 0 : -1}
+						>
+							{g.cal.label}
+						</button>
+					))}
+				</div>
+			</div>
+
+			<div class="c-frame">
+				{graphs.map((g, i) => (
+					<div
+						class="c-panel"
+						id={`cpanel-${i}`}
+						role="tabpanel"
+						aria-labelledby={`ctab-${i}`}
+						hidden={i !== 0}
+					>
+						<div class="c-scroll">
+							<svg
+								class="c-svg"
+								viewBox={`0 0 ${g.width} ${g.height}`}
+								style={`--w:${g.width}px`}
+								role="img"
+								aria-label={`${g.cal.total} contributions — ${g.cal.label}`}
+							>
+								{g.months.map((m) => (
+									<text class="c-lbl" x={m.x} y="10">
+										{m.label}
+									</text>
+								))}
+								{[
+									[1, 'Mon'],
+									[3, 'Wed'],
+									[5, 'Fri'],
+								].map(([r, l]) => (
+									<text class="c-lbl" x="0" y={TOP + (r as number) * PITCH + 4}>
+										{l}
+									</text>
+								))}
+								{g.cells.map((c) => (
+									<circle
+										class={`c-d l${c.level}${c.future ? ' fut' : ''}`}
+										cx={LEFT + c.col * PITCH + R}
+										cy={TOP + c.row * PITCH}
+										r={R}
+										style={`--c:${c.col}`}
+										data-t={
+											c.future
+												? ''
+												: `${c.count === 0 ? 'No' : c.count} contribution${c.count === 1 ? '' : 's'} on ${fmt(c.date)}`
+										}
+									/>
+								))}
+							</svg>
+						</div>
+						<p class="c-foot">
+							<span class="c-readout" aria-live="polite">
+								<b class="dot-type">{g.cal.total}</b> in {g.cal.label === 'Last year' ? 'the last year' : g.cal.label}
+							</span>
+							<span class="c-legend" aria-hidden="true">
+								Less
+								{[0, 1, 2, 3, 4].map((l) => (
+									<svg viewBox="0 0 10 10">
+										<circle class={`c-d l${l}`} cx="5" cy="5" r="5" />
+									</svg>
+								))}
+								More
+							</span>
+						</p>
+					</div>
+				))}
+			</div>
+
+			<dl class="c-stats">
+				{STATS.map((st) => (
+					<div class={st.hot ? 'hot' : ''}>
+						<dt>{st.k}</dt>
+						<dd class="dot-type">
+							{st.v}
+							{st.unit && <small>{st.unit}</small>}
+						</dd>
+					</div>
+				))}
+			</dl>
+			<p class="c-asof">
+				<a href={`https://github.com/${GITHUB_USER}`} target="_blank" rel="noopener noreferrer">
+					@{GITHUB_USER}
+				</a>
+				<span>As of {fmt(s.asOf)}</span>
+			</p>
+		</div>
+	)
+}
+
+<script>
+	function initContrib() {
+		document.querySelectorAll<HTMLElement>('[data-contrib]').forEach((root) => {
+			if (root.dataset.bound) return;
+			root.dataset.bound = '1';
+			const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('.c-tab'));
+			const panels = Array.from(root.querySelectorAll<HTMLElement>('.c-panel'));
+
+			const select = (i: number, focus = false) => {
+				tabs.forEach((t, j) => {
+					const on = i === j;
+					t.setAttribute('aria-selected', String(on));
+					t.tabIndex = on ? 0 : -1;
+					panels[j].hidden = !on;
+				});
+				if (focus) tabs[i].focus();
+				const sc = panels[i].querySelector<HTMLElement>('.c-scroll');
+				if (sc) sc.scrollLeft = sc.scrollWidth;
+			};
+
+			tabs.forEach((t, i) => {
+				t.addEventListener('click', () => select(i));
+				t.addEventListener('keydown', (e) => {
+					if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+					e.preventDefault();
+					select((i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length, true);
+				});
+			});
+
+			// Hover readout: the line under the grid names the day under the pointer.
+			panels.forEach((p) => {
+				const out = p.querySelector<HTMLElement>('.c-readout');
+				if (!out) return;
+				const rest = out.innerHTML;
+				p.addEventListener('pointerover', (e) => {
+					const t = (e.target as Element).getAttribute?.('data-t');
+					if (t) out.textContent = t;
+				});
+				p.addEventListener('pointerleave', () => (out.innerHTML = rest));
+			});
+
+			// On narrow screens, start scrolled to the most recent weeks.
+			root.querySelectorAll<HTMLElement>('.c-scroll').forEach((sc) => (sc.scrollLeft = sc.scrollWidth));
+		});
+	}
+	document.addEventListener('astro:page-load', initContrib);
+	if (document.readyState !== 'loading') initContrib();
+	else document.addEventListener('DOMContentLoaded', initContrib);
+</script>
+
+<style>
+	.contrib {
+		min-width: 0;
+	}
+
+	.c-head {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-end;
+		justify-content: space-between;
+		gap: 1rem 1.5rem;
+		padding-bottom: 0.9rem;
+		border-bottom: 3px solid var(--fg);
+	}
+
+	.c-total {
+		display: flex;
+		align-items: flex-end;
+		gap: 0.8rem;
+		margin: 0;
+	}
+
+	.c-num {
+		font-size: clamp(3.2rem, 7vw, 4.8rem);
+		font-weight: 900;
+		line-height: 0.82;
+		color: var(--red-text);
+		letter-spacing: -0.02em;
+	}
+
+	.c-cap {
+		font-family: var(--f-mono);
+		font-size: 0.68rem;
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		line-height: 1.5;
+		text-transform: uppercase;
+		color: var(--muted);
+	}
+
+	.c-tabs {
+		display: flex;
+		flex-wrap: wrap;
+		border: 1.5px solid var(--line-strong);
+	}
+
+	.c-tab {
+		padding: 0.45rem 0.75rem;
+		border: 0;
+		border-left: 1px solid var(--line);
+		background: transparent;
+		color: var(--muted);
+		font-family: var(--f-mono);
+		font-size: 0.66rem;
+		font-weight: 700;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		cursor: pointer;
+		transition:
+			background-color 0.25s var(--ease),
+			color 0.25s var(--ease);
+	}
+
+	.c-tab:first-child {
+		border-left: 0;
+	}
+
+	.c-tab:hover {
+		color: var(--fg);
+	}
+
+	.c-tab[aria-selected='true'] {
+		background: var(--fg);
+		color: var(--bg);
+	}
+
+	.c-frame {
+		padding: 1.1rem 0 0;
+	}
+
+	.c-panel[hidden] {
+		display: none;
+	}
+
+	.c-scroll {
+		overflow-x: auto;
+		scrollbar-width: thin;
+		scrollbar-color: var(--silver-2) transparent;
+	}
+
+	.c-svg {
+		display: block;
+		width: 100%;
+		min-width: min(var(--w), 640px);
+		height: auto;
+	}
+
+	.c-lbl {
+		font-family: var(--f-mono);
+		font-size: 9px;
+		fill: var(--muted);
+	}
+
+	.c-d {
+		fill: color-mix(in srgb, var(--fg) 9%, transparent);
+		transition:
+			fill 0.2s var(--ease),
+			transform 0.2s var(--ease);
+		transform-box: fill-box;
+		transform-origin: center;
+	}
+
+	.c-d.l1 {
+		fill: color-mix(in srgb, var(--fg) 32%, transparent);
+	}
+	.c-d.l2 {
+		fill: color-mix(in srgb, var(--fg) 58%, transparent);
+	}
+	.c-d.l3 {
+		fill: var(--fg);
+	}
+	.c-d.l4 {
+		fill: var(--red);
+	}
+	.c-d.fut {
+		fill: color-mix(in srgb, var(--fg) 3%, transparent);
+	}
+
+	.c-svg .c-d:not(.fut):hover {
+		transform: scale(1.35);
+		fill: var(--red-text);
+	}
+
+	/* Dots switch on column by column when the block scrolls into view. */
+	@media (prefers-reduced-motion: no-preference) {
+		:global(html.js-reveal) .contrib:not(.is-in) .c-svg .c-d {
+			opacity: 0;
+		}
+		.contrib.is-in .c-svg .c-d {
+			animation: c-on 0.35s var(--ease) both;
+			animation-delay: calc(0.15s + var(--c) * 12ms);
+		}
+	}
+
+	@keyframes c-on {
+		from {
+			opacity: 0;
+			transform: scale(0.2);
+		}
+	}
+
+	.c-foot {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem 1rem;
+		margin: 0.7rem 0 0;
+		font-family: var(--f-mono);
+		font-size: 0.68rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--muted);
+		min-height: 1.4rem;
+	}
+
+	.c-readout b {
+		font-size: 1rem;
+		color: var(--fg);
+		letter-spacing: 0;
+	}
+
+	.c-legend {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3rem;
+	}
+
+	.c-legend svg {
+		width: 10px;
+		height: 10px;
+	}
+
+	/* Stats ledger: a joined 5×2 grid like the index strip. */
+	.c-stats {
+		display: grid;
+		grid-template-columns: repeat(5, minmax(0, 1fr));
+		margin: 1.4rem 0 0;
+		border-top: 1.5px solid var(--line-strong);
+		border-left: 1.5px solid var(--line-strong);
+	}
+
+	.c-stats > div {
+		display: flex;
+		flex-direction: column;
+		gap: 0.45rem;
+		padding: 0.85rem 0.9rem 0.95rem;
+		border-right: 1.5px solid var(--line-strong);
+		border-bottom: 1.5px solid var(--line-strong);
+		background: var(--card);
+		transition: background-color 0.3s var(--ease);
+	}
+
+	.c-stats > div:hover {
+		background: var(--card-2);
+	}
+
+	.c-stats dt {
+		font-family: var(--f-mono);
+		font-size: 0.6rem;
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: var(--muted);
+	}
+
+	.c-stats dd {
+		margin: 0;
+		font-size: clamp(1.6rem, 3vw, 2.2rem);
+		font-weight: 900;
+		line-height: 1;
+	}
+
+	.c-stats dd small {
+		font-size: 0.5em;
+		margin-left: 0.1em;
+		color: var(--muted);
+	}
+
+	.c-stats .hot dd {
+		color: var(--red-text);
+	}
+
+	.c-asof {
+		display: flex;
+		justify-content: space-between;
+		gap: 1rem;
+		margin: 0.7rem 0 0;
+		font-family: var(--f-mono);
+		font-size: 0.64rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: var(--muted);
+	}
+
+	.c-asof a {
+		color: var(--fg);
+		text-decoration: none;
+	}
+
+	.c-asof a:hover {
+		color: var(--red-text);
+	}
+
+	@media (max-width: 720px) {
+		.c-stats {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+</style>
