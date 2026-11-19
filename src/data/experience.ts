@@ -239,7 +239,7 @@ export const competitions: Competition[] = [
 		detail: 'Mobile Application · Game Development Category',
 		years: ['2026'],
 	},
-	{ name: 'Philippine Junior Data Science Challenge', years: ['2025', '2026', '2027'] },
+	{ name: 'Philippine Junior Data Science Challenge', years: ['2024', '2025', '2026'] },
 	{ name: 'NASA Space Apps Challenge', detail: 'Galactic Problem Solver', years: ['2026'] },
 	{
 		name: 'UMak IT Olympics',
