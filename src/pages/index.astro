@@ -548,7 +548,17 @@ const STATS = [
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) 17rem;
 		gap: clamp(1.5rem, 4vw, 3rem);
-		align-items: start;
+		/* Centre the contribution block against the taller side column. */
+		align-items: center;
+	}
+
+	/* Tighter hand-off from the profile into Experience. */
+	:global(#about.np-section) {
+		margin-bottom: clamp(1.5rem, 3.5vw, 2.5rem);
+	}
+
+	:global(#about.np-section + .np-section) {
+		margin-top: 0;
 	}
 
 	.glance {
