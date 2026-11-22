@@ -78,6 +78,7 @@ const langColor: Record<string, string> = {
 			</div>
 
 			<div class="pills" role="group" aria-label="Filter by category">
+				<span class="pill-thumb" aria-hidden="true"></span>
 				<button class="pill active" type="button" data-cat="all" aria-pressed="true">
 					All <span class="count">{projects.length}</span>
 				</button>
@@ -238,9 +239,45 @@ const langColor: Record<string, string> = {
 		let activeCat = 'all';
 		let query = '';
 
-		function apply() {
+		const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+		const EASE = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
+		const running = new WeakMap<HTMLElement, Animation>();
+
+		/* Sliding thumb under the active pill. Placed instantly the first time and
+		   on resize; glides on clicks. */
+		const pillBox = document.querySelector<HTMLElement>('.pills');
+		const thumb = pillBox?.querySelector<HTMLElement>('.pill-thumb') ?? null;
+		function placeThumb(glide: boolean) {
+			const active = pills.find((p) => p.classList.contains('active'));
+			if (!pillBox || !thumb || !active) return;
+			thumb.classList.toggle('no-anim', !glide || reduce.matches);
+			thumb.style.setProperty('--x', `${active.offsetLeft}px`);
+			thumb.style.setProperty('--y', `${active.offsetTop}px`);
+			thumb.style.setProperty('--w', `${active.offsetWidth}px`);
+			thumb.style.setProperty('--h', `${active.offsetHeight}px`);
+			pillBox.classList.add('has-thumb');
+			// Phones scroll the pill row sideways: keep the chosen pill in view.
+			if (glide && pillBox.scrollWidth > pillBox.clientWidth) {
+				const left = active.offsetLeft - (pillBox.clientWidth - active.offsetWidth) / 2;
+				pillBox.scrollTo({ left, behavior: reduce.matches ? 'auto' : 'smooth' });
+			}
+		}
+		placeThumb(false);
+		window.addEventListener('resize', () => placeThumb(false));
+		if ((document as any).fonts?.ready) (document as any).fonts.ready.then(() => placeThumb(false));
+
+		function apply(animate = false) {
 			const q = query.trim().toLowerCase();
 			let shown = 0;
+			const motion = animate && !reduce.matches;
+
+			// FLIP, step 1: where each visible card is now (mid-animation included,
+			// so rapid clicks continue from wherever the card currently is).
+			const first = new Map<HTMLElement, DOMRect>();
+			if (motion) {
+				for (const card of cards) if (!card.hidden) first.set(card, card.getBoundingClientRect());
+				for (const card of cards) running.get(card)?.cancel();
+			}
 
 			for (const card of cards) {
 				const cats = (card.dataset.categories ?? '').split('|');
@@ -256,18 +293,55 @@ const langColor: Record<string, string> = {
 			if (emptyState) emptyState.hidden = shown !== 0;
 			if (grid) grid.hidden = shown === 0;
 			if (clearBtn) clearBtn.hidden = q === '';
+
+			if (!motion) return;
+			// FLIP, step 2: cards that stay glide from their old spot to the new one;
+			// cards that appear fade and rise in, lightly staggered.
+			let n = 0;
+			for (const card of cards) {
+				if (card.hidden) continue;
+				// A card the scroll reveal hasn't shown yet: show it now and let the
+				// filter's own entrance play, instead of waiting on the reveal.
+				if (!card.classList.contains('is-in')) {
+					card.classList.add('is-in');
+					card.style.animation = 'none';
+					first.delete(card);
+				}
+				const was = first.get(card);
+				const now = card.getBoundingClientRect();
+				let anim: Animation | null = null;
+				if (was) {
+					const dx = was.left - now.left;
+					const dy = was.top - now.top;
+					if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+						anim = card.animate(
+							[{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }],
+							{ duration: 520, easing: EASE }
+						);
+					}
+				} else {
+					anim = card.animate(
+						[
+							{ opacity: 0, transform: 'translateY(16px) scale(0.97)' },
+							{ opacity: 1, transform: 'none' },
+						],
+						{ duration: 460, delay: Math.min(n++, 8) * 45, easing: EASE, fill: 'backwards' }
+					);
+				}
+				if (anim) running.set(card, anim);
+			}
 		}
 
 		search?.addEventListener('input', () => {
 			query = search.value;
-			apply();
+			apply(true);
 		});
 
 		clearBtn?.addEventListener('click', () => {
 			if (search) search.value = '';
 			query = '';
 			search?.focus();
-			apply();
+			apply(true);
 		});
 
 		for (const pill of pills) {
@@ -278,8 +352,11 @@ const langColor: Record<string, string> = {
 				}
 				pill.classList.add('active');
 				pill.setAttribute('aria-pressed', 'true');
-				activeCat = pill.dataset.cat ?? 'all';
-				apply();
+				const next = pill.dataset.cat ?? 'all';
+				placeThumb(true);
+				if (next === activeCat) return;
+				activeCat = next;
+				apply(true);
 			});
 		}
 
@@ -292,7 +369,8 @@ const langColor: Record<string, string> = {
 				p.classList.toggle('active', isAll);
 				p.setAttribute('aria-pressed', String(isAll));
 			}
-			apply();
+			placeThumb(true);
+			apply(true);
 		});
 
 		apply();
@@ -397,12 +475,43 @@ const langColor: Record<string, string> = {
 
 	/* Category filters: outline chips; the active one is solid, like the nav. */
 	.pills {
+		position: relative;
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.4rem;
 	}
 
+	/* The solid fill behind the active pill, sliding between them. Until the
+	   script places it (or without JS), the active pill paints its own fill. */
+	.pill-thumb {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: var(--w, 0);
+		height: var(--h, 0);
+		transform: translate(var(--x, 0), var(--y, 0));
+		border-radius: 999px;
+		background: var(--fg);
+		opacity: 0;
+		pointer-events: none;
+		transition:
+			transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+			width 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+			height 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+			background-color 0.3s var(--ease);
+	}
+
+	.pills.has-thumb .pill-thumb {
+		opacity: 1;
+	}
+
+	.pill-thumb.no-anim {
+		transition: none;
+	}
+
 	.pill {
+		position: relative;
+		z-index: 1;
 		display: inline-flex;
 		align-items: center;
 		gap: 0.45rem;
@@ -421,7 +530,8 @@ const langColor: Record<string, string> = {
 		transition:
 			color 0.3s var(--ease),
 			background-color 0.3s var(--ease),
-			border-color 0.3s var(--ease);
+			border-color 0.3s var(--ease),
+			scale 0.15s var(--ease);
 	}
 
 	.pill:hover {
@@ -435,7 +545,16 @@ const langColor: Record<string, string> = {
 		border-color: var(--fg);
 	}
 
+	.pills.has-thumb .pill.active {
+		background: transparent;
+	}
+
+	.pill:active {
+		scale: 0.96;
+	}
+
 	.pill .count {
+		transition: color 0.3s var(--ease);
 		font-family: var(--f-dot);
 		font-size: 0.85rem;
 		font-weight: 900;
