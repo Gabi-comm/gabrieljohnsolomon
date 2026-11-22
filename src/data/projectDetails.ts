@@ -283,6 +283,60 @@ export const projectDetails: Record<string, ProjectDetail> = {
 		],
 	},
 
+	'mantika-check': {
+		overview: [
+			'Mantika Check is a frying-oil advisor for street-food vendors, built for the Philippine Junior Data Science Challenge 2026. Vendors log how long and how hot they fried, what they cooked, top-ups and how the oil looks.',
+			'It estimates how worn the oil is, warns the moment a warning sign shows up, and says whether to keep using, filter, top up or replace it. Ollie, the oil-drop mascot, changes with the oil\'s status. The statuses are estimates from logged usage, not lab measurements, and have not yet been validated at real stalls.',
+		],
+		stack: [
+			{ group: 'Web', items: ['Next.js 16', 'React 19', 'Tailwind CSS 4', 'TypeScript'] },
+			{ group: 'Engine', items: ['Arrhenius kinetic model', 'Mamdani fuzzy rules', 'Hard safety rules'] },
+			{ group: 'Data & AI', items: ['Supabase', 'Hugging Face inference', 'Vitest'] },
+		],
+		features: [
+			'A neuro-symbolic engine that runs in the browser: a kinetic model trained on published lab frying data estimates total polar compounds (TPC) from frying hours and heat.',
+			'Hard safety rules: smoke, foam, dark or thick oil, or an estimated TPC above 25% always say "replace now".',
+			'Fuzzy rules weigh the TPC estimate, breaded food and oil stability to pick one of four statuses.',
+			'Optional Hugging Face model that rewords the advice but never changes the decision.',
+			'Dashboard with status, forecast and usage charts; session logging, quick checks, top-ups and batch history.',
+			'Email or Google sign-in synced to Supabase, or fully on-device without an account.',
+			'Experimental colour analyzer that compares an oil photo with printed reference swatches.',
+		],
+		run: [
+			{ label: 'Install (first time)', code: ['npm run install:web'] },
+			{ label: 'Start the app: http://localhost:3000', code: ['npm run dev'] },
+			{ label: 'Run tests and build', code: ['npm test', 'npm run build'] },
+		],
+		config: [
+			{ key: 'NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', desc: 'Accounts and sync. Optional.' },
+			{ key: 'HF_TOKEN, HF_MODEL', desc: 'Optional Hugging Face advice wording; fixed templates are used without them.' },
+		],
+		notes: ['Works with none of the variables set: data stays on the device and advice uses templates.'],
+	},
+
+	Netloop: {
+		overview: [
+			'Netloop is a mobile-first cybersecurity game. Packets stream toward your server; draw a loop around the malicious ones to drop them and let the legitimate ones through.',
+			'Five zones take you from a living-room router through coffee-shop Wi-Fi, a school lab and an office to a data center, with an endless Cloud mode after. Each zone introduces new threats, and each threat behaves like the real thing it is named after.',
+		],
+		stack: [
+			{ group: 'App', items: ['Next.js', 'React 19', 'TypeScript'] },
+			{ group: 'Game', items: ['Custom canvas engine and renderer', 'SVG sprites'] },
+			{ group: 'Platform', items: ['Installable web app (PWA)', 'Service worker'] },
+		],
+		features: [
+			'Draw-to-select gameplay: one closed loop catches every packet inside it.',
+			'Threats with their own rules: ping floods arrive in swarms, worms split in two, ransomware needs two loops, trojans open near the server, spoofers flicker red, a man in the middle hides beside a legit packet, and zero-days cut open lines.',
+			'Five hand-tuned zones with three waves each, plus an endless mode.',
+			'Power-ups, a shop, a Codex of every threat, and saved progress with stars and unlocks.',
+		],
+		run: [
+			{ label: 'Install and start', code: ['npm install', 'npm run dev'] },
+			{ label: 'Production build', code: ['npm run build'] },
+		],
+		config: [{ key: 'None', desc: 'No environment variables or accounts. Progress is saved in the browser on the device.' }],
+	},
+
 	'Network-Log-RAG-Chatbot': {
 		overview: [
 			'A command-line RAG pipeline that embeds raw network logs into a ChromaDB vector store so a local Ollama model can answer questions about them.',

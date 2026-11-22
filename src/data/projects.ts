@@ -154,6 +154,28 @@ export const projects: Project[] = [
 		featured: true,
 	},
 	{
+		slug: 'mantika-check',
+		title: 'Mantika Check — Frying-Oil Advisor',
+		blurb:
+			'PJDSC 2026 entry that tells street-food vendors when their frying oil is worn out. A neuro-symbolic engine estimates polar compounds from frying time and heat, applies hard safety rules and fuzzy logic, and answers keep, filter, top up or replace.',
+		categories: ['Machine Learning', 'Web'],
+		tags: ['Next.js', 'Fuzzy Logic', 'Kinetic Model', 'Supabase', 'Hugging Face'],
+		language: 'TypeScript',
+		year: 2026,
+		status: 'Hackathon',
+		demoUrl: 'https://mantika-check.vercel.app',
+	},
+	{
+		slug: 'Netloop',
+		title: 'Netloop — Draw a Loop, Drop the Bad Packets',
+		blurb:
+			'A mobile-first cybersecurity game: draw loops around malicious packets before they reach the server. Five network zones, from a home router to the cloud, each add threats with their own rule — worms split, ransomware needs two loops, spoofers pass as legit.',
+		categories: ['Cybersecurity', 'Web', 'Mobile'],
+		tags: ['Next.js', 'TypeScript', 'Canvas', 'Game', 'PWA'],
+		language: 'TypeScript',
+		year: 2026,
+	},
+	{
 		slug: 'Network-Log-RAG-Chatbot',
 		title: 'Network Log RAG Chatbot',
 		blurb:
